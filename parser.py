@@ -25,6 +25,13 @@ def args(content, arg, conf):
 
 def dispatch(data, irc, conf):
     """ Deals with messages, returns what to send if a module wants to send it. Modules can continue to send stuff themselves after the initial response, but that's their business """
+    if data == None:
+        # For some reason I have yet to work out, some rizon nodes
+        # will output data that gets interpreted as None shortly
+        # after connect. This bears more investigation, but in the
+        # meantime, we'll just ignore it and move on.
+        return(None)
+
     if data.find('PING') != -1:
         print 'PONG!'
         irc.pong(data)
