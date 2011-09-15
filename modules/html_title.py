@@ -17,7 +17,7 @@ class Opener(urllib.FancyURLopener, object):
 
 def act(message, irc, conf):
     for word in message.content.split():
-        if word.startswith('http://'):
+        if word.startswith('http://') or word.startswith('https://'):
             opener = Opener()
             pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
             title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
