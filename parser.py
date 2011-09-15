@@ -24,7 +24,7 @@ def args(content, arg, conf):
         return False
 
 def dispatch(data, irc, conf):
-    """ Deals with messages, returns what to send if a module wants to send it. Modules can continue to send stuff themselves after the initial response, but that's their business """
+    """ Deals with messages, sends modules the information they need. """
     if data == None:
         # For some reason I have yet to work out, some rizon nodes
         # will output data that gets interpreted as None shortly
