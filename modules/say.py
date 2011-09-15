@@ -1,7 +1,7 @@
 import parser
 
 def act(message, irc, conf):
-    """ Takes any say command and sends it anywhere. Utterly indescriminate. """
+    """ Takes any say command and sends it anywhere. Utterly indiscriminate. """
     post_arg = parser.args(message.content, 'say ', conf)
     if post_arg:
         if len(post_arg.split()) > 1:
