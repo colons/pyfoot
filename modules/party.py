@@ -6,6 +6,7 @@ from BeautifulSoup import BeautifulStoneSoup
 from os import path
 
 def translate(source, target, phrase, conf):
+    """ Translates phrase from source language to target language with Google's translation API """
     query = urllib.quote(phrase)
     page = urllib.urlopen('https://www.googleapis.com/language/translate/v2?key=%s&q=%s&source=%s&target=%s' % (conf.get('google_api_key'), query, source, target))
     result = page.read().split("\"translatedText\": \"")[1].split("\"\n")[0]
@@ -14,12 +15,14 @@ def translate(source, target, phrase, conf):
 
 
 def dupes(party):
+    """ Returns True if any phrase appears twice in our party """
     if ''.join(party[-1:]) in party[:-1]:
         return True
     else:
         return False
 
 def act(message, irc, conf):
+    """ A recreation of translationparty, only with better duplicate detection """
     initial_phrase = parser.args(message.content, 'party ', conf)
     if initial_phrase != False:
         party = [initial_phrase]
