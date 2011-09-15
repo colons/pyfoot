@@ -1,6 +1,11 @@
 import socket
 from django.utils.encoding import smart_str
 
+def split_len(seq, length):
+    """ http://code.activestate.com/recipes/496784-split-string-into-n-size-pieces/ """
+    return [seq[i:i+length] for i in range(0, len(seq), length)]
+
+
 class IRC(object):
     """ Our IRC abstraction layer - this object represents the actual connection """
     def __init__(self, address, port, nick, username, hostname, servername, realname):
@@ -20,8 +25,10 @@ class IRC(object):
         self.irc.send('JOIN %s\r\n' % channel)
 
     def send(self, channel, message):
-        """ Sends a channel (or user) a message """
-        self.irc.send('PRIVMSG %s :%s\r\n' % (channel, smart_str(message)))
+        """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
+        message_list = split_len(message, 420)
+        for part in message_list:
+            self.irc.send('PRIVMSG %s :%s\r\n' % (channel, smart_str(part)))
         
     def listen(self):
         """ Listens for incoming stuffs and returns them """
