@@ -32,7 +32,7 @@ def dispatch(data, irc, conf):
         # meantime, we'll just ignore it and move on.
         return(None)
 
-    if data.find('PING') != -1:
+    if data.startswith('PING :'):
         print 'PONG!'
         irc.pong(data)
     
