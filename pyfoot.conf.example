@@ -1,0 +1,44 @@
+# pyfoot configuration
+# parsed by python 2.7's ConfigParser module
+# http://docs.python.org/library/configparser.html
+
+# in order for !party to work, you must get an api key from google and set it as google_api_key
+
+[DEFAULT]
+port = 6667
+nick = pyfoot
+greet = woof
+username = pyfoot
+hostname = pyfoot
+servername = pyfoot
+realname = pyfoot
+ctcp_version = pyfoot-hg
+
+# comchar specifies the character used to designate commands
+comchar = !
+
+# which modules (from ./modules/) to load
+modules = woof,party,html_title,konata,ctcp_version,say
+
+# a regular expression that triggers a message
+woof_trigger = woo+f|good dog|bad dog|good boy|treat|\btrench|\bmeow\b|\bbark\b|\barf\b|\bfetch\b|\bmoo+\b|\bqua+ck\b|\bcluck\b|\bwalk\b|\bwalkie\b|\bwalkies\b|\bho+nk\b|\bwo+nk\b|\bsqua+wk\b|\bca+w\b|\boink\b|\bnya|\bwan\b|\bnyro|\bgeso|\bneigh\b|\bcollar\b
+
+# the message triggered
+woof = woof
+
+# !party
+transvia = ja
+google_api_key = get_one_from_google
+
+# web outputs (currently only used by !party, but open to extention)
+web_directory = /home/nivi/www/ypu/
+web_url = http://you.possessed.us/
+
+# you specify the network at runtime
+# per-network settings reside below
+
+[network]
+address = irc.network.org
+channels = #examplechannel,#hats
+nickserv_pass = thisisanickservpass
+

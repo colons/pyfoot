@@ -1,0 +1,9 @@
+# Use glob syntax.
+syntax: glob
+
+# Ignore Python compiled files.
+*.pyc
+# Ignore Vim's edited file backups.
+*~
+# Ignore Vim's swap files
+.*.swp
