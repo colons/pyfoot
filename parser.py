@@ -31,8 +31,13 @@ def dispatch(data, irc, conf):
         # after connect. This bears more investigation, but in the
         # meantime, we'll just ignore it and move on.
         return(None)
-
-    if data.startswith('PING :'):
+    # unreal ircd has a habit of appending ping requests to other
+    # messages with an \n between them. Maybe it's just that the
+    # data listener can't deal with messages too close temporally,
+    # but i have been unable to reproduce that behaviour by simply
+    # spamming, so i assume it's ping-specific. The below 'or'
+    # seems to fix the issue.
+    if data.startswith('PING :') or data.find('\nPING :') != -1:
         print 'PONG!'
         irc.pong(data)
     
