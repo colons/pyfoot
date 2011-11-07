@@ -31,31 +31,27 @@ def dispatch(data, irc, conf):
         # after connect. This bears more investigation, but in the
         # meantime, we'll just ignore it and move on.
         return(None)
-    # unreal ircd has a habit of appending ping requests to other
-    # messages with an \n between them. Maybe it's just that the
-    # data listener can't deal with messages too close temporally,
-    # but i have been unable to reproduce that behaviour by simply
-    # spamming, so i assume it's ping-specific. The below 'or'
-    # seems to fix the issue.
-    if data.startswith('PING :') or data.find('\nPING :') != -1:
-        print 'PONG!'
-        irc.pong(data)
-    
-    try:
-        type = ''.join(data.split(':')[:2]).split(' ')[1]
-    except(IndexError):
-        type = None
-        print 'Unable to determine message type, abandoning parse.'
 
-    # loads the modules from our configfile
-    modules = __import__('modules', globals(), locals(), conf.get('modules').split(','))
-    
-    if type == 'INVITE':
-        channel = content(data)
-        irc.join(channel)
+    for line in data:
+        if line.startswith('PING :'):
+            print 'PONG!'
+            irc.pong(line)
+        
+        try:
+            type = ''.join(line.split(':')[:2]).split(' ')[1]
+        except(IndexError):
+            type = None
+            print 'Unable to determine message type, abandoning parse.'
 
-    if type == 'PRIVMSG':
-        the_message = message.Message(data)
+        # loads the modules from our configfile
+        modules = __import__('modules', globals(), locals(), conf.get('modules').split(','))
+        
+        if type == 'INVITE':
+            channel = content(line)
+            irc.join(channel)
 
-        for module in conf.get('modules').split(','):
-            thread.start_new_thread(getattr(modules, module).act, (the_message, irc, conf))
+        if type == 'PRIVMSG':
+            the_message = message.Message(line)
+
+            for module in conf.get('modules').split(','):
+                thread.start_new_thread(getattr(modules, module).act, (the_message, irc, conf))
