@@ -41,7 +41,6 @@ def dispatch(data, irc, conf):
             type = ''.join(line.split(':')[:2]).split(' ')[1]
         except(IndexError):
             type = None
-            print ' :: IGNORED ::', line
 
         # loads the modules from our configfile
         modules = __import__('modules', globals(), locals(), conf.get('modules').split(','))
