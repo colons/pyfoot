@@ -32,7 +32,7 @@ def dispatch(data, irc, conf):
         # meantime, we'll just ignore it and move on.
         return(None)
 
-    for line in data:
+    for line in data.split('\n'):
         if line.startswith('PING :'):
             print 'PONG!'
             irc.pong(line)
@@ -41,7 +41,7 @@ def dispatch(data, irc, conf):
             type = ''.join(line.split(':')[:2]).split(' ')[1]
         except(IndexError):
             type = None
-            print 'Unable to determine message type, abandoning parse.'
+            print ' :: IGNORED ::', line
 
         # loads the modules from our configfile
         modules = __import__('modules', globals(), locals(), conf.get('modules').split(','))
