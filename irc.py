@@ -2,7 +2,8 @@ import socket
 from django.utils.encoding import smart_str
 
 def split_len(seq, length):
-    """ http://code.activestate.com/recipes/496784-split-string-into-n-size-pieces/ """
+    """ Splits messages into manageable chunks """
+    """ Thanks to http://code.activestate.com/recipes/496784-split-string-into-n-size-pieces/ """
     return [seq[i:i+length] for i in range(0, len(seq), length)]
 
 

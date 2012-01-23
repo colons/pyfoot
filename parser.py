@@ -2,9 +2,11 @@ import message
 import thread
 
 def content(data):
+    """ Return message content """
     return(':'.join(data.split(':')[2:]))
 
 def nick(data):
+    """ Return message nick """
     return(''.join(data.split(':')[1]).split('!')[0])
 
 def destination(data):
@@ -17,6 +19,7 @@ def destination(data):
 
 
 def args(content, arg, conf):
+    """ Determines what arguments a message contains """
     prefix = '%s%s' % (conf.get('comchar'), arg)
     if content.startswith(prefix):
         return content[len(prefix):].rstrip("\r\n").strip()
@@ -26,11 +29,7 @@ def args(content, arg, conf):
 def dispatch(data, irc, conf):
     """ Deals with messages, sends modules the information they need. """
     if data == None:
-        # For some reason I have yet to work out, some rizon nodes
-        # will output data that gets interpreted as None shortly
-        # after connect. This bears more investigation, but in the
-        # meantime, we'll just ignore it and move on.
-        return(None)
+        return None
 
     for line in data.split('\n'):
         if line.startswith('PING :'):
