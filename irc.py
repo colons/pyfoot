@@ -20,7 +20,6 @@ class IRC(object):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
         self.irc.send('PONG %s\r\n' % data.split()[1])
 
-
     def join(self, channel):
         """ Joins a channel """
         self.irc.send('JOIN %s\r\n' % channel)
@@ -29,7 +28,9 @@ class IRC(object):
         """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
         message_list = split_len(message, 420)
         for part in message_list:
-            self.irc.send('PRIVMSG %s :%s\r\n' % (channel, smart_str(part)))
+            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
+            print ' ::', out,
+            self.irc.send(out)
         
     def listen(self):
         """ Listens for incoming stuffs and returns them """

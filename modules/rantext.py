@@ -11,12 +11,12 @@ def extract(source, conf):
         line_list.append(line)
     return choice(line_list)
 
-
-def act(message, irc, conf):
-    """ Sends random lines from arbitrary text files, as specified in the config file. """
-    sources = conf.get('rantext_sources').split(',')
-    for source in sources:
-        if parser.args(message.content, source, conf) != False:
-            line = extract(source, conf)
-            irc.send(message.source, line)
+class Module:
+    def act(self, message, irc, conf):
+        """ Sends random lines from arbitrary text files, as specified in the config file. """
+        sources = conf.get('rantext_sources').split(',')
+        for source in sources:
+            if parser.args(message.content, source, conf) != False:
+                line = extract(source, conf)
+                irc.send(message.source, line)
 

@@ -26,7 +26,7 @@ def args(content, arg, conf):
     else:
         return False
 
-def dispatch(data, irc, conf):
+def dispatch(data, irc, modules, conf):
     """ Deals with messages, sends modules the information they need. """
     if data == None:
         return None
@@ -42,7 +42,6 @@ def dispatch(data, irc, conf):
             type = None
 
         # loads the modules from our configfile
-        modules = __import__('modules', globals(), locals(), conf.get('modules').split(','))
         
         if type == 'INVITE':
             channel = content(line)
@@ -51,5 +50,5 @@ def dispatch(data, irc, conf):
         if type == 'PRIVMSG':
             the_message = message.Message(line)
 
-            for module in conf.get('modules').split(','):
-                thread.start_new_thread(getattr(modules, module).act, (the_message, irc, conf))
+            for module in modules:
+                thread.start_new_thread(module.act, (the_message, irc, conf))

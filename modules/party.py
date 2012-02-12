@@ -21,28 +21,29 @@ def dupes(party):
     else:
         return False
 
-def act(message, irc, conf):
-    """ A recreation of translationparty, only with better duplicate detection """
-    initial_phrase = parser.args(message.content, 'party ', conf)
-    if initial_phrase != False:
-        party = [initial_phrase]
-        while dupes (party) == False:
-            party.append(translate('en', conf.get('transvia'), party[-1], conf))
-            party.append(translate(conf.get('transvia'), 'en', party[-1], conf))
-        
-        cleanparty = []
-        for item in party:
-            cleanitem = unicode(BeautifulStoneSoup(item, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0])
-            cleanparty.append(cleanitem)
+class Module:
+    def act(self, message, irc, conf):
+        """ A recreation of translationparty, only with better duplicate detection """
+        initial_phrase = parser.args(message.content, 'party ', conf)
+        if initial_phrase != False:
+            party = [initial_phrase]
+            while dupes (party) == False:
+                party.append(translate('en', conf.get('transvia'), party[-1], conf))
+                party.append(translate(conf.get('transvia'), 'en', party[-1], conf))
+            
+            cleanparty = []
+            for item in party:
+                cleanitem = unicode(BeautifulStoneSoup(item, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0])
+                cleanparty.append(cleanitem)
 
-        filename = '%s-%s.txt' % (message.nick, time.ctime().replace(' ', '-'))
-        filepath = path.expanduser(conf.get('web_directory')+'party/'+filename)
+            filename = '%s-%s.txt' % (message.nick, time.ctime().replace(' ', '-'))
+            filepath = path.expanduser(conf.get('web_directory')+'party/'+filename)
 
-        print 'Writing to %s...' % filepath
-        file = codecs.open(filepath, encoding='utf-8', mode='w')
-        file.write('\n'.join(cleanparty))
-        file.close()
-        
-        attempts = len(party)/2
-        irc.send(message.source, 'succeeded after %i attempts, see %sparty/%s' % (attempts, conf.get('web_url'), filename))
-        irc.send(message.source, ''.join(party[-1]))
+            print 'Writing to %s...' % filepath
+            file = codecs.open(filepath, encoding='utf-8', mode='w')
+            file.write('\n'.join(cleanparty))
+            file.close()
+            
+            attempts = len(party)/2
+            irc.send(message.source, 'succeeded after %i attempts, see %sparty/%s' % (attempts, conf.get('web_url'), filename))
+            irc.send(message.source, ''.join(party[-1]))
