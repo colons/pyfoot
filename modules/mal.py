@@ -25,7 +25,7 @@ class Module:
             irc.send(message.source, self.summarise_user(user))
 
 
-    def select(self, things, limit=10):
+    def select(self, things, limit=5):
         # selection = sorted(animelist, key=lambda anime: anime['score'], reverse=True)[:limit]
         if len(things) <= limit:
             selection = things
@@ -38,6 +38,13 @@ class Module:
                     selection.append(thing)
         
         return selection
+    
+    
+    def oiz(self, thing):
+        if thing == 0:
+            return '-'
+        else:
+            return thing
 
 
     def summarise_user(self, user):
@@ -57,7 +64,8 @@ class Module:
         selection = self.select(consumed)
 
         summary = '\x02%s\x02 | \x02%s\x02 days across \x02%d\x02 shows | %s' % (user, days, len(consumed),
-                ' | '.join([a['title'] for a in selection]))
+                ' | '.join(['%s : \x02%s\x02/\x02%s\x02 : \x02%s\x02' % (a['title'], self.oiz(a['watched_episodes']),
+                    self.oiz(a['episodes']), self.oiz(a['score'])) for a in selection]))
         return summary
     
     def common_shows(self, users):
@@ -96,7 +104,7 @@ class Module:
 
         
         if len(consensus) > 0:
-            selection = self.select(consensus, limit=7)
+            selection = self.select(consensus)
             return '\x02%s\x02 and \x02%s\x02 | \x02%d\x02 common shows | agreement on \x02%d\x02/\x02%d\x02 mutually scored shows | %s' % (
                     users[0], users[1], len(common), len(consensus), both_scored,
                     ' | '.join(['%s : \x02%d\x02' % (a['title'], a['score']) for a in selection]))
@@ -115,7 +123,7 @@ class Module:
                         closest.append((a1, a2))
                 
             if len(closest) > 0:
-                selection = self.select(closest, limit=5)
+                selection = self.select(closest)
                 return "\x02%s\x02 and \x02%s\x02 | \x02%d\x02 common shows | %s" % (
                         users[0], users[1], len(common),
                         ' | '.join(['%s : \x02%d\x02, \x02%d\x02' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
@@ -149,7 +157,7 @@ class Module:
             average_gap = total_gap/float(considered)
 
         if len(contention) > 0:
-            selection = self.select(contention, limit=6)
+            selection = self.select(contention)
             return "\x02%s\x02 vs. \x02%s\x02 | average contention : \x02%.2f\x02 | %s" % (
                     users[0], users[1], average_gap,
                     ' | '. join(['%s : \x02%d\x02 vs. \x02%d\x02' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))

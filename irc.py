@@ -34,9 +34,10 @@ class IRC(object):
             self.irc.send(out)
 
     def beautify(self, message):
-        message = message.replace(' :: ', '\x034 :: \x03')
-        message = message.replace(' : ', '\x034 : \x03')
-        message = message.replace(' | ', '\x034 | \x03')
+        message = message.replace(' :: ', '\x034 ::\x03 ')
+        message = message.replace(' : ', '\x034 :\x03 ')
+        message = message.replace(' | ', '\x034 |\x03 ')
+        message = message.replace(' @ ', '\x034 @\x03 ')
         return message
         
     def listen(self):
