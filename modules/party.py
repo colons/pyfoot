@@ -32,18 +32,13 @@ class Module:
                 party.append(translate('en', conf.get('transvia'), party[-1], conf))
                 party.append(translate(conf.get('transvia'), 'en', party[-1], conf))
             
-            cleanparty = []
-            for item in party:
-                cleanitem = unicode(BeautifulStoneSoup(item, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0]).strip('"')
-                cleanparty.append(cleanitem)
-
             filename = '%s-%s.txt' % (message.nick, time.strftime('%y%m%d-%H%M%S'))
             filepath = path.expanduser(conf.get('web_directory')+'party/'+filename)
 
             print 'Writing to %s...' % filepath
-            file = codecs.open(filepath, encoding='utf-8', mode='w')
-            file.write('\n'.join(cleanparty))
+            file = codecs.open(filepath, mode='w')
+            file.write('\n'.join(party))
             file.close()
             
             attempts = len(party)/2
-            irc.send(message.source, '%s | \x02%i\x02 attempts | %sparty/%s' % (cleanparty[-1], attempts, conf.get('web_url'), filename))
+            irc.send(message.source, '%s | \x02%i\x02 attempts | %sparty/%s' % (party[-1], attempts, conf.get('web_url'), filename))

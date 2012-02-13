@@ -51,4 +51,4 @@ mal_userfile = ~/.pyfoot/mal
 address = irc.network.org
 channels = #examplechannel,#hats
 nickserv_pass = thisisanickservpass
-
+exclude = #channel module,#anotherchannel anothermodule

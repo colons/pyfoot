@@ -11,6 +11,7 @@ class Network(object):
         for modulename in conf.get('modules').split(','):
             __import__('modules.'+modulename)
             module = sys.modules['modules.'+modulename]
+            setattr(module.Module, 'name', modulename)
             self.modules.append(module.Module())
 
         self.irc = IRC(conf.get('address'), conf.get('port'), conf.get('nick'), conf.get('username'), conf.get('hostname'), conf.get('servername'), conf.get('realname'))
