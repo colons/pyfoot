@@ -17,6 +17,9 @@ class Module:
         if post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 3:
             users = post_arg.split()[1:]
             irc.send(message.source, self.compare_users(users))
+        elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 3:
+            users = post_arg.split()[1:]
+            irc.send(message.source, self.fight(users))
         elif post_arg and len(post_arg.split()) > 0:
             user = post_arg.split()[0]
             irc.send(message.source, self.summarise_user(user))
@@ -55,10 +58,9 @@ class Module:
 
         summary = '%s :: %s days across %d shows :: %s' % (user, days, len(consumed), ', '.join([a['title'] for a in selection]))
         return summary
-
-            
-    def compare_users(self, users):
-        # user data list
+    
+    def common_shows(self, users):
+        """ Get a list of tuples of shows that any two users have in common """
         ud_list = []
         for user in users:
             data = self.query('animelist/%s' % user)
@@ -74,6 +76,12 @@ class Module:
             for a2 in ud_list[1]['anime']:
                 if a1['id'] == a2['id'] and a1['watched_status'] != 'plan to watch' and a2['watched_status'] != 'plan to watch':
                     common.append((a1, a2))
+
+        return common
+
+
+    def compare_users(self, users):
+        common = self.common_shows(users)
 
         total_score_diff = 0
         consensus = [] # animes scored the same
@@ -101,15 +109,46 @@ class Module:
                     elif gap == smallest_gap:
                         closest.append((a1, a2))
                 
-            print closest
-            print smallest_gap
-            
             if len(closest) > 0:
                 selection = self.select(closest, limit=5)
                 return "%s and %s, with %d common shows, nearly agree about %s" % (users[0], users[1], len(common), ', '.join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
             else:
+                # we have no common ground :<
                 selection = self.select(common)
                 return "%s and %s have %d shows in common :: %s" % (users[0], users[1], len(common), ', '.join([a[0]['title'] for a in selection]))
+
+
+    def fight(self, users):
+        common = self.common_shows(users)
+        
+        largest_gap = 0
+        contention = []
+        total_gap = 0
+        considered = 0
+
+        for a1, a2 in common:
+            if a1['score'] != 0 and a2['score'] != 0:
+                gap = fabs(a1['score'] - a2['score']) 
+                total_gap += gap
+                considered += 1
+                if gap > largest_gap:
+                    largest_gap = gap
+                    contention = [(a1, a2)]
+                    print contention
+                elif gap == largest_gap:
+                    contention.append((a1, a2))
+                    print contention
+        
+        if considered > 0:
+            average_gap = total_gap/float(considered)
+
+        print contention
+        
+        if len(contention) > 0:
+            selection = [choice(contention)]
+            return "%s vs. %s :: average contention: %.2f :: largest contention: %s" % (users[0], users[1], average_gap, ', '. join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
+        else:
+            return "%s and %s need to watch and score more stuff" % (users[0], users[1])
 
 
     def testauth(self):
