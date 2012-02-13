@@ -4,12 +4,13 @@ import time
 import codecs
 from BeautifulSoup import BeautifulStoneSoup
 from os import path
+import re
 
 def translate(source, target, phrase, conf):
     """ Translates phrase from source language to target language with Google's translation API """
     query = urllib.quote(phrase)
-    page = urllib.urlopen('https://www.googleapis.com/language/translate/v2?key=%s&q=%s&source=%s&target=%s' % (conf.get('google_api_key'), query, source, target))
-    result = page.read().split("\"translatedText\": \"")[1].split("\"\n")[0]
+    page = urllib.urlopen('http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=%s&from=%s&to=%s&text=%s' % (conf.get('bing_app_id'), source, target, query))
+    result = page.read()
     print result
     return result
 
@@ -33,10 +34,10 @@ class Module:
             
             cleanparty = []
             for item in party:
-                cleanitem = unicode(BeautifulStoneSoup(item, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0])
+                cleanitem = unicode(BeautifulStoneSoup(item, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0]).strip('"')
                 cleanparty.append(cleanitem)
 
-            filename = '%s-%s.txt' % (message.nick, time.ctime().replace(' ', '-'))
+            filename = '%s-%s.txt' % (message.nick, time.strftime('%y%m%d-%H%M%S'))
             filepath = path.expanduser(conf.get('web_directory')+'party/'+filename)
 
             print 'Writing to %s...' % filepath
@@ -45,5 +46,4 @@ class Module:
             file.close()
             
             attempts = len(party)/2
-            irc.send(message.source, 'succeeded after %i attempts, see %sparty/%s' % (attempts, conf.get('web_url'), filename))
-            irc.send(message.source, ''.join(party[-1]))
+            irc.send(message.source, '%s | \x02%i\x02 attempts | %sparty/%s' % (cleanparty[-1], attempts, conf.get('web_url'), filename))

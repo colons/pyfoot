@@ -35,7 +35,7 @@ woof = woof
 
 # !party
 transvia = ja
-google_api_key = get_one_from_google
+bing_app_id = get_one_from_msn
 
 # web outputs (currently only used by !party, but open to extention)
 web_directory = /home/nivi/www/ypu/
