@@ -89,7 +89,7 @@ class Module:
 
         selection = self.select(consensus)
         
-        return '%s and %s agree about %d/%d common shows :: %s' % (users[0], users[1], len(consensus), len(common), ', '.join([a['title'] for a in selection]))
+        return '%s and %s agree about %d/%d common shows :: %s' % (users[0], users[1], len(consensus), len(common), ', '.join(['%s (%d)' % (a['title'], a['score']) for a in selection]))
 
 
     def testauth(self):
