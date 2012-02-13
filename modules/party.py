@@ -9,10 +9,10 @@ import re
 def translate(source, target, phrase, conf):
     """ Translates phrase from source language to target language with Google's translation API """
     query = urllib.quote(phrase)
-    page = urllib.urlopen('http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=%s&from=%s&to=%s&text=%s' % (conf.get('bing_app_id'), source, target, query))
+    page = urllib.urlopen('http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=%s&from=%s&to=%s&text="%s"' % (conf.get('bing_app_id'), source, target, query))
     result = page.read()
-    print result
-    return result
+    print result[4:-1]
+    return result[4:-1]
 
 
 def dupes(party):
