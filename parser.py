@@ -51,5 +51,5 @@ def dispatch(data, irc, modules, conf):
             the_message = message.Message(line)
 
             for module in modules:
-                module.act(the_message, irc, conf)
-                # thread.start_new_thread(module.act, (the_message, irc, conf))
+                # module.act(the_message, irc, conf)
+                thread.start_new_thread(module.act, (the_message, irc, conf))
