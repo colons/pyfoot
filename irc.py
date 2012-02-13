@@ -28,9 +28,16 @@ class IRC(object):
         """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
         message_list = split_len(message, 420)
         for part in message_list:
-            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
+            pretty = self.beautify(part)
+            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(pretty))
             print ' >>', out,
             self.irc.send(out)
+
+    def beautify(self, message):
+        message = message.replace(' :: ', '\x034 :: \x03')
+        message = message.replace(' : ', '\x034 : \x03')
+        message = message.replace(' | ', '\x034 | \x03')
+        return message
         
     def listen(self):
         """ Listens for incoming stuffs and returns them """
