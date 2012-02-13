@@ -1,6 +1,7 @@
 import urllib2
 import json
 from random import choice
+from math import fabs
 
 import parser
 
@@ -10,8 +11,6 @@ class Module:
     def __init__(self):
         self.url = 'http://mal-api.com/%s?format=json'
 
-        # the number of items to cap printed lists at
-        self.limit = 10
 
     def act(self, message, irc, conf):
         post_arg = parser.args(message.content, 'mal ', conf)
@@ -19,19 +18,18 @@ class Module:
             users = post_arg.split()[1:]
             irc.send(message.source, self.compare_users(users))
         elif post_arg and len(post_arg.split()) > 0:
-            print post_arg
             user = post_arg.split()[0]
             irc.send(message.source, self.summarise_user(user))
 
 
-    def select(self, things):
-        # selection = sorted(animelist, key=lambda anime: anime['score'], reverse=True)[:self.limit]
-        if len(things) <= self.limit:
+    def select(self, things, limit=10):
+        # selection = sorted(animelist, key=lambda anime: anime['score'], reverse=True)[:limit]
+        if len(things) <= limit:
             selection = things
         else:
             selection = []
             
-            while len(selection) < self.limit:
+            while len(selection) < limit:
                 thing = choice(things)
                 if thing not in selection:
                     selection.append(thing)
@@ -77,8 +75,6 @@ class Module:
                 if a1['id'] == a2['id'] and a1['watched_status'] != 'plan to watch' and a2['watched_status'] != 'plan to watch':
                     common.append((a1, a2))
 
-        print [a[0]['title'] for a in common]
-
         total_score_diff = 0
         consensus = [] # animes scored the same
         
@@ -87,9 +83,33 @@ class Module:
                 print a1['title']
                 consensus.append(a1)
 
-        selection = self.select(consensus)
         
-        return '%s and %s agree about %d/%d common shows :: %s' % (users[0], users[1], len(consensus), len(common), ', '.join(['%s (%d)' % (a['title'], a['score']) for a in selection]))
+        if len(consensus) > 0:
+            selection = self.select(consensus)
+            return '%s and %s agree about %d/%d common shows :: %s' % (users[0], users[1], len(consensus), len(common), ', '.join(['%s (%d)' % (a['title'], a['score']) for a in selection]))
+        else:
+            # find the closest thing to common ground we have
+            smallest_gap = 10
+            closest = []
+
+            for a1, a2 in common:
+                if a1['score'] != 0 and a2['score'] != 0:
+                    gap = fabs(a1['score'] - a2['score']) 
+                    if gap < smallest_gap:
+                        smallest_gap = gap
+                        closest = [(a1, a2)]
+                    elif gap == smallest_gap:
+                        closest.append((a1, a2))
+                
+            print closest
+            print smallest_gap
+            
+            if len(closest) > 0:
+                selection = self.select(closest, limit=5)
+                return "%s and %s, with %d common shows, nearly agree about %s" % (users[0], users[1], len(common), ', '.join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
+            else:
+                selection = self.select(common)
+                return "%s and %s have %d shows in common :: %s" % (users[0], users[1], len(common), ', '.join([a[0]['title'] for a in selection]))
 
 
     def testauth(self):
