@@ -116,7 +116,7 @@ class Module:
                 
             if len(closest) > 0:
                 selection = self.select(closest, limit=5)
-                return "\x02%s\x02 and \x02%s\x02, with \x02%d common shows, nearly agree about %s" % (
+                return "\x02%s\x02 and \x02%s\x02 | \x02%d\x02 common shows | %s" % (
                         users[0], users[1], len(common),
                         ' | '.join(['%s : \x02%d\x02 vs. \x02%d\x02' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
             else:
