@@ -142,10 +142,8 @@ class Module:
         if considered > 0:
             average_gap = total_gap/float(considered)
 
-        print contention
-        
         if len(contention) > 0:
-            selection = [choice(contention)]
+            selection = self.select(contention)
             return "%s vs. %s :: average contention: %.2f :: largest contention: %s" % (users[0], users[1], average_gap, ', '. join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
         else:
             return "%s and %s need to watch and score more stuff" % (users[0], users[1])
