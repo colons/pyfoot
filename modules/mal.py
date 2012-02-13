@@ -56,7 +56,8 @@ class Module:
         
         selection = self.select(consumed)
 
-        summary = '%s :: %s days across %d shows :: %s' % (user, days, len(consumed), ', '.join([a['title'] for a in selection]))
+        summary = '%s :: %s days across %d shows :: %s' % (user, days, len(consumed),
+                ', '.join([a['title'] for a in selection]))
         return summary
     
     def common_shows(self, users):
@@ -96,7 +97,9 @@ class Module:
         
         if len(consensus) > 0:
             selection = self.select(consensus, limit=7)
-            return '%s and %s, with %d in common, agree about %d/%d mutually scored shows :: %s' % (users[0], users[1], len(common), len(consensus), both_scored, ', '.join(['%s (%d)' % (a['title'], a['score']) for a in selection]))
+            return '%s and %s, with %d in common, agree about %d/%d mutually scored shows :: %s' % (
+                    users[0], users[1], len(common), len(consensus), both_scored,
+                    ', '.join(['%s (%d)' % (a['title'], a['score']) for a in selection]))
         else:
             # find the closest thing to common ground we have
             smallest_gap = 10
@@ -113,11 +116,14 @@ class Module:
                 
             if len(closest) > 0:
                 selection = self.select(closest, limit=5)
-                return "%s and %s, with %d common shows, nearly agree about %s" % (users[0], users[1], len(common), ', '.join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
+                return "%s and %s, with %d common shows, nearly agree about %s" % (
+                        users[0], users[1], len(common),
+                        ', '.join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
             else:
                 # we have no common ground :<
                 selection = self.select(common)
-                return "%s and %s have %d shows in common :: %s" % (users[0], users[1], len(common), ', '.join([a[0]['title'] for a in selection]))
+                return "%s and %s have %d shows in common :: %s" % (users[0], users[1],
+                        len(common), ', '.join([a[0]['title'] for a in selection]))
 
 
     def fight(self, users):
@@ -144,7 +150,9 @@ class Module:
 
         if len(contention) > 0:
             selection = self.select(contention, limit=6)
-            return "%s vs. %s :: average contention: %.2f :: largest contention: %s" % (users[0], users[1], average_gap, ', '. join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
+            return "%s vs. %s :: average contention: %.2f :: largest contention: %s" % (
+                    users[0], users[1], average_gap,
+                    ', '. join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
         else:
             return "%s and %s need to watch and score more stuff" % (users[0], users[1])
 
