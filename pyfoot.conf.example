@@ -41,6 +41,9 @@ google_api_key = get_one_from_google
 web_directory = /home/nivi/www/ypu/
 web_url = http://you.possessed.us/
 
+# mal userdata
+mal_userfile = ~/.pyfoot/mal
+
 # you specify the network at runtime
 # per-network settings reside below
 

@@ -89,7 +89,6 @@ class Module:
         
         for a1, a2 in common:
             if (a1['score'] == a2['score']) and a1['score'] != 0:
-                print a1['title']
                 consensus.append(a1)
             if a1['score'] != 0 and a2['score'] != 0:
                 both_scored += 1
@@ -137,10 +136,8 @@ class Module:
                 if gap > largest_gap:
                     largest_gap = gap
                     contention = [(a1, a2)]
-                    print contention
                 elif gap == largest_gap:
                     contention.append((a1, a2))
-                    print contention
         
         if considered > 0:
             average_gap = total_gap/float(considered)
