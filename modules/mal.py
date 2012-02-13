@@ -85,16 +85,19 @@ class Module:
 
         total_score_diff = 0
         consensus = [] # animes scored the same
+        both_scored = 0
         
         for a1, a2 in common:
             if (a1['score'] == a2['score']) and a1['score'] != 0:
                 print a1['title']
                 consensus.append(a1)
+            if a1['score'] != 0 and a2['score'] != 0:
+                both_scored += 1
 
         
         if len(consensus) > 0:
-            selection = self.select(consensus)
-            return '%s and %s agree about %d/%d common shows :: %s' % (users[0], users[1], len(consensus), len(common), ', '.join(['%s (%d)' % (a['title'], a['score']) for a in selection]))
+            selection = self.select(consensus, limit=7)
+            return '%s and %s, with %d in common, agree about %d/%d mutually scored shows :: %s' % (users[0], users[1], len(common), len(consensus), both_scored, ', '.join(['%s (%d)' % (a['title'], a['score']) for a in selection]))
         else:
             # find the closest thing to common ground we have
             smallest_gap = 10
@@ -143,7 +146,7 @@ class Module:
             average_gap = total_gap/float(considered)
 
         if len(contention) > 0:
-            selection = self.select(contention)
+            selection = self.select(contention, limit=6)
             return "%s vs. %s :: average contention: %.2f :: largest contention: %s" % (users[0], users[1], average_gap, ', '. join(['%s (%d vs. %d)' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection]))
         else:
             return "%s and %s need to watch and score more stuff" % (users[0], users[1])
