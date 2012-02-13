@@ -29,7 +29,7 @@ class IRC(object):
         message_list = split_len(message, 420)
         for part in message_list:
             out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
-            print ' ::', out,
+            print ' >>', out,
             self.irc.send(out)
         
     def listen(self):
