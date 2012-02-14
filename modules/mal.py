@@ -20,35 +20,69 @@ class Module(metamodule.MetaModule):
             self.malusers = pickle.load(userfile)
             userfile.close()
         except:
-            print ' :: error reading user pickle'
+            print ' :: error reading MAL user pickle, will create one when necessary'
 
     def act(self, message, irc, conf):
         post_arg = parser.args(message.content, 'mal ', conf)
         if post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 3:
+            # what are these two people like?
             users = post_arg.split()[1:]
             irc.send(message.source, self.compare_users(users))
 
+        elif post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 2:
+            # what are we like?
+            try:
+                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
+            except KeyError:
+                irc.send(message.source, "link a MyAnimeList account to your IRC nick with '!mal set <account name>'")
+            else:
+                users = [message.nick, post_arg.split()[1]]
+                irc.send(message.source, self.compare_users(users))
+
         elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 3:
-            # time for a fight!
+            # a fight with both parties specified
             users = post_arg.split()[1:]
             irc.send(message.source, self.fight(users))
 
+        elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 2:
+            # a fight with one party issuing the challenge
+            try:
+                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
+            except KeyError:
+                irc.send(message.source, "link a MyAnimeList account to your IRC nick with '!mal set <account name>'")
+            else:
+                users = [message.nick, post_arg.split()[1]]
+                irc.send(message.source, self.fight(users))
+
         elif post_arg and post_arg.split()[0] in ['set', 'iam', "i'm"] and len(post_arg.split()) == 2:
             # a user is telling us who they are
-            self.malusers[conf.get('address')+' '+message.nick] = post_arg.split()[1]
-            print self.malusers
-            userfile = open(self.user_file_path, 'w')
-            pickle.dump(self.malusers, userfile)
-            userfile.close()
-            irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]))
+            try:
+                data = self.query('animelist/%s' % post_arg.split()[1])
+            except urllib2.HTTPError:
+                irc.send(message.source, 'no such MAL user \x02%s\x02' % post_arg.split()[1])
+            else:
+                self.malusers[conf.get('address')+' '+message.nick] = post_arg.split()[1]
+                userfile = open(self.user_file_path, 'w')
+                pickle.dump(self.malusers, userfile)
+                userfile.close()
+                irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]))
 
-        elif post_arg and len(post_arg.split()) > 0:
+        elif post_arg and len(post_arg.split()) == 1:
             user = post_arg.split()[0]
             irc.send(message.source, self.summarise_user(user))
+
+        elif parser.args(message.content, 'mal', conf) != False:
+            try:
+                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
+            except KeyError:
+                irc.send(message.source, "link a MyAnimeList account to your IRC nick with '!mal set <account name>'")
+            else:
+                irc.send(message.source, self.summarise_user(message.nick))
+
     
     
     def maluser(self, user):
-        """ Takes a list of users and determines the appropriate MAL username """
+        """ Takes a user - irc or mal - and determines the appropriate MAL username """
         try:
             maluser = self.malusers[self.conf.get('address')+' '+user]
         except KeyError:
@@ -81,7 +115,10 @@ class Module(metamodule.MetaModule):
 
     def summarise_user(self, user):
         user = self.maluser(user)
-        data = self.query('animelist/%s' % user)
+        try:
+            data = self.query('animelist/%s' % user)
+        except urllib2.HTTPError:
+            return 'no such MAL user \x02%s\x02' % user
         days = data['statistics']['days']
         animelist = data['anime']
         
@@ -105,7 +142,10 @@ class Module(metamodule.MetaModule):
         """ Get a list of tuples of shows that any two users have in common """
         ud_list = []
         for user in users:
-            data = self.query('animelist/%s' % user)
+            try:
+                data = self.query('animelist/%s' % user)
+            except urllib2.HTTPError:
+                return 'no such MAL user \x02%s\x02' % user
             ud_list.append(data)
         
         # let's always use the shortest list for our comparisons, shall we?
@@ -125,6 +165,8 @@ class Module(metamodule.MetaModule):
     def compare_users(self, users):
         users = [self.maluser(u) for u in users]
         common = self.common_shows(users)
+        if type(common) == str:
+            return common
 
         total_score_diff = 0
         consensus = [] # animes scored the same
@@ -171,6 +213,8 @@ class Module(metamodule.MetaModule):
     def fight(self, users):
         users = [self.maluser(u) for u in users]
         common = self.common_shows(users)
+        if type(common) == str:
+            return common
         
         largest_gap = 0
         contention = []
