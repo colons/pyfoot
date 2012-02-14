@@ -17,6 +17,9 @@ class Module(metamodule.MetaModule):
     
     def get_answer(self, query):
         data = self.query(query)
+        print data['Answer']
+        if data['Answer'] == "Safe search filtered your search to: <b>off</b>. Use !safeoff command to turn off temporarily.":
+            return "sorry, duckduckgo can't deal with dirty words, the pussies"
         if data['Redirect']:
             return data['Redirect']
         

@@ -93,10 +93,6 @@ class Module(metamodule.MetaModule):
                 return self.help_missing % user
             ud_list.append(data)
         
-        # let's always use the shortest list for our comparisons, shall we?
-        # not that it makes a difference
-        ud_list = sorted(ud_list, key=lambda x: len(x['anime']))
-        
         common = []
 
         for a1 in ud_list[0]['anime']:
