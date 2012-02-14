@@ -14,6 +14,9 @@ servername = pyfoot
 realname = pyfoot
 ctcp_version = pyfoot-hg
 
+# empty exclusion!
+exclude = 
+
 # what directory are you keeping resources (such as hhg.txt or anything to be interpreted by rantext)
 # must have trailing slash
 content_dir = ~/.pyfoot/
