@@ -15,70 +15,15 @@ class Module(metamodule.MetaModule):
         self.conf = conf
         self.user_file_path = path.expanduser(conf.get('content_dir')+'mal')
         self.malusers = {}
+        self.help_setup = "link a MyAnimeList account to your IRC nick with "+conf.get('comchar')+"mal set <account name>'"
+        self.help_missing = 'no such MAL user \x02%s\x02'
+
         try:
             userfile = open(self.user_file_path)
             self.malusers = pickle.load(userfile)
             userfile.close()
         except:
             print ' :: error reading MAL user pickle, will create one when necessary'
-
-    def act(self, message, irc, conf):
-        post_arg = parser.args(message.content, 'mal ', conf)
-        if post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 3:
-            # what are these two people like?
-            users = post_arg.split()[1:]
-            irc.send(message.source, self.compare_users(users))
-
-        elif post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 2:
-            # what are we like?
-            try:
-                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
-            except KeyError:
-                irc.send(message.source, "link a MyAnimeList account to your IRC nick with '!mal set <account name>'")
-            else:
-                users = [message.nick, post_arg.split()[1]]
-                irc.send(message.source, self.compare_users(users))
-
-        elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 3:
-            # a fight with both parties specified
-            users = post_arg.split()[1:]
-            irc.send(message.source, self.fight(users))
-
-        elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 2:
-            # a fight with one party issuing the challenge
-            try:
-                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
-            except KeyError:
-                irc.send(message.source, "link a MyAnimeList account to your IRC nick with '!mal set <account name>'")
-            else:
-                users = [message.nick, post_arg.split()[1]]
-                irc.send(message.source, self.fight(users))
-
-        elif post_arg and post_arg.split()[0] in ['set', 'iam', "i'm"] and len(post_arg.split()) == 2:
-            # a user is telling us who they are
-            try:
-                data = self.query('animelist/%s' % post_arg.split()[1])
-            except urllib2.HTTPError:
-                irc.send(message.source, 'no such MAL user \x02%s\x02' % post_arg.split()[1])
-            else:
-                self.malusers[conf.get('address')+' '+message.nick] = post_arg.split()[1]
-                userfile = open(self.user_file_path, 'w')
-                pickle.dump(self.malusers, userfile)
-                userfile.close()
-                irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]))
-
-        elif post_arg and len(post_arg.split()) == 1:
-            user = post_arg.split()[0]
-            irc.send(message.source, self.summarise_user(user))
-
-        elif parser.args(message.content, 'mal', conf) != False:
-            try:
-                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
-            except KeyError:
-                irc.send(message.source, "link a MyAnimeList account to your IRC nick with '!mal set <account name>'")
-            else:
-                irc.send(message.source, self.summarise_user(message.nick))
-
     
     
     def maluser(self, user):
@@ -118,7 +63,7 @@ class Module(metamodule.MetaModule):
         try:
             data = self.query('animelist/%s' % user)
         except urllib2.HTTPError:
-            return 'no such MAL user \x02%s\x02' % user
+            return self.help_missing % user
         days = data['statistics']['days']
         animelist = data['anime']
         
@@ -145,7 +90,7 @@ class Module(metamodule.MetaModule):
             try:
                 data = self.query('animelist/%s' % user)
             except urllib2.HTTPError:
-                return 'no such MAL user \x02%s\x02' % user
+                return self.help_missing % user
             ud_list.append(data)
         
         # let's always use the shortest list for our comparisons, shall we?
@@ -251,3 +196,62 @@ class Module(metamodule.MetaModule):
     def query(self, query):
         data = json.load(urllib2.urlopen(self.url % query))
         return data
+
+
+    def act(self, message, irc, conf):
+        post_arg = parser.args(message.content, 'mal ', conf)
+        if post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 3:
+            # what are these two people like?
+            users = post_arg.split()[1:]
+            irc.send(message.source, self.compare_users(users))
+
+        elif post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 2:
+            # what are we like?
+            try:
+                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
+            except KeyError:
+                irc.send(message.source, self.help_setup)
+            else:
+                users = [message.nick, post_arg.split()[1]]
+                irc.send(message.source, self.compare_users(users))
+
+        elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 3:
+            # a fight with both parties specified
+            users = post_arg.split()[1:]
+            irc.send(message.source, self.fight(users))
+
+        elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 2:
+            # a fight with one party issuing the challenge
+            try:
+                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
+            except KeyError:
+                irc.send(message.source, self.help_setup)
+            else:
+                users = [message.nick, post_arg.split()[1]]
+                irc.send(message.source, self.fight(users))
+
+        elif post_arg and post_arg.split()[0] in ['set', 'iam', "i'm"] and len(post_arg.split()) == 2:
+            # a user is telling us who they are
+            try:
+                data = self.query('animelist/%s' % post_arg.split()[1])
+            except urllib2.HTTPError:
+                irc.send(message.source, self.help_missing % post_arg.split()[1])
+            else:
+                self.malusers[conf.get('address')+' '+message.nick] = post_arg.split()[1]
+                userfile = open(self.user_file_path, 'w')
+                pickle.dump(self.malusers, userfile)
+                userfile.close()
+                irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]))
+
+        elif post_arg and len(post_arg.split()) == 1:
+            user = post_arg.split()[0]
+            irc.send(message.source, self.summarise_user(user))
+
+        elif parser.args(message.content, 'mal', conf) != False:
+            try:
+                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
+            except KeyError:
+                irc.send(message.source, self.help_setup)
+            else:
+                irc.send(message.source, self.summarise_user(message.nick))
+
