@@ -19,6 +19,15 @@ class IRC(object):
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
         self.irc.send('PONG %s\r\n' % data.split()[1])
+    
+    def whois(self, user):
+        """ Performs a WHOIS operation and returns the response. INCOMPLETE. """
+        self.irc.send('WHOIS %s' % user)
+        self.listen
+
+    def is_registered(self, user):
+        """ Determines if a user is registered. INCOMPLETE. """
+        self.whois(user)
 
     def join(self, channel):
         """ Joins a channel """
