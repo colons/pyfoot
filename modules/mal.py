@@ -2,27 +2,51 @@ import urllib2
 import json
 from random import choice
 from math import fabs
+from os import path
+import pickle
 
 import parser
+import metamodule
 
-
-class Module:
+class Module(metamodule.MetaModule):
     """ fresh MyAnimeList facts, milled from the mal-api.com api """
-    def __init__(self):
+    def __init__(self, conf):
         self.url = 'http://mal-api.com/%s?format=json'
-
+        self.conf = conf
+        self.user_file_path = path.expanduser(conf.get('content_dir')+'mal')
+        self.malusers = {}
+        userfile = open(self.user_file_path)
+        self.malusers = pickle.load(userfile)
+        userfile.close()
 
     def act(self, message, irc, conf):
         post_arg = parser.args(message.content, 'mal ', conf)
         if post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 3:
             users = post_arg.split()[1:]
             irc.send(message.source, self.compare_users(users))
+
         elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 3:
+            # time for a fight!
             users = post_arg.split()[1:]
             irc.send(message.source, self.fight(users))
+
+        elif post_arg and post_arg.split()[0] in ['set', 'iam', "i'm"] and len(post_arg.split()) == 2:
+            # a user is telling us who they are
+            self.malusers[conf.get('address')+' '+message.nick] = post_arg.split()[1]
+            print self.malusers
+            userfile = open(self.user_file_path, 'w')
+            pickle.dump(self.malusers, userfile)
+            userfile.close()
+
         elif post_arg and len(post_arg.split()) > 0:
             user = post_arg.split()[0]
             irc.send(message.source, self.summarise_user(user))
+    
+    
+    def maluser(self, user):
+        """ Takes a list of users and determines the appropriate MAL username """
+        maluser = self.malusers[self.conf.get('address')+' '+user]
+        return maluser
 
 
     def select(self, things, limit=5):
@@ -48,6 +72,7 @@ class Module:
 
 
     def summarise_user(self, user):
+        user = self.maluser(user)
         data = self.query('animelist/%s' % user)
         days = data['statistics']['days']
         animelist = data['anime']
@@ -90,6 +115,7 @@ class Module:
 
 
     def compare_users(self, users):
+        users = [self.maluser(u) for u in users]
         common = self.common_shows(users)
 
         total_score_diff = 0
@@ -135,6 +161,7 @@ class Module:
 
 
     def fight(self, users):
+        users = [self.maluser(u) for u in users]
         common = self.common_shows(users)
         
         largest_gap = 0

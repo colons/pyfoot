@@ -3,7 +3,9 @@ import parser
 from random import choice
 import re
 
-class Module:
+import metamodule
+
+class Module(metamodule.MetaModule):
     def act(self, message, irc, conf):
         """ Picks a random line from <dir>/hhg.txt. If specified, limits the selection to lines spoken by a particular character. """
 

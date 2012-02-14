@@ -12,7 +12,7 @@ class Network(object):
             __import__('modules.'+modulename)
             module = sys.modules['modules.'+modulename]
             setattr(module.Module, 'name', modulename)
-            self.modules.append(module.Module())
+            self.modules.append(module.Module(conf))
 
         self.irc = IRC(conf.get('address'), conf.get('port'), conf.get('nick'), conf.get('username'), conf.get('hostname'), conf.get('servername'), conf.get('realname'))
 

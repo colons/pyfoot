@@ -1,10 +1,12 @@
-import parser
 import urllib
 import time
 import codecs
 from BeautifulSoup import BeautifulStoneSoup
 from os import path
 import re
+
+import parser
+import metamodule
 
 def translate(source, target, phrase, conf):
     """ Translates phrase from source language to target language with Google's translation API """
@@ -22,7 +24,7 @@ def dupes(party):
     else:
         return False
 
-class Module:
+class Module(metamodule.MetaModule):
     def act(self, message, irc, conf):
         """ A recreation of translationparty, only with better duplicate detection """
         initial_phrase = parser.args(message.content, 'party ', conf)

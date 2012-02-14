@@ -1,6 +1,7 @@
 import parser
+import metamodule
 
-class Module:
+class Module(metamodule.MetaModule):
     def act(self, message, irc, conf):
         """ Takes any say command and sends it anywhere. Utterly indiscriminate. """
         post_arg = parser.args(message.content, 'say ', conf)
