@@ -2,7 +2,7 @@
 # parsed by python 2.7's ConfigParser module
 # http://docs.python.org/library/configparser.html
 
-# in order for !party to work, you must get an api key from google and set it as google_api_key
+# in order for !party to work, you must get an api key from bing and set it as bing_app_id
 
 [DEFAULT]
 port = 6667
@@ -14,21 +14,21 @@ servername = pyfoot
 realname = pyfoot
 ctcp_version = pyfoot-hg
 
-# empty exclusion!
+# modules to exclude per-channel in '#channel module,#channel module' format
+# it is recommended you do this at the [network] level, but you should still have an empty one here as a fallback
 exclude = 
 
 # what directory are you keeping resources (such as hhg.txt or anything to be interpreted by rantext)
 # must have trailing slash
 content_dir = ~/.pyfoot/
 
-# what are you doing with rantext?
-rantext_sources = example # this would use <content_dir>/example.txt and !example
-
-# comchar specifies the character used to designate commands
+# the character used to designate commands
 comchar = !
 
 # which modules (from ./modules/) to load
-modules = woof,party,html_title,konata,ctcp_version,say,rantext
+modules = woof,party,html_title,konata,ctcp_version,say,rantext,mal
+
+# MODULE-SPECIFIC SETTINGS
 
 # a regular expression that triggers a message
 woof_trigger = woo+f|good dog|bad dog|good boy|treat|\btrench|\bmeow\b|\bbark\b|\barf\b|\bfetch\b|\bmoo+\b|\bqua+ck\b|\bcluck\b|\bwalk\b|\bwalkie\b|\bwalkies\b|\bho+nk\b|\bwo+nk\b|\bsqua+wk\b|\bca+w\b|\boink\b|\bnya|\bwan\b|\bnyro|\bgeso|\bneigh\b|\bcollar\b
@@ -36,7 +36,10 @@ woof_trigger = woo+f|good dog|bad dog|good boy|treat|\btrench|\bmeow\b|\bbark\b|
 # the message triggered
 woof = woof
 
-# !party
+# what are you doing with rantext? comma-seperated.
+rantext_sources = example # this would use <content_dir>/example.txt and !example
+
+# !party translation language and app id
 transvia = ja
 bing_app_id = get_one_from_msn
 
@@ -44,7 +47,7 @@ bing_app_id = get_one_from_msn
 web_directory = /home/nivi/www/ypu/
 web_url = http://you.possessed.us/
 
-# mal userdata
+# mal userdata (not yet implemented)
 mal_userfile = ~/.pyfoot/mal
 
 # you specify the network at runtime
