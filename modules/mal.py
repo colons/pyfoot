@@ -15,9 +15,12 @@ class Module(metamodule.MetaModule):
         self.conf = conf
         self.user_file_path = path.expanduser(conf.get('content_dir')+'mal')
         self.malusers = {}
-        userfile = open(self.user_file_path)
-        self.malusers = pickle.load(userfile)
-        userfile.close()
+        try:
+            userfile = open(self.user_file_path)
+            self.malusers = pickle.load(userfile)
+            userfile.close()
+        except:
+            print ' :: error reading user pickle'
 
     def act(self, message, irc, conf):
         post_arg = parser.args(message.content, 'mal ', conf)
@@ -37,6 +40,7 @@ class Module(metamodule.MetaModule):
             userfile = open(self.user_file_path, 'w')
             pickle.dump(self.malusers, userfile)
             userfile.close()
+            irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]))
 
         elif post_arg and len(post_arg.split()) > 0:
             user = post_arg.split()[0]
