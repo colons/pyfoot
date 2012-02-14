@@ -49,8 +49,12 @@ class Module(metamodule.MetaModule):
     
     def maluser(self, user):
         """ Takes a list of users and determines the appropriate MAL username """
-        maluser = self.malusers[self.conf.get('address')+' '+user]
-        return maluser
+        try:
+            maluser = self.malusers[self.conf.get('address')+' '+user]
+        except KeyError:
+            return user
+        else:
+            return maluser
 
 
     def select(self, things, limit=5):
