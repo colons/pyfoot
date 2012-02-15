@@ -15,7 +15,7 @@ class Module(metamodule.MetaModule):
         self.conf = conf
         self.user_file_path = path.expanduser(conf.get('content_dir')+'mal')
         self.malusers = {}
-        self.help_setup = "link a MyAnimeList account to your IRC nick with "+conf.get('comchar')+"mal set <account name>'"
+        self.help_setup = "link a MyAnimeList account to your IRC nick with '"+conf.get('comchar')+"mal set <account name>'"
         self.help_missing = 'no such MAL user \x02%s\x02'
 
         try:
