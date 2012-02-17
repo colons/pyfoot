@@ -15,24 +15,30 @@ class Module(metamodule.MetaModule):
         for i in self.conf.get('rss').split(','):
             # get latest item, remember to ignore it
             channel, url = i.split()
-            feed = feedparser.parse(url)
-
-            self.latestitem[url] = feed['items'][0]
-            pass
+            try:
+                feed = feedparser.parse(url)
+                self.latestitem[url] = feed['items'][0]
+            except:
+                pass
 
         thread.start_new_thread(self.loop, ())
 
     def loop(self):
         while True:
+            sleep(150)
+
             for i in self.conf.get('rss').split(','):
                 channel, url = i.split()
-                feed = feedparser.parse(url)
-                
-                if feed['items'][0] != self.latestitem[url]:
-                    title = feed['items'][0]['title']
-                    link = feed['items'][0]['link']
-                
-                    self.irc.send(channel, '%s | %s' % (title, link))
-                    self.latestitem[url] = feed['items'][0]
+                try:
+                    feed = feedparser.parse(url)
+                    item = feed['items'][0] 
+                except:
+                    pass
+                else:
+                    if item != self.latestitem[url]:
+                        title = feed['items'][0]['title']
+                        link = feed['items'][0]['link']
+                    
+                        self.irc.send(channel, '%s | %s' % (title, link))
+                        self.latestitem[url] = feed['items'][0]
 
-            sleep(150)
