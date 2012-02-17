@@ -1,0 +1,38 @@
+import thread
+from time import sleep
+import feedparser
+
+import parser
+import metamodule
+
+class Module(metamodule.MetaModule):
+    """ An RSS reader, and the first pyfoot module that posts without act() """
+    def __init__(self, irc, conf):
+        metamodule.MetaModule.__init__(self, irc, conf)
+        
+        self.latestitem = {}
+
+        for i in self.conf.get('rss').split(','):
+            # get latest item, remember to ignore it
+            channel, url = i.split()
+            feed = feedparser.parse(url)
+
+            self.latestitem[url] = feed['items'][0]
+            pass
+
+        thread.start_new_thread(self.loop, ())
+
+    def loop(self):
+        while True:
+            for i in self.conf.get('rss').split(','):
+                channel, url = i.split()
+                feed = feedparser.parse(url)
+                
+                if feed['items'][0] != self.latestitem[url]:
+                    title = feed['items'][0]['title']
+                    link = feed['items'][0]['link']
+                
+                    self.irc.send(channel, '%s | %s' % (title, link))
+                    self.latestitem[url] = feed['items'][0]
+
+            sleep(150)

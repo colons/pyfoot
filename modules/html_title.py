@@ -5,7 +5,8 @@ from random import choice
 import metamodule
 
 class Module(metamodule.MetaModule):
-    def __init__(self, conf):
+    def __init__(self, irc, conf):
+        metamodule.MetaModule.__init__(self, irc, conf)
         self.user_agents = [
             'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11',
             'Opera/9.25 (Windows NT 5.1; U; en)',

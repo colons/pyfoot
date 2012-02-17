@@ -10,9 +10,9 @@ import metamodule
 
 class Module(metamodule.MetaModule):
     """ fresh MyAnimeList facts, milled from the mal-api.com api """
-    def __init__(self, conf):
+    def __init__(self, irc, conf):
+        metamodule.MetaModule.__init__(self, irc, conf)
         self.url = 'http://mal-api.com/%s?format=json'
-        self.conf = conf
         self.user_file_path = path.expanduser(conf.get('content_dir')+'mal')
         self.malusers = {}
         self.help_setup = "link a MyAnimeList account to your IRC nick with '"+conf.get('comchar')+"mal set <account name>'"

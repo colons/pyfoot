@@ -8,13 +8,13 @@ class Network(object):
         """ Get configuration shit and connect and set everything up """
         self.modules = []
         
+        self.irc = IRC(conf.get('address'), conf.get('port'), conf.get('nick'), conf.get('username'), conf.get('hostname'), conf.get('servername'), conf.get('realname'))
+
         for modulename in conf.get('modules').split(','):
             __import__('modules.'+modulename)
             module = sys.modules['modules.'+modulename]
             setattr(module.Module, 'name', modulename)
-            self.modules.append(module.Module(conf))
-
-        self.irc = IRC(conf.get('address'), conf.get('port'), conf.get('nick'), conf.get('username'), conf.get('hostname'), conf.get('servername'), conf.get('realname'))
+            self.modules.append(module.Module(self.irc, conf))
 
         self.irc.send('nickserv', 'identify %s' % conf.get('nickserv_pass'))
 

@@ -6,7 +6,7 @@ import parser
 
 class Module(metamodule.MetaModule):
     """ a DuckDuckGo zero-click API frontend """
-    def __init__(self, conf):
+    def __init__(self, irc, conf):
         self.url = 'http://api.duckduckgo.com/?q=%s&format=json&no_redirect=1&no_html=1&skip_disambig=1'
 
     def query(self, query):
