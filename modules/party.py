@@ -8,15 +8,6 @@ import re
 import parser
 import metamodule
 
-def translate(source, target, phrase, conf):
-    """ Translates phrase from source language to target language with Google's translation API """
-    query = urllib.quote(phrase)
-    page = urllib.urlopen('http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=%s&from=%s&to=%s&text="%s"' % (conf.get('bing_app_id'), source, target, query))
-    result = page.read()
-    print result[4:-1]
-    return result[4:-1]
-
-
 def dupes(party):
     """ Returns True if any phrase appears twice in our party """
     if ''.join(party[-1:]) in party[:-1]:
@@ -31,8 +22,8 @@ class Module(metamodule.MetaModule):
         if initial_phrase != False:
             party = [initial_phrase]
             while dupes (party) == False:
-                party.append(translate('en', conf.get('transvia'), party[-1], conf))
-                party.append(translate(conf.get('transvia'), 'en', party[-1], conf))
+                party.append(self.translate('en', conf.get('transvia'), party[-1]))
+                party.append(self.translate(conf.get('transvia'), 'en', party[-1]))
             
             filename = '%s-%s.txt' % (message.nick, time.strftime('%y%m%d-%H%M%S'))
             filepath = path.expanduser(conf.get('web_directory')+'party/'+filename)
