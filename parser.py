@@ -18,13 +18,22 @@ def destination(data):
         return nick(data)
 
 
-def args(content, arg, conf):
+def args(content, args, conf):
     """ Determines what arguments a message contains """
-    prefix = '%s%s' % (conf.get('comchar'), arg)
-    if content.startswith(prefix):
-        return content[len(prefix):].rstrip("\r\n").strip()
+    if type(args) == list:
+        prefixes = ['%s%s' % (conf.get('comchar'), arg) for arg in args]
+    else:
+        prefixes = ['%s%s' % (conf.get('comchar'), args)]
+
+    if content.split(' ')[0].strip() in prefixes:
+        post_args = ' '.join(content.split(' ')[1:]).rstrip("\r\n").strip()
+        if len(post_args) != 0:
+            return post_args
+        else:
+            return True
     else:
         return False
+
 
 def dispatch(data, irc, modules, conf):
     """ Deals with messages, sends modules the information they need. """
@@ -52,5 +61,7 @@ def dispatch(data, irc, modules, conf):
 
             for module in modules:
                 if '%s %s' % (the_message.source, module.name) not in conf.get('exclude').split(','):
-                    # module.act(the_message, irc, conf)
-                    thread.start_new_thread(module.act, (the_message, irc, conf))
+                    if conf.get('debug') == '1':
+                        module.act(the_message)
+                    else:
+                        thread.start_new_thread(module.act, (the_message,))

@@ -16,17 +16,21 @@ def dupes(party):
         return False
 
 class Module(metamodule.MetaModule):
-    def act(self, message, irc, conf):
+    def act(self, message):
         """ A recreation of translationparty, only with better duplicate detection """
-        initial_phrase = parser.args(message.content, 'party ', conf)
-        if initial_phrase != False:
+        initial_phrase = parser.args(message.content, 'party', self.conf)
+
+        if initial_phrase == False:
+            return
+
+        if len(initial_phrase) != 0:
             party = [initial_phrase]
             while dupes (party) == False:
-                party.append(self.translate('en', conf.get('transvia'), party[-1]))
-                party.append(self.translate(conf.get('transvia'), 'en', party[-1]))
+                party.append(self.translate('en', self.conf.get('transvia'), party[-1]))
+                party.append(self.translate(self.conf.get('transvia'), 'en', party[-1]))
             
             filename = '%s-%s.txt' % (message.nick, time.strftime('%y%m%d-%H%M%S'))
-            filepath = path.expanduser(conf.get('web_directory')+'party/'+filename)
+            filepath = path.expanduser(self.conf.get('web_directory')+'party/'+filename)
 
             print 'Writing to %s...' % filepath
             file = codecs.open(filepath, mode='w')
@@ -34,4 +38,4 @@ class Module(metamodule.MetaModule):
             file.close()
             
             attempts = len(party)/2
-            irc.send(message.source, '%s | \x02%i\x02 attempts | %sparty/%s' % (party[-1], attempts, conf.get('web_url'), filename))
+            self.irc.send(message.source, '%s | \x02%i\x02 attempts | %sparty/%s' % (party[-1], attempts, self.conf.get('web_url'), filename))

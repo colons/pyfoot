@@ -7,6 +7,7 @@ import parser
 class Module(metamodule.MetaModule):
     """ a DuckDuckGo zero-click API frontend """
     def __init__(self, irc, conf):
+        metamodule.MetaModule.__init__(self, irc, conf)
         self.url = 'http://api.duckduckgo.com/?q=%s&format=json&no_redirect=1&no_html=1&skip_disambig=1'
 
     def query(self, query):
@@ -41,10 +42,10 @@ class Module(metamodule.MetaModule):
 
         return 'search'
 
-    def act(self, message, irc, conf):
-        post_arg = parser.args(message.content, 'ddg ', conf)
-        if post_arg:
+    def act(self, message):
+        post_arg = parser.args(message.content, 'ddg', self.conf)
+        if post_arg != False and len(post_arg) != 0:
             query = urllib2.quote(post_arg)
             answer = self.get_answer(query)
             if answer:
-                irc.send(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query))
+                self.irc.send(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query))

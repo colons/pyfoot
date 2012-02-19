@@ -5,6 +5,8 @@
 # in order for !party to work, you must get an api key from bing and set it as bing_app_id
 
 [DEFAULT]
+debug = 0
+
 port = 6667
 nick = pyfoot
 greet = woof

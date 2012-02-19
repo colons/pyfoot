@@ -5,7 +5,7 @@ class MetaModule:
         self.irc = irc
         self.conf = conf
 
-    def act(self, message, irc, conf):
+    def act(self, message):
         pass
 
     def translate(self, source, target, phrase):

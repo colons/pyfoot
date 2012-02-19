@@ -194,60 +194,64 @@ class Module(metamodule.MetaModule):
         return data
 
 
-    def act(self, message, irc, conf):
-        post_arg = parser.args(message.content, 'mal ', conf)
-        if post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 3:
+    def act(self, message):
+        post_arg = parser.args(message.content, 'mal', self.conf)
+        
+        if post_arg == False:
+            return
+
+        if post_arg == True:
+            try:
+                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
+            except KeyError:
+                self.irc.send(message.source, self.help_setup)
+            else:
+                self.irc.send(message.source, self.summarise_user(message.nick))
+
+        elif post_arg.split()[0] == 'compare' and len(post_arg.split()) == 3:
             # what are these two people like?
             users = post_arg.split()[1:]
-            irc.send(message.source, self.compare_users(users))
+            self.irc.send(message.source, self.compare_users(users))
 
-        elif post_arg and post_arg.split()[0] == 'compare' and len(post_arg.split()) == 2:
+        elif post_arg.split()[0] == 'compare' and len(post_arg.split()) == 2:
             # what are we like?
             try:
                 maluser = self.malusers[self.conf.get('address')+' '+message.nick]
             except KeyError:
-                irc.send(message.source, self.help_setup)
+                self.irc.send(message.source, self.help_setup)
             else:
                 users = [message.nick, post_arg.split()[1]]
-                irc.send(message.source, self.compare_users(users))
+                self.irc.send(message.source, self.compare_users(users))
 
-        elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 3:
+        elif post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 3:
             # a fight with both parties specified
             users = post_arg.split()[1:]
-            irc.send(message.source, self.fight(users))
+            self.irc.send(message.source, self.fight(users))
 
-        elif post_arg and post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 2:
+        elif post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 2:
             # a fight with one party issuing the challenge
             try:
                 maluser = self.malusers[self.conf.get('address')+' '+message.nick]
             except KeyError:
-                irc.send(message.source, self.help_setup)
+                self.irc.send(message.source, self.help_setup)
             else:
                 users = [message.nick, post_arg.split()[1]]
-                irc.send(message.source, self.fight(users))
+                self.irc.send(message.source, self.fight(users))
 
-        elif post_arg and post_arg.split()[0] in ['set', 'iam', "i'm"] and len(post_arg.split()) == 2:
+        elif post_arg.split()[0] in ['set', 'iam', "i'm"] and len(post_arg.split()) == 2:
             # a user is telling us who they are
             try:
                 data = self.query('animelist/%s' % post_arg.split()[1])
             except urllib2.HTTPError:
-                irc.send(message.source, self.help_missing % post_arg.split()[1])
+                self.irc.send(message.source, self.help_missing % post_arg.split()[1])
             else:
-                self.malusers[conf.get('address')+' '+message.nick] = post_arg.split()[1]
+                self.malusers[self.conf.get('address')+' '+message.nick] = post_arg.split()[1]
                 userfile = open(self.user_file_path, 'w')
                 pickle.dump(self.malusers, userfile)
                 userfile.close()
-                irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]))
+                self.irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]))
 
-        elif post_arg and len(post_arg.split()) == 1:
+        elif len(post_arg.split()) == 1:
             user = post_arg.split()[0]
-            irc.send(message.source, self.summarise_user(user))
-
-        elif parser.args(message.content, 'mal', conf) != False:
-            try:
-                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
-            except KeyError:
-                irc.send(message.source, self.help_setup)
-            else:
-                irc.send(message.source, self.summarise_user(message.nick))
-
+            print user
+            self.irc.send(message.source, self.summarise_user(user))

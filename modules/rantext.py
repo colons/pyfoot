@@ -14,11 +14,11 @@ def extract(source, conf):
     return choice(line_list)
 
 class Module(metamodule.MetaModule):
-    def act(self, message, irc, conf):
+    def act(self, message):
         """ Sends random lines from arbitrary text files, as specified in the config file. """
-        sources = conf.get('rantext_sources').split(',')
+        sources = self.conf.get('rantext_sources').split(',')
         for source in sources:
-            if parser.args(message.content, source, conf) != False:
-                line = extract(source, conf)
-                irc.send(message.source, line)
+            if parser.args(message.content, source, self.conf) != False:
+                line = extract(source, self.conf)
+                self.irc.send(message.source, line)
 

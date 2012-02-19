@@ -16,11 +16,11 @@ class Module(metamodule.MetaModule):
             'Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.2.9'
         ]
 
-    def act(self, message, irc, conf):
+    def act(self, message):
         for word in message.content.split():
             if word.startswith('http://') or word.startswith('https://'):
                 opener = urllib.FancyURLopener()
                 setattr(opener, 'version', choice(self.user_agents))
                 pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
                 title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                irc.send(message.source, title)
+                self.irc.send(message.source, title)

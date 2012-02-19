@@ -7,8 +7,9 @@ class Module(metamodule.MetaModule):
     def __init__(self, irc, conf):
         """ not really necessary, more a proof of concept than anything """
         metamodule.MetaModule.__init__(self, irc, conf)
-        self.woof = conf.get('woof')
+        self.woof = self.conf.get('woof')
+        self.regex = re.compile(self.conf.get('woof_trigger'), re.IGNORECASE)
 
-    def act(self, message, irc, conf):
-        if re.compile(conf.get('woof_trigger'), re.IGNORECASE).search(message.content):
-            irc.send(message.source, self.woof)
+    def act(self, message):
+        if self.regex.search(message.content):
+            self.irc.send(message.source, self.woof)
