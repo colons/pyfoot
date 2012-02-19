@@ -48,6 +48,8 @@ h3 {
 
 p {
     margin: 0;
+    font-size: .9em;
+    padding-bottom: .4em;
 }
 
 a {
@@ -67,7 +69,6 @@ div.usage {
     width: 28%;
     padding: 0;
     margin: 0;
-    font-size: .9em;
     line-height: 1em;
 }
 
@@ -75,7 +76,6 @@ div.description {
     float: right;
     vertical-align: top;
     width: 70%;
-    font-size: .9em;
 }
 
 ul {
@@ -83,6 +83,7 @@ ul {
     padding: 0;
     font-family: "Ubuntu Mono", monospace;
     display: inline;
+    font-size: .9em;
 }
 
 ul.args {
@@ -107,9 +108,6 @@ ul li:last-child:after {
     content: "";
 }
 
-div.description p {
-    padding-bottom: .4em;
-}
 
 span.irc {
     font-family: "Ubuntu Mono", monospace;
@@ -190,9 +188,10 @@ p.disclaimer {
 <body>
     <h1>pyfoot</h1>
 
-    <p>A useless, poorly documented<span class="ast">*</span> and badly written IRC robot, written in Python. Source available from <a href="https://bitbucket.org/colons/pyfoot/">Bitbucket</a>.</p>
+    A useless, poorly documented<span class="ast">*</span> and badly written IRC robot, written in Python. Source available from <a href="https://bitbucket.org/colons/pyfoot/">Bitbucket</a>.
 
     <!-- <h2>Modules</h2> -->
+
 
     <h3>ddg</h3>
     <div class="usage">
@@ -226,6 +225,7 @@ p.disclaimer {
         <p class="input">!help</p>
         <p class="output">features : http://woof.bldm.us/help/ | code : https://bitbucket.org/colons/pyfoot/</p>
     </div>
+
     <h3>hhg</h3>
     <div class="usage">
         <ul class="commands">
@@ -375,5 +375,10 @@ p.disclaimer {
         <p class="output">woof</p>
     </div>
     
-    <p class="disclaimer">*This doesn't count &mdash; it's not for people who want to run or augment pyfoot</p>
+    <h3>behaviour</h3>
+    <p>On startup, pyfoot will join all the channels his configuration suggests he should. Channels joined and left while running do not change this.
+    <p>While running, he will join any channel he recieves an invite to. He may not be welcome, however, and there's no mechanism on his end for detaching from a channel.</p>
+    <p>pyfoot will, under no circumstances, automatically rejoin a channel when kicked. If you want him back, re-invite him.</p>
+
+    <p class="disclaimer">*This, as a user document, doesn't count.</p>
 </body>
