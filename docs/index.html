@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<head lang="en">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>!help | a pyfoot document</title>
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu+Mono">
+<style>
+
+body {
+    font-family: sans-serif;
+    color: #333;
+
+    background-color: #ccc;
+    background-image: url('noise.png');
+    background-repeat: repeat;
+
+/*  background-color: #aaa;
+    background-image: url('noise.png'), url('vignette.jpg');
+    background-position: center, center;
+    background-repeat: repeat, no-repeat;
+    background-attachment: scroll, fixed; */
+
+    text-shadow: #eee 0px 1px 0;
+    max-width: 700px;
+    min-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 .5em;
+}
+
+h1 {
+    font-weight: 500;
+}
+
+h2 {
+    clear: both;
+    margin: 0;
+    padding-bottom: 0;
+    padding-top: 1em;
+    font-weight: 500;
+}
+
+h3 {
+    clear: both;
+    margin: 0;
+    padding-top: 1em;
+    font-weight: 600;
+}
+
+p {
+    margin: 0;
+}
+
+a {
+    color: #d66;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #fff;
+    text-shadow: #999 0 1px 0;
+}
+
+div.usage {
+    float: left;
+    vertical-align: top;
+    text-align: left;
+    width: 28%;
+    padding: 0;
+    margin: 0;
+    font-size: .9em;
+    line-height: 1em;
+}
+
+div.description {
+    float: right;
+    vertical-align: top;
+    width: 70%;
+    font-size: .9em;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    font-family: "Ubuntu Mono", monospace;
+    display: inline;
+}
+
+ul.args {
+    color: #666;
+}
+
+ul.args:before {
+    color: #d66;
+    content: ' | '
+}
+
+ul li {
+    display: inline;
+}
+
+ul.args li:after {
+    content: " : ";
+    color: #d66;
+}
+
+ul.commands li:after {
+    content: " / ";
+    color: #d66;
+}
+
+ul li:last-child:after {
+    content: "";
+}
+
+div.description p {
+    padding-bottom: .4em;
+}
+
+span.irc {
+    font-family: "Ubuntu Mono", monospace;
+}
+
+p.input {
+    font-family: "Ubuntu Mono", monospace;
+    margin-left: 1em;
+    color: #666;
+}
+
+p.input:before {
+    content: '$';
+    color: #d66;
+    position: absolute;
+    margin-left: -1em;
+}
+
+p.output {
+    font-family: "Ubuntu Mono", monospace;
+    margin-left: 1em;
+    margin-bottom: 1em;
+    margin-top: -.3em;
+    color: #666;
+}
+
+p.output:before {
+    content: '>';
+    color: #d66;
+    position: absolute;
+    margin-left: -1em;
+}
+
+span.opt {
+    color: #666;
+}
+
+span.opt:before {
+    content: '[';
+    color: #999;
+}
+
+span.opt:after {
+    content: ']';
+    color: #999;
+}
+
+span.repl {
+    color: #666;
+}
+
+span.repl:before {
+    content: '<';
+    color: #999;
+}
+
+span.repl:after {
+    content: '>';
+    color: #999;
+}
+
+span.ast {
+    color: #666;
+}
+
+p.disclaimer {
+    clear: both;
+    padding: 1.5em 0;
+    font-size: .8em;
+    color: #666;
+    text-align: right;
+}
+
+</style>
+</head>
+
+<body>
+    <h1>pyfoot</h1>
+
+    <p>A useless, poorly documented<span class="ast">*</span> and badly written threaded IRC robot, written in Python. Source available from <a href="https://bitbucket.org/colons/pyfoot/">Bitbucket</a>.</p>
+
+    <!-- <h2>Modules</h2> -->
+
+    <h3>ddg</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!ddg</li>
+        </ul>
+        <ul class="args">
+            <li><span class="repl">query</span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>Issue a <a href="http://duckduckgo.com/api.html">DuckDuckGo</a> query.</p>
+        <p class="input">!ddg 2^10</p>
+        <p class="output">calc : 2 ^ 10 = 1,024 | http://ddg.gg/?q=2%5E10</p>
+
+        <p>Supports DuckDuckGo's <a href="https://duckduckgo.com/bang.html">!bang</a> syntax.
+        <!--
+        <p class="input">!ddg !tw realdoll</p>
+        <p class="output">http://twitter.com/#search?q=realdoll | http://ddg.gg/?q=%21tw%20realdoll</p>
+        -->
+    </div>
+
+    <h3>help</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!help</li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>Returns a link to this page and to <a href="https://bitbucket.org/colons/pyfoot/">pyfoot's Bitbucket project</a>.</p>
+        <p class="input">!help</p>
+        <p class="output">features : http://you.possessed.us/help/ | code : https://bitbucket.org/colons/pyfoot/</p>
+    </div>
+    <h3>hhg</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!hhg</li>
+        </ul>
+        <ul class="args">
+            <li><span class="opt"><span class="repl">character</span></span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>Retrieves a random quote from the first two phases of the Hitchhiker's Guide to the Galaxy radio series. Optionally filters by character name.</p>
+        <p class="input">!hhg slarti</p>
+        <p class="output">Shocking cock-up. The mice were furious.</p>
+    </div>
+
+    <h3>html title</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li><span class="repl">url</span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>Returns the HTML title tag of URLs posted</p>
+        <p class="input">check out these adorable duckies :: http://t.co/sjai14rf</p>
+        <p class="output">Lemon Party</p>
+    </div>
+
+    <h3>konata</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!konata</li>
+        </ul>
+        <ul class="args">
+            <li><span class="repl">name</span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>Expresses affection. Verbose.</p>
+        <p class="input">!konata Duke Togo</p>
+        <p class="output">I like Duke Togo because she is a otaku like me, except she has friends. Oh god I wish I had friends too ;_;</p>
+    </div>
+
+    <h3>mal</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!mal</li>
+        </ul>
+        <ul class="args">
+            <li><span class="opt"><span class="repl">user</span></span></li>
+            <li>set <span class="repl">user</span></li>
+            <li>fight <span class="opt"><span class="opt"><span class="repl">user</span></span> <span class="repl">user</span></span></li>
+            <li>compare <span class="opt"><span class="opt"><span class="repl">user</span></span> <span class="repl">user</span></span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>A collection of <a href="http://myanimelist.net/">MyAnimeList</a>-related functions.</p>
+        <p>Most of these functions benefit from knowing who you (and everyone else) are.</p>
+        <p class="input">!mal set colons</p>
+        <p class="output">nivi is MAL user colons</p>
+        <p>You can now get a summary of yourself with <span class="irc">!mal</span>, or you can summarise another person by specifying a target.</p>
+        <p class="input">!mal brie</p>
+        <p class="output">brie | 0.43 days across 1 shows | Berserk : 25/25 : 10</p>
+        <p>You can also compare yourself to other users or any two users to each other with <span class="irc">!mal fight</span> or <span class="irc">!mal compare</span>.<p>
+        <p class="input">!mal fight xinil</p>
+        <p class="output">colons vs. xinil | average contention : 1.12 | Tengen Toppa Gurren Lagann : 4 vs. 8</p>
+    </div>
+
+    <h3>party</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!party</li>
+        </ul>
+        <ul class="args">
+            <li><span class="repl">phrase</span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>A recreation of <a href="http://translationparty.com/">Translation Party</a> using the Bing translate API.</p>
+        <p class="input">!party scissor me timbers</p>
+        <p class="output">I have a tree. | 7 attemps | http://you.possessed.us/party/Derasonika-120213-235608.txt</p>
+    </div>
+
+    <h3>rantext</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!jerkcity</li>
+            <li>!troll</li>
+            <li>!rms</li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>Prints a random line from a given text file or, if the text file is a single line, prints that.</p>
+        <p class="input">!jerkcity</p>
+        <p class="output">IF I COULD BE ANY KIND OF FLOWER I'D BE A BIG FAT ANGRY COCK.</p>
+    </div>
+
+    <h3>rss</h3>
+    <div class="description">
+        <p>pyfoot is capable of reading an RSS feed into a channel, but it's not configurable live. Talk to whoever is operating your local pyfoot instance if you have a feed you'd like in a channel.</p>
+    </div>
+
+    <h3>say</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!say</li>
+        </ul>
+        <ul class="args">
+            <li><span class="repl">destination</span> <span class="repl">phrase</span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>Utterly indiscriminate messaging. Will work in queries, so can be used for anonymisation (although your local pyfoot operator may be able to determine and reveal your identity).</p>
+        <p class="input">!say #unix I'd just like to interject for a moment.</p>
+        <p class="output">I'd just like to interject for a moment.</p>
+    </div>
+
+    <h3>translate</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>!t</li>
+        </ul>
+        <ul class="args">
+            <li><span class="repl">from</span> <span class="repl">to</span> <span class="repl">phrase</span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>Translates from <span class="irc"><span class="repl">from</span></span> to <span class="irc"><span class="repl">to</span></span> using the Bing translate API. <span class="irc"><span class="repl">from</span></span> and <span class="irc"><span class="repl">to</span></span> must be any of the language codes <a href="http://msdn.microsoft.com/en-us/library/dd877907.aspx">here</a> and <a href="http://msdn.microsoft.com/en-us/library/dd877886.aspx">here</a>, respectively.
+        <p class="input">!t fr en le jambon est mort</p>
+        <p class="output">the ham is dead</p>
+    </div>
+
+    <h3>woof</h3>
+    <div class="usage">
+        <ul class="commands">
+            <li>woof</li>
+            <li>moo</li>
+            <li>walkies</li>
+            <li><span class="repl">&hellip;</span></li>
+        </ul>
+    </div>
+    <div class="description">
+        <p>He's a dog; he woofs.</p>
+        <p class="input">woof</p>
+        <p class="output">woof</p>
+    </div>
+    
+    <p class="disclaimer">*This doesn't count &mdash; it's not for people who want to run or augment pyfoot</p>
+</body>
