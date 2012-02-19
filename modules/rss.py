@@ -35,10 +35,9 @@ class Module(metamodule.MetaModule):
                 except:
                     pass
                 else:
-                    if item != self.latestitem[url]:
-                        title = feed['items'][0]['title']
-                        link = feed['items'][0]['link']
+                    if item['link'] != self.latestitem[url]['link']:
+                        self.latestitem[url] = feed['items'][0]
+                        title = self.latestitem['title']
+                        link = self.latestitem['link']
                     
                         self.irc.send(channel, '%s | %s' % (title, link))
-                        self.latestitem[url] = feed['items'][0]
-
