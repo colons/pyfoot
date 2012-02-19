@@ -24,18 +24,21 @@ class Module(metamodule.MetaModule):
             return data['Redirect']
         
         if data['Answer']:
-            return '%s | %s' % (data['AnswerType'], data['Answer'])
+            return '%s : %s' % (data['AnswerType'], data['Answer'])
 
         if data['AbstractText']:
-            return '%s | %s' % (data['AbstractText'], data['AbstractURL'])
+            return '%s : %s' % (data['AbstractText'], data['AbstractURL'])
 
         if data['Definition']:
-            return '%s | %s' % (': '.join(data['Definition'].split(': ')[1:]), data['DefinitionURL'])
+            return '%s : %s' % (': '.join(data['Definition'].split(': ')[1:]), data['DefinitionURL'])
 
-        if len(data['RelatedTopics']) > 0:
-            return '%s | %s' % (data['RelatedTopics'][0]['Text'], data['RelatedTopics'][0]['URL'])
+        if len(data['RelatedTopics']) == 1:
+            return '%s : %s ' % (data['RelatedTopics'][0]['Text'], data['RelatedTopics'][0]['FirstURL'])
         
-        return 'dunno, have some results i guess'
+        if len(data['RelatedTopics']) > 1:
+            return '%s : %s | %i other topics' % (data['RelatedTopics'][0]['Text'], data['RelatedTopics'][0]['FirstURL'], len(data['RelatedTopics']))
+
+        return 'search'
 
     def act(self, message, irc, conf):
         post_arg = parser.args(message.content, 'ddg ', conf)
