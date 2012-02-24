@@ -108,6 +108,19 @@ ul li:last-child:after {
     content: "";
 }
 
+ul.args li:last-child:after {
+    content: "—";
+    display: block;
+    text-align: center;
+    color: #d66;
+    font-family: sans-serif;
+    padding-top: .2em;
+}
+
+ul.args:last-child li:last-child:after {
+    content: "";
+    display: inline;
+}
 
 span.irc {
     font-family: "Ubuntu Mono", monospace;
@@ -310,15 +323,25 @@ p.credit {
     <div class="usage">
         <ul class="commands">
             <li>!party</li>
+            <li>!p</li>
         </ul>
         <ul class="args">
             <li><span class="repl">phrase</span></li>
         </ul>
+        <ul class="commands">
+            <li>!partyvia</li>
+            <li>!pv</li>
+        </ul>
+        <ul class="args">
+            <li><span class="repl">lang</span><span class="repl">phrase</span></li>
+        </ul>
+
     </div>
     <div class="description">
         <p>A recreation of <a href="http://translationparty.com/">Translation Party</a> using the Bing translate API.</p>
         <p class="input">!party scissor me timbers</p>
         <p class="output">I have a tree. | 7 attempts | http://woof.bldm.us/party/Derasonika-120213-235608.txt</p>
+        <p>If desired, you can specify the language to be translated to and from by using <span class="irc">!partyvia <span class="repl">lang</span></span>
     </div>
 
     <h3>rantext</h3>
