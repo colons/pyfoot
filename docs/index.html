@@ -92,7 +92,7 @@ ul.args {
 
 ul.args:before {
     color: #d66;
-    content: ' | '
+    content: ' : '
 }
 
 ul li {
@@ -109,17 +109,13 @@ ul li:last-child:after {
 }
 
 ul.args li:last-child:after {
-    content: "—";
-    display: block;
-    text-align: center;
-    color: #aaa;
-    font-family: sans-serif;
+    content: " | ";
+    color: #d66;
     padding-top: .2em;
 }
 
 ul.args:last-child li:last-child:after {
     content: "";
-    display: inline;
 }
 
 span.irc {
