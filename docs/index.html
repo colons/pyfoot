@@ -108,13 +108,13 @@ ul li:last-child:after {
     content: "";
 }
 
-ul.args li:last-child:after {
+ul.commands li:first-child:before {
     content: " | ";
     color: #d66;
     padding-top: .2em;
 }
 
-ul.args:last-child li:last-child:after {
+ul.commands:first-child li:first-child:before {
     content: "";
 }
 
@@ -337,14 +337,18 @@ p.credit {
         <p>A recreation of <a href="http://translationparty.com/">Translation Party</a> using the Bing translate API.</p>
         <p class="input">!party scissor me timbers</p>
         <p class="output">I have a tree. | 7 attempts | http://woof.bldm.us/party/Derasonika-120213-235608.txt</p>
-        <p>If desired, you can specify the language to be translated to and from by using <span class="irc">!partyvia <span class="repl">lang</span></span> <span class="repl">phrase</span></span> or <span class="irc">!pv <span class="repl">lang</span></span> <span class="repl">phrase</span></span>. <span class="irc"><span class="repl">lang</span></span> must be a language code from both <a href="http://msdn.microsoft.com/en-us/library/dd877907.aspx">here</a> and <a href="http://msdn.microsoft.com/en-us/library/dd877886.aspx">here</a>, as it is used repeatedly as both a source and target language.
+        <p>If desired, you can specify the language to be translated to and from by using <span class="irc">!partyvia/!pv <span class="repl">lang</span> <span class="repl">phrase</span></span>. <span class="irc"><span class="repl">lang</span></span> must be a language code from both <a href="http://msdn.microsoft.com/en-us/library/dd877907.aspx">here</a> and <a href="http://msdn.microsoft.com/en-us/library/dd877886.aspx">here</a>, as it will be used repeatedly as both a source and target language.
     </div>
 
     <h3>rantext</h3>
     <div class="usage">
         <ul class="commands">
             <li>!jerkcity</li>
+        </ul>
+        <ul class="commands">
             <li>!troll</li>
+        </ul>
+        <ul class="commands">
             <li>!rms</li>
         </ul>
     </div>
@@ -396,8 +400,14 @@ p.credit {
     <div class="usage">
         <ul class="commands">
             <li>woof</li>
+        </ul>
+        <ul class="commands">
             <li>moo</li>
+        </ul>
+        <ul class="commands">
             <li>walkies</li>
+        </ul>
+        <ul class="commands">
             <li><span class="repl">&hellip;</span></li>
         </ul>
     </div>
