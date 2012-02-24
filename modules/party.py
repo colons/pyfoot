@@ -18,7 +18,12 @@ def dupes(party):
 class Module(metamodule.MetaModule):
     def act(self, message):
         """ A recreation of translationparty, only with better duplicate detection """
-        initial_phrase = parser.args(message.content, 'party', self.conf)
+        initial_phrase = parser.args(message.content, ['pv', 'partyvia', 'party', 'p'], self.conf)
+        if message.content.split(' ')[0] in [self.conf.get('comchar')+s for s in ['pv', 'partyvia']]:
+            transvia = message.content.split(' ')[1]
+            initial_phrase = ' '.join(initial_phrase.split(' ')[1:])
+        else:
+            transvia = self.conf.get('transvia')
 
         if initial_phrase == False:
             return
@@ -26,8 +31,8 @@ class Module(metamodule.MetaModule):
         if len(initial_phrase) != 0:
             party = [initial_phrase]
             while dupes (party) == False:
-                party.append(self.translate('en', self.conf.get('transvia'), party[-1]))
-                party.append(self.translate(self.conf.get('transvia'), 'en', party[-1]))
+                party.append(self.translate('en', transvia, party[-1]))
+                party.append(self.translate(transvia, 'en', party[-1]))
             
             filename = '%s-%s.txt' % (message.nick, time.strftime('%y%m%d-%H%M%S'))
             filepath = path.expanduser(self.conf.get('web_directory')+'party/'+filename)
