@@ -20,7 +20,7 @@ body {
     background-attachment: scroll, fixed; */
 
     text-shadow: #eee 0px 1px 0;
-    max-width: 700px;
+    max-width: 800px;
     min-width: 400px;
     margin-left: auto;
     margin-right: auto;
@@ -34,16 +34,29 @@ h1 {
 h2 {
     clear: both;
     margin: 0;
-    padding-bottom: 0;
-    padding-top: 1em;
+    padding-bottom: .5em;
+    padding-top: 4em;
     font-weight: 500;
+    text-transform: lowercase;
+    text-align: center;
+}
+
+h2:after {
+    content: ' -';
+}
+
+h2:before {
+    content: '- ';
 }
 
 h3 {
     clear: both;
     margin: 0;
-    padding-top: 1em;
+    padding-top: 3em;
+    padding-bottom: 0;
     font-weight: 600;
+    margin-right: 65%; 
+/*  border-bottom: 1px solid #aaa; */
 }
 
 p {
@@ -66,7 +79,7 @@ div.usage {
     float: left;
     vertical-align: top;
     text-align: left;
-    width: 28%;
+    width: 34%;
     padding: 0;
     margin: 0;
     line-height: 1em;
@@ -75,7 +88,8 @@ div.usage {
 div.description {
     float: right;
     vertical-align: top;
-    width: 70%;
+    width: 64%;
+/*  margin-top: -.8em; */
 }
 
 ul {
@@ -199,7 +213,7 @@ p.disclaimer:before {
 p.credit {
     clear: both;
     text-align: center;
-    padding: 2em 0 1em 0;
+    padding: 5em 0 1em 0;
     color: #666;
     font-size: .8em;
 }
@@ -212,8 +226,9 @@ p.credit {
 
     A useless, poorly documented<span class="ast">*</span> and badly written IRC robot. Python source available on <a href="https://bitbucket.org/colons/pyfoot/">Bitbucket</a>.
 
-    <!-- <h2>Modules</h2> -->
-
+    <!--
+    <h2>Features</h2>
+    -->
 
     <h3>ddg</h3>
     <div class="usage">
@@ -417,7 +432,7 @@ p.credit {
         <p class="output">woof</p>
     </div>
     
-    <h3>behaviour</h3>
+    <h2>Behaviour</h2>
     <p>On startup, pyfoot will join all the channels his configuration suggests he should. Channels joined and left while running do not change this.
     <p>While running, he will join any channel he recieves an <a href="http://www.irchelp.org/irchelp/rfc/chapter4.html#c4_2_7">invitation</a> to. He may not be welcome, however, and there's no mechanism on his end for detaching from a channel.</p>
     <p>pyfoot will, under no circumstances, automatically rejoin a channel when kicked. If you want him back, re-invite him.</p>
