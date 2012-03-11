@@ -29,7 +29,7 @@ class Module(metamodule.MetaModule):
     def maluser(self, user):
         """ Takes a user - irc or mal - and determines the appropriate MAL username """
         try:
-            maluser = self.malusers[self.conf.get('address')+' '+user]
+            maluser = self.malusers[self.conf.get('address')+' '+user.lower()]
         except KeyError:
             return user
         else:
@@ -245,7 +245,7 @@ class Module(metamodule.MetaModule):
             except urllib2.HTTPError:
                 self.irc.send(message.source, self.help_missing % post_arg.split()[1])
             else:
-                self.malusers[self.conf.get('address')+' '+message.nick] = post_arg.split()[1]
+                self.malusers[self.conf.get('address')+' '+message.nick.lower()] = post_arg.split()[1]
                 userfile = open(self.user_file_path, 'w')
                 pickle.dump(self.malusers, userfile)
                 userfile.close()
@@ -255,3 +255,6 @@ class Module(metamodule.MetaModule):
             user = post_arg.split()[0]
             print user
             self.irc.send(message.source, self.summarise_user(user))
+
+    def correlate(self, id1, id2):
+        print 'hi'
