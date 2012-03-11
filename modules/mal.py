@@ -17,7 +17,7 @@ class Module(metamodule.MetaModule):
         self.malusers = {}
         self.help_setup = "link a MyAnimeList account to your IRC nick with '"+conf.get('comchar')+"mal set <account name>'"
         self.help_missing = 'no such MAL user \x02%s\x02'
-
+        
         try:
             userfile = open(self.user_file_path)
             self.malusers = pickle.load(userfile)
@@ -245,6 +245,13 @@ class Module(metamodule.MetaModule):
             except urllib2.HTTPError:
                 self.irc.send(message.source, self.help_missing % post_arg.split()[1])
             else:
+                try: # just in case other instances of pyfoot have altered the file since we last read it
+                    userfile = open(self.user_file_path)
+                    self.malusers = pickle.load(userfile)
+                    userfile.close()
+                except:
+                    print ' :: error reading MAL user pickle, creating one now'
+
                 self.malusers[self.conf.get('address')+' '+message.nick.lower()] = post_arg.split()[1]
                 userfile = open(self.user_file_path, 'w')
                 pickle.dump(self.malusers, userfile)
