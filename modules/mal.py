@@ -202,7 +202,7 @@ class Module(metamodule.MetaModule):
 
         if post_arg == True:
             try:
-                maluser = self.malusers[self.conf.get('address')+' '+message.nick]
+                maluser = self.malusers[self.conf.get('address')+' '+message.nick.lower()]
             except KeyError:
                 self.irc.send(message.source, self.help_setup)
             else:
