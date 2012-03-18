@@ -42,7 +42,7 @@ def dispatch(data, irc, modules, conf):
         return None
     
     if data == '':
-        print ' :: empty response, assuming disconnection'
+        print ' :: empty response, assuming disconnection\a' # alert
         irc.close()
 
     for line in data.split('\n'):
