@@ -55,11 +55,20 @@ def dispatch(data, irc, modules, conf):
         except(IndexError):
             type = None
 
+
         # loads the modules from our configfile
         
         if type == 'INVITE':
             channel = content(line)
             irc.join(channel)
+
+        if type == 'NOTICE':
+            the_message = message.Message(line)
+
+            if the_message.nick == 'NickServ':
+                print 'HI HICKSEJISOADS'
+                for channel in conf.get('channels').split(','):
+                    irc.join(channel)
 
         if type == 'PRIVMSG':
             the_message = message.Message(line)

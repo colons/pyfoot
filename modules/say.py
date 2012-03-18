@@ -8,5 +8,6 @@ class Module(metamodule.MetaModule):
         if post_arg:
             if len(post_arg.split()) > 1:
                 target = post_arg.split()[0]
-                phrase = ' '.join(post_arg.split()[1:])
-                self.irc.send(target, phrase)
+                if target.lower() not in conf.get('say_blacklist').split(','):
+                    phrase = ' '.join(post_arg.split()[1:])
+                    self.irc.send(target, phrase)

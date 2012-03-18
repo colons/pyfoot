@@ -18,9 +18,6 @@ class Network(object):
 
         self.irc.send('nickserv', 'identify %s' % conf.get('nickserv_pass'))
 
-        for channel in conf.get('channels').split(','):
-            self.irc.join(channel)
-        
         while True:
             """ Here's where the shit happens """
             data = self.irc.listen()
