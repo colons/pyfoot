@@ -59,9 +59,10 @@ def dispatch(data, irc, modules, conf):
         if type == 'PRIVMSG':
             the_message = message.Message(line)
 
-            for module in modules:
-                if '%s %s' % (the_message.source, module.name) not in conf.get('exclude').split(','):
-                    if conf.get('debug') == '1':
-                        module.act(the_message)
-                    else:
-                        thread.start_new_thread(module.act, (the_message,))
+            if the_message.nick not in conf.get('blacklist').split(','):
+                for module in modules:
+                    if '%s %s' % (the_message.source, module.name) not in conf.get('exclude').split(','):
+                        if conf.get('debug') == '1':
+                            module.act(the_message)
+                        else:
+                            thread.start_new_thread(module.act, (the_message,))
