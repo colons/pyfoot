@@ -15,7 +15,7 @@ hostname = pyfoot
 servername = pyfoot
 realname = pyfoot
 ctcp_version = pyfoot-hg
-blaclist = people,you,want,to,ignore
+blacklist = people,you,want,to,ignore
 ssl = false
 
 # modules to exclude per-channel in '#channel module,#channel module' format
