@@ -39,7 +39,7 @@ class IRC(object):
         
         if crop and len(message_list) > 1:
             message_list = [message_list[0]]
-            message_list[0] = message_list[0][:-3]+'...'
+            message_list[0] = message_list[0][:-3].rstrip()+'...'
 
         for part in message_list:
             if pretty:

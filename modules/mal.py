@@ -4,6 +4,7 @@ from random import choice
 from math import fabs
 from os import path
 import pickle
+import re
 
 import parser
 import metamodule
@@ -189,11 +190,15 @@ class Module(metamodule.MetaModule):
         search = self.query('anime/search', ['q=%s' % urllib2.quote(query)])
 
         # data = self.query('anime/%i' % search[0]['id'])
-        data = search[0]
+        try:
+            data = search[0]
+        except IndexError:
+            return 'no results | http://myanimelist.net/anime.php?q=%s' % urllib2.quote(query)
         
         showpage = 'http://myanimelist.net/anime/%i' % search[0]['id']
-
-        return '\x02%s\x02 : %s | %s | %s' % (data['title'], data['type'], showpage, data['synopsis'])
+        
+        # the html stripping should not be here, but it is for now because fuck you
+        return '\x02%s\x02 : %s | %s | %s' % (data['title'], data['type'], showpage, re.sub('<[^<]+?>', '', data['synopsis']))
 
     def testauth(self):
         pass
