@@ -12,7 +12,8 @@ class Module(metamodule.MetaModule):
     """ fresh MyAnimeList facts, milled from the mal-api.com api """
     def __init__(self, irc, conf):
         metamodule.MetaModule.__init__(self, irc, conf)
-        self.url = 'http://mal-api.com/%s?format=json'
+        self.url = 'http://mal-api.com/%s?%s'
+        self.default_args = ['format=json']
         self.user_file_path = path.expanduser(conf.get('content_dir')+'mal')
         self.malusers = {}
         self.help_setup = "link a MyAnimeList account to your IRC nick with '"+conf.get('comchar')+"mal set <account name>'"
@@ -184,13 +185,24 @@ class Module(metamodule.MetaModule):
         else:
             return "\x02%s\x02 and \x02%s\x02 need to watch and score more stuff" % (users[0], users[1])
 
+    def search(self, query):
+        search = self.query('anime/search', ['q=%s' % urllib2.quote(query)])
+
+        # data = self.query('anime/%i' % search[0]['id'])
+        data = search[0]
+        
+        showpage = 'http://myanimelist.net/anime/%i' % search[0]['id']
+
+        return '\x02%s\x02 : %s | %s | %s' % (data['title'], data['type'], showpage, data['synopsis'])
 
     def testauth(self):
         pass
 
 
-    def query(self, query):
-        data = json.load(urllib2.urlopen(self.url % query))
+    def query(self, query, additional_args=[]):
+        args = '&'.join(self.default_args+additional_args)
+        print self.url % (query, args)
+        data = json.load(urllib2.urlopen(self.url % (query, args)))
         return data
 
 
@@ -204,46 +216,46 @@ class Module(metamodule.MetaModule):
             try:
                 maluser = self.malusers[self.conf.get('address')+' '+message.nick.lower()]
             except KeyError:
-                self.irc.send(message.source, self.help_setup)
+                self.irc.send(message.source, self.help_setup, pretty=True)
             else:
-                self.irc.send(message.source, self.summarise_user(message.nick))
+                self.irc.send(message.source, self.summarise_user(message.nick), pretty=True)
 
         elif post_arg.split()[0] == 'compare' and len(post_arg.split()) == 3:
             # what are these two people like?
             users = post_arg.split()[1:]
-            self.irc.send(message.source, self.compare_users(users))
+            self.irc.send(message.source, self.compare_users(users), pretty=True)
 
         elif post_arg.split()[0] == 'compare' and len(post_arg.split()) == 2:
             # what are we like?
             try:
                 maluser = self.malusers[self.conf.get('address')+' '+message.nick]
             except KeyError:
-                self.irc.send(message.source, self.help_setup)
+                self.irc.send(message.source, self.help_setup, pretty=True)
             else:
                 users = [message.nick, post_arg.split()[1]]
-                self.irc.send(message.source, self.compare_users(users))
+                self.irc.send(message.source, self.compare_users(users), pretty=True)
 
         elif post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 3:
             # a fight with both parties specified
             users = post_arg.split()[1:]
-            self.irc.send(message.source, self.fight(users))
+            self.irc.send(message.source, self.fight(users), pretty=True)
 
         elif post_arg.split()[0] in ['battle', 'fight', 'argue'] and len(post_arg.split()) == 2:
             # a fight with one party issuing the challenge
             try:
                 maluser = self.malusers[self.conf.get('address')+' '+message.nick]
             except KeyError:
-                self.irc.send(message.source, self.help_setup)
+                self.irc.send(message.source, self.help_setup, pretty=True)
             else:
                 users = [message.nick, post_arg.split()[1]]
-                self.irc.send(message.source, self.fight(users))
+                self.irc.send(message.source, self.fight(users), pretty=True)
 
         elif post_arg.split()[0] in ['set', 'iam', "i'm"] and len(post_arg.split()) == 2:
             # a user is telling us who they are
             try:
                 data = self.query('animelist/%s' % post_arg.split()[1])
             except urllib2.HTTPError:
-                self.irc.send(message.source, self.help_missing % post_arg.split()[1])
+                self.irc.send(message.source, self.help_missing % post_arg.split()[1], pretty=True)
             else:
                 try: # just in case other instances of pyfoot have altered the file since we last read it
                     userfile = open(self.user_file_path)
@@ -256,12 +268,15 @@ class Module(metamodule.MetaModule):
                 userfile = open(self.user_file_path, 'w')
                 pickle.dump(self.malusers, userfile)
                 userfile.close()
-                self.irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]))
+                self.irc.send(message.source, '\x02%s\x02 is MAL user \x02%s\x02' % (message.nick, post_arg.split()[1]), pretty=True)
+
+        elif post_arg.split()[0] in ['search', 's', 'find', 'f'] and len(post_arg.split()) > 1:
+            self.irc.send(message.source, self.search(' '.join(post_arg.split()[1:])), pretty=True, crop=True)
 
         elif len(post_arg.split()) == 1:
             user = post_arg.split()[0]
             print user
-            self.irc.send(message.source, self.summarise_user(user))
+            self.irc.send(message.source, self.summarise_user(user), pretty=True)
 
     def correlate(self, id1, id2):
         print 'hi'

@@ -33,12 +33,18 @@ class IRC(object):
         """ Joins a channel """
         self.irc.send('JOIN %s\r\n' % channel)
 
-    def send(self, channel, message):
+    def send(self, channel, message, pretty=False, crop=False):
         """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
         message_list = split_len(message, 420)
+        
+        if crop and len(message_list) > 1:
+            message_list = [message_list[0]]
+            message_list[0] = message_list[0][:-3]+'...'
+
         for part in message_list:
-            pretty = self.beautify(part)
-            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(pretty))
+            if pretty:
+                part = self.beautify(part)
+            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
             print ' >>', out,
             self.irc.send(out)
 

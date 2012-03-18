@@ -43,4 +43,4 @@ class Module(metamodule.MetaModule):
             file.close()
             
             attempts = len(party)/2
-            self.irc.send(message.source, '%s | \x02%i\x02 attempts | %sparty/%s' % (party[-1], attempts, self.conf.get('web_url'), filename))
+            self.irc.send(message.source, '%s | \x02%i\x02 attempts | %sparty/%s' % (party[-1], attempts, self.conf.get('web_url'), filename), pretty=True)

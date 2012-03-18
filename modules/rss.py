@@ -40,4 +40,4 @@ class Module(metamodule.MetaModule):
                         title = self.latestitem[url]['title']
                         link = self.latestitem[url]['link']
                     
-                        self.irc.send(channel, '%s | %s' % (title, link))
+                        self.irc.send(channel, '%s | %s' % (title, link), pretty=True)

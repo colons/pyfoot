@@ -48,4 +48,4 @@ class Module(metamodule.MetaModule):
             query = urllib2.quote(post_arg)
             answer = self.get_answer(query)
             if answer:
-                self.irc.send(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query))
+                self.irc.send(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query), pretty=True)
