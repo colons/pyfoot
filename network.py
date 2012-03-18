@@ -8,7 +8,7 @@ class Network(object):
         """ Get configuration shit and connect and set everything up """
         self.modules = []
         
-        self.irc = IRC(conf.get('address'), conf.get('port'), conf.get('nick'), conf.get('username'), conf.get('hostname'), conf.get('servername'), conf.get('realname'))
+        self.irc = IRC(conf.get('address'), conf.get('port'), conf.get('nick'), conf.get('username'), conf.get('hostname'), conf.get('servername'), conf.get('realname'), ssl_enabled=bool(conf.get('ssl')))
 
         for modulename in conf.get('modules').split(','):
             __import__('modules.'+modulename)

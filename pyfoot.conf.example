@@ -16,6 +16,7 @@ servername = pyfoot
 realname = pyfoot
 ctcp_version = pyfoot-hg
 blaclist = people,you,want,to,ignore
+ssl = false
 
 # modules to exclude per-channel in '#channel module,#channel module' format
 # it is recommended you do this at the [network] level, but you should still have an empty one here as a fallback

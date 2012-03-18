@@ -38,7 +38,12 @@ def args(content, args, conf):
 def dispatch(data, irc, modules, conf):
     """ Deals with messages, sends modules the information they need. """
     if data == None:
+        print ' :: no data'
         return None
+    
+    if data == '':
+        print ' :: empty response, assuming disconnection'
+        irc.close()
 
     for line in data.split('\n'):
         if line.startswith('PING :'):

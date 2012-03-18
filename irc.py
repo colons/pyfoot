@@ -1,5 +1,7 @@
 import socket
+import ssl
 from django.utils.encoding import smart_str
+import sys
 
 def split_len(seq, length):
     """ Splits messages into manageable chunks """
@@ -9,10 +11,16 @@ def split_len(seq, length):
 
 class IRC(object):
     """ Our IRC abstraction layer - this object represents the actual connection """
-    def __init__(self, address, port, nick, username, hostname, servername, realname):
+    def __init__(self, address, port, nick, username, hostname, servername, realname, ssl_enabled=False):
         """ Connects to a network """
-        self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.irc.connect((address, int(port)))
+        raw_irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        raw_irc.connect((address, int(port)))
+
+        if ssl_enabled:
+            self.irc = ssl.wrap_socket(raw_irc)
+        else:
+            self.irc = raw_irc
+
         self.irc.send('NICK %s\r\n' % nick)
         self.irc.send('USER %s %s %s %s\r\n' % (username, hostname, servername, realname))
 
@@ -62,3 +70,6 @@ class IRC(object):
         if self.data.find(' '):
             return self.data
 
+    def close(self):
+        self.irc.close
+        sys.exit()
