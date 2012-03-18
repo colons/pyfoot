@@ -21,4 +21,3 @@ class Module(metamodule.MetaModule):
             if parser.args(message.content, source, self.conf) != False:
                 line = extract(source, self.conf)
                 self.irc.send(message.source, line)
-
