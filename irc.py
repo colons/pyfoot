@@ -2,6 +2,7 @@ import socket
 import ssl
 from django.utils.encoding import smart_str
 import sys
+import re
 
 def split_len(seq, length):
     """ Splits messages into manageable chunks """
@@ -23,6 +24,7 @@ class IRC(object):
 
         self.irc.send('NICK %s\r\n' % nick)
         self.irc.send('USER %s %s %s %s\r\n' % (username, hostname, servername, realname))
+        self.channels = {}
 
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
@@ -38,8 +40,15 @@ class IRC(object):
         self.whois(user)
 
     def join(self, channel):
-        """ Joins a channel """
-        self.irc.send('JOIN %s\r\n' % channel)
+        """ Joins a channel. If already joined, requests channel modes. """
+        try:
+            self.channels[channel]
+        except KeyError:
+            # we are not in this channel
+            print ' :: Joining %s' % channel
+            self.irc.send('JOIN %s\r\n' % channel)
+
+        self.irc.send('MODE %s\r\n' % channel)
 
     def send(self, channel, message, pretty=False, crop=False):
         """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
@@ -52,6 +61,13 @@ class IRC(object):
         for part in message_list:
             if pretty:
                 part = self.beautify(part)
+
+            try:
+                if 'c' in self.channels[channel]:
+                    part = self.strip_formatting(part)
+            except KeyError:
+                pass
+
             out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
             print ' >>', out,
             self.irc.send(out)
@@ -62,6 +78,25 @@ class IRC(object):
         message = message.replace(' | ', '\x034 |\x03 ')
         message = message.replace(' @ ', '\x034 @\x03 ')
         return message
+
+    def strip_formatting(self, part):
+
+        # colours first
+        odd = True
+        while re.search('\x03', part):
+            if odd:
+                part = re.sub('\x03\d?\d?', '', part, count=1)
+            else:
+                part = re.sub('\x03', '', part, count=1)
+
+            odd = not odd
+        
+        part = re.sub('\x01', '', part)
+        part = re.sub('\x02', '', part)
+        part = re.sub('\x0F', '', part)
+        part = re.sub('\x16', '', part)
+
+        return part
         
     def listen(self):
         """ Listens for incoming stuffs and returns them """

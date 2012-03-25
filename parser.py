@@ -1,6 +1,11 @@
 import message
 import thread
 
+
+def parse_modelist(modelist):
+    modelist = modelist.lstrip('+')
+    return modelist
+
 def content(data):
     """ Return message content """
     return(':'.join(data.split(':')[2:]))
@@ -54,9 +59,30 @@ def dispatch(data, irc, modules, conf):
             type = ''.join(line.split(':')[:2]).split(' ')[1]
         except(IndexError):
             type = None
+        
+        try:
+            int(type)
+        except(ValueError, TypeError):
+            pass
+        else:
+            # this is a status message, if it's modes we need to know about it
+            splitline = line.split(' ')
+            channel_name = splitline[3]
+            if channel_name.startswith('#'):
+                modelist = splitline[4]
 
+                if modelist.startswith('+'):
+                    irc.channels[channel_name] = parse_modelist(modelist)
+                    print irc.channels
 
-        # loads the modules from our configfile
+        if type == 'MODE':
+            channel_name = line.split(' ')[2]
+            irc.join(channel_name)
+
+        if type == 'KICK':
+            channel_name = line.split(' ')[2]
+            del irc.channels[channel_name]
+            print irc.channels
         
         if type == 'INVITE':
             channel = content(line)
@@ -66,7 +92,9 @@ def dispatch(data, irc, modules, conf):
             the_message = message.Message(line)
 
             if the_message.nick == 'NickServ':
-                print 'HI HICKSEJISOADS'
+                # this is a horrible hack - we attempt channel joins when nickserv talks to us
+                # which should only happen shortly after joining
+                # this means we can get into +r channels
                 for channel in conf.get('channels').split(','):
                     irc.join(channel)
 
