@@ -41,7 +41,7 @@ def args(content, args, conf):
 
 
 def dispatch(data, irc, modules, conf):
-    """ Deals with messages, sends modules the information they need. """
+    """ Deals with messages and sends modules the information they need. """
     if data == None:
         print ' :: no data'
         return None
@@ -53,7 +53,6 @@ def dispatch(data, irc, modules, conf):
     for line in data.split('\r\n'):
 
         if line.startswith('PING :'):
-            print 'PONG!'
             irc.pong(line)
         
         try:
@@ -75,8 +74,6 @@ def dispatch(data, irc, modules, conf):
                     print ' :: %s has become %s since we last saw them' % (the_message.person['nick'], the_message.nick)
                     the_message.person['nick'] = the_message.nick
 
-                print irc.people
-
         if type == '324':
             # this is a list of channel modes
             splitline = line.split(' ')
@@ -87,8 +84,6 @@ def dispatch(data, irc, modules, conf):
                 irc.channels[name]['modes'] = modelist.lstrip('+')
             except KeyError:
                 irc.channels[name] = {'modes': modelist.lstrip('+')}
-
-            print irc.channels
 
         if type == '352':
             # this is a WHO response
@@ -109,7 +104,6 @@ def dispatch(data, irc, modules, conf):
         if type == 'KICK':
             name = line.split(' ')[2]
             del irc.channels[name]
-            print irc.channels
         
         if type == 'INVITE':
             channel = content(line)
@@ -129,7 +123,6 @@ def dispatch(data, irc, modules, conf):
                 irc.people[the_message.host] = {}
 
             irc.people[the_message.host]['nick'] = the_message.content
-            print irc.people
 
         if type == 'PRIVMSG':
             if the_message.nick.lower() not in [n.lower() for n in conf.get('blacklist').split(',')]:
