@@ -12,10 +12,7 @@ def nick(data):
 
 def host(data):
     """ Return message nick """
-    try:
-        return ''.join(data.split(':')[1]).split('!')[1].split(' ')[0]
-    except IndexError:
-        return False
+    return ''.join(data.split(':')[1]).split('!')[1].split(' ')[0]
 
 def destination(data):
     """ Determines where to send whatever the parser develops """
