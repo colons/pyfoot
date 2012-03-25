@@ -54,10 +54,20 @@ class IRC(object):
     def who(self, host):
         self.irc.send('WHO %s\r\n' % host)
     
-    def act(self, channel, message, pretty=False, crop=False):
-        self.send(channel, message, pretty=pretty, crop=crop, act=True)
+    def act(self, target, message, pretty=False, crop=False):
+        self.ctcp(target, 'ACTION', message)
 
-    def send(self, channel, message, pretty=False, crop=False, act=False):
+    def ctcp(self, target, ctcp, message=None):
+        """ Issue a CTCP """
+        if message:
+            s = ctcp+' '+message
+        else:
+            s = ctcp
+
+        out = 'PRIVMSG %s \x01%s\x01\r\n' % (target, s)
+        self.irc.send(out)
+
+    def send(self, channel, message, pretty=False, crop=False):
         """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
         message_list = split_len(message, 420)
         
@@ -74,11 +84,8 @@ class IRC(object):
                     part = self.strip_formatting(part)
             except KeyError:
                 pass
-            
-            if act:
-                out = 'PRIVMSG %s \x01ACTION %s\x01\r\n' % (channel, smart_str(part))
-            else:
-                out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
+
+            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
             print ' >>', out,
             self.irc.send(out)
 

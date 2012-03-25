@@ -2,6 +2,9 @@ import parser
 import metamodule
 
 class Module(metamodule.MetaModule):
+    def growl(self, target):
+        self.irc.act(target, 'growls')
+
     def act(self, message):
         if parser.args(message.content, 'auth', self.conf):
             # Force an authentication check.
@@ -12,11 +15,26 @@ class Module(metamodule.MetaModule):
             if message.person['master'] == True:
                 self.irc.act(message.source, 'sits')
             else:
-                self.irc.act(message.source, 'growls')
+                self.growl(message.source)
         
-        quote = parser.args(message.content, 'rsend', self.conf)
+        quote = parser.args(message.content, 'quote', self.conf)
+        ctcp = parser.args(message.content, 'ctcp', self.conf)
 
-        if quote and type(quote) != bool and message.person['master'] == True:
-            self.irc.irc.send('%s\r\r' % quote)
-        elif quote and type(quote) != bool:
-            self.irc.act(message.source, 'growls')
+        
+        if (quote and type(quote) != bool) or (ctcp and type(ctcp) != bool):
+            if message.person['master'] == True:
+                if ctcp:
+                    target = ctcp.split(' ')[0]
+                    ctcp_type = ctcp.split(' ')[1]
+                    try:
+                        content = ' '.join(ctcp.split(' ')[2:])
+                    except IndexError:
+                        content = None
+                    
+                    self.irc.ctcp(target, ctcp_type, content)
+
+                if quote:
+                    self.irc.irc.send('%s\r\r' % quote)
+
+            else:
+                self.growl(message.source)
