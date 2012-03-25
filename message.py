@@ -5,4 +5,4 @@ class Message(object):
         self.nick = parser.nick(data)
         self.content = parser.content(data)
         self.source = parser.destination(data)
-
+        self.host = parser.host(data)

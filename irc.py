@@ -16,6 +16,9 @@ class IRC(object):
         """ Connects to a network """
         self.initial = True # this gets set to false once all channels have been joined
 
+        self.channels = {}
+        self.people = {}
+
         raw_irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         raw_irc.connect((address, int(port)))
 
@@ -26,20 +29,14 @@ class IRC(object):
 
         self.irc.send('NICK %s\r\n' % nick)
         self.irc.send('USER %s %s %s %s\r\n' % (username, hostname, servername, realname))
-        self.channels = {}
 
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
         self.irc.send('PONG %s\r\n' % data.split()[1])
     
-    def whois(self, user):
-        """ Performs a WHOIS operation and returns the response. INCOMPLETE. """
-        self.irc.send('WHOIS %s' % user)
+    def who(self, user):
+        self.irc.send('WHO %s' % user)
         self.listen
-
-    def is_registered(self, user):
-        """ Determines if a user is registered. INCOMPLETE. """
-        self.whois(user)
 
     def join(self, channel):
         """ Joins a channel. If already joined, requests channel modes. """
@@ -49,11 +46,18 @@ class IRC(object):
             # we are not in this channel
             print ' :: Joining %s' % channel
             self.irc.send('JOIN %s\r\n' % channel)
+            self.channels[channel] = {}
 
-    def getmode(self, channel):
-        self.irc.send('MODE %s\r\n' % channel)
+    def getmode(self, name):
+        self.irc.send('MODE %s\r\n' % name)
+    
+    def who(self, host):
+        self.irc.send('WHO %s\r\n' % host)
+    
+    def act(self, channel, message, pretty=False, crop=False):
+        self.send(channel, message, pretty=pretty, crop=crop, act=True)
 
-    def send(self, channel, message, pretty=False, crop=False):
+    def send(self, channel, message, pretty=False, crop=False, act=False):
         """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
         message_list = split_len(message, 420)
         
@@ -66,12 +70,15 @@ class IRC(object):
                 part = self.beautify(part)
 
             try:
-                if 'c' in self.channels[channel]:
+                if 'c' in self.channels[channel]['modes']:
                     part = self.strip_formatting(part)
             except KeyError:
                 pass
-
-            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
+            
+            if act:
+                out = 'PRIVMSG %s \x01ACTION %s\x01\r\n' % (channel, smart_str(part))
+            else:
+                out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
             print ' >>', out,
             self.irc.send(out)
 

@@ -2,17 +2,20 @@ import message
 import thread
 
 
-def parse_modelist(modelist):
-    modelist = modelist.lstrip('+')
-    return modelist
-
 def content(data):
     """ Return message content """
-    return(':'.join(data.split(':')[2:]))
+    return ':'.join(data.split(':')[2:])
 
 def nick(data):
     """ Return message nick """
-    return(''.join(data.split(':')[1]).split('!')[0])
+    return ''.join(data.split(':')[1]).split('!')[0]
+
+def host(data):
+    """ Return message nick """
+    try:
+        return ''.join(data.split(':')[1]).split('!')[1].split(' ')[0]
+    except IndexError:
+        return False
 
 def destination(data):
     """ Determines where to send whatever the parser develops """
@@ -50,7 +53,8 @@ def dispatch(data, irc, modules, conf):
         print ' :: empty response, assuming disconnection\a' # alert
         irc.close()
 
-    for line in data.split('\n'):
+    for line in data.split('\r\n'):
+
         if line.startswith('PING :'):
             print 'PONG!'
             irc.pong(line)
@@ -59,33 +63,55 @@ def dispatch(data, irc, modules, conf):
             type = ''.join(line.split(':')[:2]).split(' ')[1]
         except(IndexError):
             type = None
-        
-        try:
-            int(type)
-        except(ValueError, TypeError):
-            pass
         else:
-            # this is a status message, if it's modes we need to know about it
-            splitline = line.split(' ')
-            try:
-                channel_name = splitline[3]
-            except IndexError:
-                pass
-            else:
-                if channel_name.startswith('#'):
-                    modelist = splitline[4]
+            the_message = message.Message(line)
+            
+            if the_message.host:
+                # who is this from? do we already know who they are?
+                try:
+                    the_message.person = irc.people[the_message.host]
+                except KeyError:
+                    irc.people[the_message.host] = {'nick': the_message.nick, 'master': False}
+                    the_message.person = irc.people[the_message.host]
+                
+                if the_message.person['nick'] != the_message.nick:
+                    print ' :: %s has become %s since we last saw them' % (the_message.person['nick'], the_message.nick)
+                    the_message.person['nick'] = the_message.nick
 
-                    if modelist.startswith('+'):
-                        irc.channels[channel_name] = parse_modelist(modelist)
-                        print irc.channels
+                print irc.people
+
+        if type == '324':
+            # this is a list of channel modes
+            splitline = line.split(' ')
+            name = splitline[3]
+            modelist = splitline[4]
+
+            try:
+                irc.channels[name]['modes'] = modelist.lstrip('+')
+            except KeyError:
+                irc.channels[name] = {'modes': modelist.lstrip('+')}
+
+            print irc.channels
+
+        if type == '352':
+            # this is a WHO response
+            splitline = line.split(' ')
+            name = splitline[4]
+            modelist = splitline[8]
+            host = splitline[4]+'@'+splitline[5]
+
+            irc.people[host]['modes'] = modelist
+
+            if 'r' in modelist and name in conf.get('masters').split(','):
+                irc.people[host]['master'] = True
 
         if type == 'MODE':
-            channel_name = line.split(' ')[2]
-            irc.getmode(channel_name)
+            name = line.split(' ')[2]
+            irc.getmode(name)
 
         if type == 'KICK':
-            channel_name = line.split(' ')[2]
-            del irc.channels[channel_name]
+            name = line.split(' ')[2]
+            del irc.channels[name]
             print irc.channels
         
         if type == 'INVITE':
@@ -93,17 +119,22 @@ def dispatch(data, irc, modules, conf):
             irc.join(channel)
 
         if type == 'NOTICE':
-            the_message = message.Message(line)
-
             if the_message.nick == 'NickServ' and irc.initial:
                 for channel in conf.get('channels').split(','):
                     irc.join(channel)
-
+                
                 irc.initial = False
 
-        if type == 'PRIVMSG':
-            the_message = message.Message(line)
+        if type == 'NICK':
+            try:
+                irc.people[the_message.host]
+            except KeyError:
+                irc.people[the_message.host] = {}
 
+            irc.people[the_message.host]['nick'] = the_message.content
+            print irc.people
+
+        if type == 'PRIVMSG':
             if the_message.nick.lower() not in [n.lower() for n in conf.get('blacklist').split(',')]:
                 for module in modules:
                     if '%s %s' % (the_message.source, module.name) not in conf.get('exclude').split(','):
