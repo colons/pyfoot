@@ -67,13 +67,17 @@ def dispatch(data, irc, modules, conf):
         else:
             # this is a status message, if it's modes we need to know about it
             splitline = line.split(' ')
-            channel_name = splitline[3]
-            if channel_name.startswith('#'):
-                modelist = splitline[4]
+            try:
+                channel_name = splitline[3]
+            except IndexError:
+                pass
+            else:
+                if channel_name.startswith('#'):
+                    modelist = splitline[4]
 
-                if modelist.startswith('+'):
-                    irc.channels[channel_name] = parse_modelist(modelist)
-                    print irc.channels
+                    if modelist.startswith('+'):
+                        irc.channels[channel_name] = parse_modelist(modelist)
+                        print irc.channels
 
         if type == 'MODE':
             channel_name = line.split(' ')[2]
