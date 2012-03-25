@@ -81,7 +81,7 @@ def dispatch(data, irc, modules, conf):
 
         if type == 'MODE':
             channel_name = line.split(' ')[2]
-            irc.join(channel_name)
+            irc.getmode(channel_name)
 
         if type == 'KICK':
             channel_name = line.split(' ')[2]
@@ -95,12 +95,11 @@ def dispatch(data, irc, modules, conf):
         if type == 'NOTICE':
             the_message = message.Message(line)
 
-            if the_message.nick == 'NickServ':
-                # this is a horrible hack - we attempt channel joins when nickserv talks to us
-                # which should only happen shortly after joining
-                # this means we can get into +r channels
+            if the_message.nick == 'NickServ' and irc.initial:
                 for channel in conf.get('channels').split(','):
                     irc.join(channel)
+
+                irc.initial = False
 
         if type == 'PRIVMSG':
             the_message = message.Message(line)
