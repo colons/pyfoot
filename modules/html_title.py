@@ -1,6 +1,7 @@
 import BeautifulSoup
 import urllib
 from random import choice
+import re
 
 import metamodule
 
@@ -19,8 +20,18 @@ class Module(metamodule.MetaModule):
     def act(self, message):
         for word in message.content.split():
             if word.startswith('http://') or word.startswith('https://'):
-                opener = urllib.FancyURLopener()
-                setattr(opener, 'version', choice(self.user_agents))
-                pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
-                title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                self.irc.send(message.source, title)
+                permitted = True
+
+                for i in self.conf.get('url_blacklist').split(','):
+                    print i
+                    channel, blacklist = i.split(' ')
+
+                    if channel == message.source and re.match(blacklist, word):
+                        permitted = False                        
+                
+                if permitted:
+                    opener = urllib.FancyURLopener()
+                    setattr(opener, 'version', choice(self.user_agents))
+                    pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
+                    title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
+                    self.irc.send(message.source, title)
