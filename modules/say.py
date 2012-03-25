@@ -4,6 +4,7 @@ import metamodule
 class Module(metamodule.MetaModule):
     def act(self, message):
         """ Takes any say command and sends it anywhere. Mostly indiscriminate. """
+        post_arg = False
         say = parser.args(message.content, 'say', self.conf)
         act = parser.args(message.content, 'act', self.conf)
 
