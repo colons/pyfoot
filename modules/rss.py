@@ -14,7 +14,12 @@ class Module(metamodule.MetaModule):
 
         for i in self.conf.get('rss').split(','):
             # get latest item, remember to ignore it
-            channel, url = i.split()
+            try:
+                channel, url = i.split()
+            except ValueError:
+                # empty rss= line in config
+                break
+
             try:
                 feed = feedparser.parse(url)
                 self.latestitem[url] = feed['items'][0]
@@ -28,7 +33,12 @@ class Module(metamodule.MetaModule):
             sleep(150)
 
             for i in self.conf.get('rss').split(','):
-                channel, url = i.split()
+                try:
+                    channel, url = i.split()
+                except ValueError:
+                    # empty rss= line in config
+                    break
+
                 try:
                     feed = feedparser.parse(url)
                     item = feed['items'][0] 

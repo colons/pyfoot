@@ -29,14 +29,17 @@ class IRC(object):
 
         self.irc.send('NICK %s\r\n' % nick)
         self.irc.send('USER %s %s %s %s\r\n' % (username, hostname, servername, realname))
+        
 
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
         self.irc.send('PONG %s\r\n' % data.split()[1])
+
     
     def who(self, user):
         self.irc.send('WHO %s' % user)
         self.listen
+
 
     def join(self, channel):
         """ Joins a channel. If already joined, requests channel modes. """
@@ -48,24 +51,34 @@ class IRC(object):
             self.irc.send('JOIN %s\r\n' % channel)
             self.channels[channel] = {}
 
+
     def getmode(self, name):
         self.irc.send('MODE %s\r\n' % name)
+
     
     def who(self, host):
         self.irc.send('WHO %s\r\n' % host)
+
     
     def act(self, target, message, pretty=False, crop=False):
-        self.ctcp(target, 'ACTION', message)
+        self.ctcp(target, 'ACTION', message, notice=False)
 
-    def ctcp(self, target, ctcp, message=None):
+
+    def ctcp(self, target, ctcp, message=None, notice=False):
         """ Issue a CTCP """
         if message:
             s = ctcp+' '+message
         else:
             s = ctcp
 
-        out = 'PRIVMSG %s \x01%s\x01\r\n' % (target, s)
+        if notice:
+            message_type = 'NOTICE'
+        else:
+            message_type = 'PRIVMSG'
+
+        out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
         self.irc.send(out)
+
 
     def send(self, channel, message, pretty=False, crop=False):
         """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
@@ -89,12 +102,14 @@ class IRC(object):
             print ' >>', out,
             self.irc.send(out)
 
+
     def beautify(self, message):
         message = message.replace(' :: ', '\x034 ::\x03 ')
         message = message.replace(' : ', '\x034 :\x03 ')
         message = message.replace(' | ', '\x034 |\x03 ')
         message = message.replace(' @ ', '\x034 @\x03 ')
         return message
+
 
     def strip_formatting(self, part):
 
@@ -114,6 +129,7 @@ class IRC(object):
         part = re.sub('\x16', '', part)
 
         return part
+
         
     def listen(self):
         """ Listens for incoming stuffs and returns them """
@@ -121,6 +137,7 @@ class IRC(object):
         
         if self.data.find(' '):
             return self.data
+
 
     def close(self):
         self.irc.close
