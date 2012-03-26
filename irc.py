@@ -49,7 +49,7 @@ class IRC(object):
             # we are not in this channel
             print ' :: Joining %s' % channel
             self.irc.send('JOIN %s\r\n' % channel)
-            self.channels[channel] = {}
+            self.getmode(channel)
 
 
     def getmode(self, name):
