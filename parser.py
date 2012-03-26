@@ -103,7 +103,11 @@ def dispatch(data, irc, modules, conf):
 
         if type == 'KICK':
             name = line.split(' ')[2]
-            del irc.channels[name]
+
+            try:
+                del irc.channels[name]
+            except KeyError:
+                print ' :: was just kicked from %s, a channel we were not aware of being in'
         
         if type == 'INVITE':
             channel = content(line)
