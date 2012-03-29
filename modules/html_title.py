@@ -1,5 +1,6 @@
 import BeautifulSoup
 import urllib
+from urlparse import urlparse
 from random import choice
 import re
 
@@ -22,12 +23,19 @@ class Module(metamodule.MetaModule):
             if word.startswith('http://') or word.startswith('https://'):
                 permitted = True
 
-                for i in self.conf.get('url_blacklist').split(','):
-                    print i
-                    channel, blacklist = i.split(' ')
+                #for i in self.conf.get('url_blacklist').split(','):
+                #    print i
+                #    channel, blacklist = i.split(' ')
 
-                    if channel == message.source and re.match(blacklist, word):
-                        permitted = False                        
+                #    if channel == message.source and re.match(blacklist, word):
+                #        permitted = False                        
+
+		word_parsed = urlparse(word)
+		word_path = word_parsed.path + word_parsed.fragment
+		if word_path.startswith('/!/'):
+	            word = word_parsed.scheme + '://' + word_parsed.netloc + word_path[2:]
+		del word_parsed
+
                 
                 if permitted:
                     opener = urllib.FancyURLopener()
