@@ -23,23 +23,21 @@ class Module(metamodule.MetaModule):
             if word.startswith('http://') or word.startswith('https://'):
                 permitted = True
 
-                #for i in self.conf.get('url_blacklist').split(','):
-                #    print i
-                #    channel, blacklist = i.split(' ')
+                for i in self.conf.get('url_blacklist').split(','):
+                    print i
+                    channel, blacklist = i.split(' ')
 
-                #    if channel == message.source and re.match(blacklist, word):
-                #        permitted = False                        
+                    if channel == message.source and re.match(blacklist, word):
+                        permitted = False                        
 
-		word_parsed = urlparse(word)
-		word_path = word_parsed.path + word_parsed.fragment
-		if word_path.startswith('/!/'):
-	            word = word_parsed.scheme + '://' + word_parsed.netloc + word_path[2:]
-		del word_parsed
-
+            word_parsed = urlparse(word)
+            word_path = word_parsed.path + word_parsed.fragment
+            if word_path.startswith('/!/'):
+                word = word_parsed.scheme + '://' + word_parsed.netloc + word_path[2:]
                 
-                if permitted:
-                    opener = urllib.FancyURLopener()
-                    setattr(opener, 'version', choice(self.user_agents))
-                    pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
-                    title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                    self.irc.send(message.source, title)
+            if permitted:
+                opener = urllib.FancyURLopener()
+                setattr(opener, 'version', choice(self.user_agents))
+                pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
+                title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
+                self.irc.send(message.source, title)
