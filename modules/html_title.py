@@ -20,6 +20,8 @@ class Module(metamodule.MetaModule):
         ]
 
     def act(self, message):
+        hashbang = '#!'
+
         for word in message.content.split():
             if word.startswith('http://') or word.startswith('https://'):
                 permitted = True
@@ -30,18 +32,16 @@ class Module(metamodule.MetaModule):
                     if channel == message.source and re.match(blacklist, word):
                         permitted = False
 
-                word_parsed = urlparse(word)
-		hashbang = '#!'
-		#hashbang_index = word.find(hashbang)
-		#if hashbang_index != -1:
-		if hashbang in word:
-		    word = string.replace(word, hashbang, '?_escaped_fragment_=')
-			
-                    
+
                 if permitted:
+                    word = string.replace(word, hashbang, '?_escaped_fragment_=')
+
+                    parsed_url = urlparse(word)
+
                     opener = urllib.FancyURLopener()
                     setattr(opener, 'version', choice(self.user_agents))
                     pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
                     title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                    summary = '\x02%s\x02\x034 |\x03 %s' % (word_parsed.hostname, title)
+
+                    summary = '\x02%s\x02\x034 |\x03 %s' % (parsed_url.hostname, title)
                     self.irc.send(message.source, summary)
