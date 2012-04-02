@@ -1,6 +1,7 @@
 import BeautifulSoup
 import urllib
 from urlparse import urlparse
+import string
 from random import choice
 import re
 
@@ -27,17 +28,20 @@ class Module(metamodule.MetaModule):
                     channel, blacklist = i.split(' ')
 
                     if channel == message.source and re.match(blacklist, word):
-                        permitted = False                        
+                        permitted = False
 
                 word_parsed = urlparse(word)
-                word_path = word_parsed.path + word_parsed.fragment
-                if word_path.startswith('/!/'):
-                    word = word_parsed.scheme + '://' + word_parsed.netloc + word_path[2:]
+		hashbang = '#!'
+		#hashbang_index = word.find(hashbang)
+		#if hashbang_index != -1:
+		if hashbang in word:
+		    word = string.replace(word, hashbang, '?_escaped_fragment_=')
+			
                     
                 if permitted:
                     opener = urllib.FancyURLopener()
                     setattr(opener, 'version', choice(self.user_agents))
                     pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
                     title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                    summary = '\x02title\x02\x034 |\x03 %s\x034 :\x03\x02 %s' % (title, word_parsed.hostname)
+                    summary = '\x02%s\x02\x034 |\x03 %s' % (word_parsed.hostname, title)
                     self.irc.send(message.source, summary)
