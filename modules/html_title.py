@@ -30,18 +30,28 @@ class Module(metamodule.MetaModule):
                     if channel == message.source and re.match(blacklist, word):
                         permitted = False
 
-                word_parsed = urlparse(word)
-		hashbang = '#!'
-		#hashbang_index = word.find(hashbang)
-		#if hashbang_index != -1:
-		if hashbang in word:
-		    word = string.replace(word, hashbang, '?_escaped_fragment_=')
-			
-                    
+                    ''' TODO
+                    > follow redirects
+                    > and then have the domain printed
+                    > be the domain you're eventually directed to
+                    > extra credit: breadcrumb trail
+                    > although that's totally unnecessary
+                    > but it would be kinda cool '''
+
                 if permitted:
+                    hashbang = '#!'
+
+                    #hashbang_index = word.find(hashbang)
+                    #if hashbang_index != -1:
+                    if hashbang in word:
+                        word = string.replace(word, hashbang, '?_escaped_fragment_=')
+                        #string.split(hashbang)[0]+hashbang+urllib.quote(str.split(hashbang)[1])
+
+                    parsed_url = urlparse(word)
+
                     opener = urllib.FancyURLopener()
                     setattr(opener, 'version', choice(self.user_agents))
                     pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
                     title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                    summary = '\x02%s\x02\x034 |\x03 %s' % (word_parsed.hostname, title)
+                    summary = '\x02%s\x02\x034 |\x03 %s' % (parsed_url.hostname, title)
                     self.irc.send(message.source, summary)
