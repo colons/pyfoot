@@ -19,9 +19,9 @@ class Module(metamodule.MetaModule):
             'Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.2.9'
         ]
 
-    def act(self, message):
-        hashbang = '#!'
+        self.hashbang = '#!'
 
+    def act(self, message):
         for word in message.content.split():
             if word.startswith('http://') or word.startswith('https://'):
                 permitted = True
@@ -32,9 +32,9 @@ class Module(metamodule.MetaModule):
                     if channel == message.source and re.match(blacklist, word):
                         permitted = False
 
-
                 if permitted:
-                    word = string.replace(word, hashbang, '?_escaped_fragment_=')
+                    word = string.replace(word, self.hashbang, '?_escaped_fragment_=')
+                    # string.replace does nothing if the repl string is not in the source string, so there's no reason to scan the string twice
 
                     parsed_url = urlparse(word)
 
