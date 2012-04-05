@@ -51,7 +51,15 @@ class Module(metamodule.MetaModule):
 
                     opener = urllib.FancyURLopener()
                     setattr(opener, 'version', choice(self.user_agents))
-                    pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
-                    title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                    summary = '\x02%s\x02\x034 |\x03 %s' % (parsed_url.hostname, title)
-                    self.irc.send(message.source, summary)
+
+                    try:
+                        pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
+                        title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
+                        summary = '%s\x034 |\x03\x02 %s\x02' % (title, parsed_url.hostname)
+                        self.irc.send(message.source, summary)
+                    except AttributeError:
+                        pass
+                    except IOError:
+                        pass
+
+
