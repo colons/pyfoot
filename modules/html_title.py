@@ -30,14 +30,6 @@ class Module(metamodule.MetaModule):
                     if channel == message.source and re.match(blacklist, word):
                         permitted = False
 
-                    ''' TODO
-                    > follow redirects
-                    > and then have the domain printed
-                    > be the domain you're eventually directed to
-                    > extra credit: breadcrumb trail
-                    > although that's totally unnecessary
-                    > but it would be kinda cool '''
-
                 if permitted:
                     hashbang = '#!'
 
@@ -51,7 +43,7 @@ class Module(metamodule.MetaModule):
 
                     opener = urllib.FancyURLopener()
                     setattr(opener, 'version', choice(self.user_agents))
-
+                    
                     try:
                         pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
                         title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
@@ -61,5 +53,4 @@ class Module(metamodule.MetaModule):
                         pass
                     except IOError:
                         pass
-
 

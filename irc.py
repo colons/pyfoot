@@ -140,5 +140,5 @@ class IRC(object):
 
 
     def close(self):
-        self.irc.close
+        self.irc.close()
         sys.exit()
