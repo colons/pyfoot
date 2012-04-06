@@ -51,6 +51,9 @@ class Module(metamodule.MetaModule):
                         self.irc.send(message.source, summary)
                     except AttributeError:
                         pass
-                    except IOError:
+                    except IOError as (errno, strerror):
+                        #if errno == 'socket error':
+                            #if strerror.find('-2') != -1:
+                            #if strerror.error == -2:
+                                #self.irc.send(message.source, "Errorno %s: %s:\x02 %s\x02" % (errno, strerror, parsed_url.hostname))
                         pass
-
