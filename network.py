@@ -18,6 +18,7 @@ class Network(object):
 
         self.irc.send('nickserv', 'identify %s' % conf.get('nickserv_pass'))
 
+        #cause_of_death = False
         try:
             while True:
                 """ Here's where the shit happens """
@@ -26,5 +27,14 @@ class Network(object):
             
                 parser.dispatch(data, self.irc, self.modules, conf)
         except KeyboardInterrupt:
-            self.irc.close('^C pressed, exiting.')
+            cause_of_death = '^C pressed, exiting.'
+        finally:
+            try:
+                cause_of_death
+            except NameError:
+                self.irc.close()
+            else:
+                self.irc.close(cause_of_death)
+                
+            
 

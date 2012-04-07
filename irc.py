@@ -140,6 +140,6 @@ class IRC(object):
 
 
     def close(self, reason='Leaving!'):
-        print 'irc.close(%s) invoked, shutting down' % reason
+        print 'irc.close(\'%s\') invoked, shutting down' % reason
         self.irc.send('QUIT :%s\r\n' % reason)
         sys.exit()
