@@ -18,9 +18,13 @@ class Network(object):
 
         self.irc.send('nickserv', 'identify %s' % conf.get('nickserv_pass'))
 
-        while True:
-            """ Here's where the shit happens """
-            data = self.irc.listen()
-            print data,
+        try:
+            while True:
+                """ Here's where the shit happens """
+                data = self.irc.listen()
+                print data,
             
-            parser.dispatch(data, self.irc, self.modules, conf)
+                parser.dispatch(data, self.irc, self.modules, conf)
+        except KeyboardInterrupt:
+            self.irc.close('^C pressed, exiting.')
+
