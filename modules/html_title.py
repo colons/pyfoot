@@ -31,13 +31,14 @@ class Module(metamodule.MetaModule):
                         permitted = False
 
                 if permitted:
+                
+                    '''AJAX HTML Snapshot URL parsing'''
                     hashbang = '#!'
-
-                    #hashbang_index = word.find(hashbang)
-                    #if hashbang_index != -1:
-                    if hashbang in word:
-                        word = string.replace(word, hashbang, '?_escaped_fragment_=')
-                        #string.split(hashbang)[0]+hashbang+urllib.quote(str.split(hashbang)[1])
+                    hashbang_index = word.find(hashbang)
+                    if hashbang_index != -1:
+                        URL_base = URL[:hashbang_index]
+                        URL_fragment = urllib.quote_plus(URL[hashbang_index+2:])
+                        word = URL_base + '?_escaped_fragment_=' + URL_fragment
 
                     parsed_url = urlparse(word)
 
