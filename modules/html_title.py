@@ -36,8 +36,8 @@ class Module(metamodule.MetaModule):
                     hashbang = '#!'
                     hashbang_index = word.find(hashbang)
                     if hashbang_index != -1:
-                        URL_base = URL[:hashbang_index]
-                        URL_fragment = urllib.quote_plus(URL[hashbang_index+2:])
+                        URL_base = word[:hashbang_index]
+                        URL_fragment = urllib.quote_plus(word[hashbang_index+2:])
                         word = URL_base + '?_escaped_fragment_=' + URL_fragment
 
                     parsed_url = urlparse(word)
