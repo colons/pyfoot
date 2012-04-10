@@ -80,7 +80,7 @@ class Module(metamodule.MetaModule):
         
         selection = self.select(consumed)
 
-        summary = '\x02%s\x02 | \x02%s\x02 days across \x02%d\x02 shows | %s' % (user, days, len(consumed),
+        summary = 'http://myanimelist.net/animelist/\x02%s\x02 | \x02%s\x02 days across \x02%d\x02 shows | %s' % (user, days, len(consumed),
                 ' | '.join(['%s : \x02%s\x02/\x02%s\x02 : \x02%s\x02' % (a['title'], self.oiz(a['watched_episodes']),
                     self.oiz(a['episodes']), self.oiz(a['score'])) for a in selection]))
         return summary
