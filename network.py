@@ -26,5 +26,5 @@ class Network(object):
             
                 parser.dispatch(data, self.irc, self.modules, conf)
         except KeyboardInterrupt:
-            self.irc.close('^C pressed, exiting.')
+            self.irc.close(conf.get('quit_message'))
 

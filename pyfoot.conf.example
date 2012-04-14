@@ -18,6 +18,7 @@ ctcp_version = pyfoot-hg
 blacklist = people,you,want,to,ignore
 say_blacklist = nickserv,hostserv,chanserv
 ssl = false
+quit_message = woof
 
 # modules to exclude per-channel in '#channel module,#channel module' format
 # it is recommended you do this at the [network] level, but you should still have an empty one here as a fallback
