@@ -1,6 +1,7 @@
 from irc import IRC
 import parser
 import sys
+import ConfigParser
 
 class Network(object):
     """ The whole network! This class takes a config object as an argument and uses it to set up our connection and then run the loop """
@@ -18,7 +19,6 @@ class Network(object):
 
         self.irc.send('nickserv', 'identify %s' % conf.get('nickserv_pass'))
 
-        #cause_of_death = False
         try:
             while True:
                 """ Here's where the shit happens """
@@ -27,14 +27,9 @@ class Network(object):
             
                 parser.dispatch(data, self.irc, self.modules, conf)
         except KeyboardInterrupt:
-            cause_of_death = '^C pressed, exiting.'
-        finally:
             try:
-                cause_of_death
-            except NameError:
+                cause_of_death = conf.get('quit_message')
+            except ConfigParser.NoOptionError:
                 self.irc.close()
             else:
                 self.irc.close(cause_of_death)
-                
-            
-
