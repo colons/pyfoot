@@ -17,8 +17,6 @@ class Network(object):
             setattr(module.Module, 'name', modulename)
             self.modules.append(module.Module(self.irc, conf))
 
-        self.irc.send('nickserv', 'identify %s' % conf.get('nickserv_pass'))
-
         try:
             while True:
                 """ Here's where the shit happens """

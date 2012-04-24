@@ -114,7 +114,10 @@ def dispatch(data, irc, modules, conf):
             irc.join(channel)
 
         if type == 'NOTICE':
-            if the_message.nick == 'NickServ' and irc.initial:
+            if the_message.nick == 'NickServ':
+                if irc.initial:
+                    irc.send('nickserv', 'identify %s' % conf.get('nickserv_pass'))
+
                 for channel in conf.get('channels').split(','):
                     irc.join(channel)
                 
