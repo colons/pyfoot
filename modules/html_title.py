@@ -3,7 +3,6 @@ import urllib
 from urlparse import urlparse
 import string
 import http_helper
-from random import choice
 import re
 
 import metamodule
@@ -36,7 +35,7 @@ class Module(metamodule.MetaModule):
                     parsed_url = urlparse(word)
 
                     opener = urllib.FancyURLopener()
-                    setattr(opener, 'version', choice(http_helper.user_agents))
+                    setattr(opener, 'version', http_helper.choose())
 
                     try:
                         pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
