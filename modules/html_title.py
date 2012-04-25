@@ -29,20 +29,24 @@ class Module(metamodule.MetaModule):
                         permitted = False
 
                 if permitted:
-                
+
                     '''AJAX HTML Snapshot URL parsing'''
-                    hashbang = '#!'
-                    hashbang_index = word.find(hashbang)
+                    hashbang_index = word.find('#!')
                     if hashbang_index != -1:
-                        URL_base = word[:hashbang_index]
-                        URL_fragment = urllib.quote_plus(word[hashbang_index+2:])
-                        word = URL_base + '?_escaped_fragment_=' + URL_fragment
+                        url_base = word[:hashbang_index]
+                        if '?' in url_base:
+                            join = '&'
+                        else:
+                            join = '?'
+                        url_fragment = urllib.quote(word[hashbang_index+2:], '=')
+                        word = url_base + join + '_escaped_fragment_=' + url_fragment
+                        print word
 
                     parsed_url = urlparse(word)
 
                     opener = urllib.FancyURLopener()
                     setattr(opener, 'version', choice(self.user_agents))
-                    
+
                     try:
                         pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
                         title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
