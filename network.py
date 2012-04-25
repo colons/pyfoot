@@ -18,6 +18,11 @@ class Network(object):
             self.modules.append(module.Module(self.irc, conf))
 
         try:
+            cause_of_death = conf.get('quit_message')
+        except ConfigParser.NoOptionError:
+            cause_of_death = ''
+
+        try:
             while True:
                 """ Here's where the shit happens """
                 data = self.irc.listen()
@@ -26,10 +31,8 @@ class Network(object):
                 parser.dispatch(data, self.irc, self.modules, conf)
         except KeyboardInterrupt:
             print '^C pressed, exiting.'
-        finally:
-            try:
-                cause_of_death = conf.get('quit_message')
-            except ConfigParser.NoOptionError:
-                cause_of_death = 'Leaving!'
+            self.irc.close(cause_of_death)
+            sys.exit()
+        else:
             self.irc.close(cause_of_death)
             raise
