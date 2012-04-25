@@ -32,3 +32,4 @@ class Network(object):
             except ConfigParser.NoOptionError:
                 cause_of_death = 'Leaving!'
             self.irc.close(cause_of_death)
+            raise
