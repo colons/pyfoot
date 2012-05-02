@@ -1,33 +1,66 @@
-from irc import IRC
-import parser
+import message
+
 import sys
-import ConfigParser
+import thread
 
 class Network(object):
-    """ The whole network! This class takes a config object as an argument and uses it to set up our connection and then run the loop """
-    def __init__(self, conf):
-        """ Get configuration shit and connect and set everything up """
+    def __init__(self, conf, irc):
+        self.conf = conf
+        self.irc = irc
         self.modules = []
-        
-        self.irc = IRC(conf.get('address'), conf.get('port'), conf.get('nick'), conf.get('username'), conf.get('hostname'), conf.get('servername'), conf.get('realname'), ssl_enabled=bool(conf.get('ssl')))
+        self.commands = {}
 
-        for modulename in conf.get('modules').split(','):
+        for modulename in conf.get('modules'):
             __import__('modules.'+modulename)
             module = sys.modules['modules.'+modulename]
-            setattr(module.Module, 'name', modulename)
+            # setattr(module.Module, 'name', modulename)
             self.modules.append(module.Module(self.irc, conf))
 
-        try:
-            while True:
-                """ Here's where the shit happens """
-                data = self.irc.listen()
-                print data,
+            self.commands.update(self.modules[-1].get_commands())
+
+    def dispatch(self, data):
+        """ Deals with messages and sends modules the information they need. """
+        if data == None:
+            print ' :: no data'
+            return None
+        
+        if data == '':
+            print ' :: empty response, assuming disconnection\a' # alert
+            self.irc.close()
+
+        for line in [line for line in data.split('\r\n') if len(line) > 0]:
+            print '    %s' % line
+
+            if line.startswith('PING :'):
+                self.irc.pong(line)
             
-                parser.dispatch(data, self.irc, self.modules, conf)
-        except KeyboardInterrupt:
             try:
-                cause_of_death = conf.get('quit_message')
-            except ConfigParser.NoOptionError:
-                self.irc.close()
+                type = ''.join(line.split(':')[:2]).split(' ')[1]
+            except(IndexError):
+                type = None
             else:
-                self.irc.close(cause_of_death)
+                the_message = message.Message(line)
+                
+            if type == '324':
+                # this is a list of channel modes
+                splitline = line.split(' ')
+                name = splitline[3]
+                modelist = splitline[4]
+
+            elif type == 'INVITE':
+                channel = message.content(line)
+                self.irc.join(channel)
+
+            elif type == 'NOTICE':
+                pass
+
+            elif type == 'NICK':
+                pass
+
+            elif type == 'PRIVMSG':
+                for command in self.commands:
+                    print '%s%s' % (self.conf.get('comchar'), command)
+            
+                    if the_message.content.startswith('%s%s' % (self.conf.get('comchar'), command)):
+                        print 'match!'
+                        self.commands[command](the_message)

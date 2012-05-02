@@ -1,7 +1,7 @@
 import parser
-import metamodule
+import module
 
-class Module(metamodule.MetaModule):
+class Module(module.Module):
     def act(self, message):
         """ Sends the konata message. No, it is not configurable. Why would you want it to be? """
         konata = parser.args(message.content, 'konata', self.conf)

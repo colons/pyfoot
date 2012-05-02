@@ -11,35 +11,35 @@ def split_len(seq, length):
 
 
 class IRC(object):
-    """ Our IRC abstraction layer - this object represents the actual connection """
-    def __init__(self, address, port, nick, username, hostname, servername, realname, ssl_enabled=False):
+    """ An IRC connection """
+    def __init__(self, conf):
         """ Connects to a network """
-        self.initial = True # this gets set to false once all channels have been joined
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect(
+                (conf.get('network_address'), conf.get('network_port'))
+                )
+
+        if ssl:
+            self.socket = ssl.wrap_socket(self.socket)
+
+        self.socket.send('NICK %s\r\n' % conf.get('nick'))
+        self.socket.send('USER %s %s %s %s\r\n' % (
+                conf.get('username'),
+                conf.get('hostname'),
+                conf.get('servername'),
+                conf.get('realname')
+                )
+            )
 
         self.channels = {}
-        self.people = {}
-
-        raw_irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        raw_irc.connect((address, int(port)))
-
-        if ssl_enabled:
-            self.irc = ssl.wrap_socket(raw_irc)
-        else:
-            self.irc = raw_irc
-
-        self.irc.send('NICK %s\r\n' % nick)
-        self.irc.send('USER %s %s %s %s\r\n' % (username, hostname, servername, realname))
-        
 
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
-        self.irc.send('PONG %s\r\n' % data.split()[1])
+        self.socket.send('PONG %s\r\n' % data.split()[1])
 
     
     def who(self, user):
-        self.irc.send('WHO %s' % user)
-        self.listen
-
+        self.socket.send('WHO %s' % user)
 
     def join(self, channel):
         """ Joins a channel. If already joined, requests channel modes. """
@@ -48,16 +48,16 @@ class IRC(object):
         except KeyError:
             # we are not in this channel
             print ' :: Joining %s' % channel
-            self.irc.send('JOIN %s\r\n' % channel)
+            self.socket.send('JOIN %s\r\n' % channel)
             self.getmode(channel)
 
 
     def getmode(self, name):
-        self.irc.send('MODE %s\r\n' % name)
+        self.socket.send('MODE %s\r\n' % name)
 
     
     def who(self, host):
-        self.irc.send('WHO %s\r\n' % host)
+        self.socket.send('WHO %s\r\n' % host)
 
     
     def act(self, target, message, pretty=False, crop=False):
@@ -77,7 +77,7 @@ class IRC(object):
             message_type = 'PRIVMSG'
 
         out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
-        self.irc.send(out)
+        self.socket.send(out)
 
 
     def send(self, channel, message, pretty=False, crop=False):
@@ -100,7 +100,7 @@ class IRC(object):
 
             out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
             print ' >>', out,
-            self.irc.send(out)
+            self.socket.send(out)
 
 
     def beautify(self, message):
@@ -112,7 +112,6 @@ class IRC(object):
 
 
     def strip_formatting(self, part):
-
         # colours first
         odd = True
         while re.search('\x03', part):
@@ -133,13 +132,13 @@ class IRC(object):
         
     def listen(self):
         """ Listens for incoming stuffs and returns them """
-        self.data = self.irc.recv(4096)
+        self.data = self.socket.recv(4096)
         
         if self.data.find(' '):
             return self.data
 
 
-    def close(self, reason='Leaving!'):
+    def close(self, reason='woof'):
         print 'irc.close(\'%s\') invoked, shutting down' % reason
-        self.irc.send('QUIT :%s\r\n' % reason)
+        self.socket.send('QUIT :%s\r\n' % reason)
         sys.exit()
