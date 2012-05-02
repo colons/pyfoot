@@ -1,4 +1,5 @@
-import BeautifulSoup
+import lxml
+import requests
 import urllib
 from urlparse import urlparse
 import string
@@ -33,9 +34,8 @@ class Module(metamodule.MetaModule):
                         word = url_base + join + '_escaped_fragment_=' + url_fragment
 
                     parsed_url = urlparse(word)
+                    page = requests.get(word, headers={'User-Agent': http_helper.choose()})
 
-                    opener = urllib.FancyURLopener()
-                    setattr(opener, 'version', http_helper.choose())
 
                     try:
                         pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
