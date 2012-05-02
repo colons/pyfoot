@@ -8,7 +8,6 @@ class Network(object):
         self.conf = conf
         self.irc = irc
         self.modules = []
-        self.commands = {}
 
         for modulename in conf.get('modules'):
             __import__('modules.'+modulename)
@@ -16,7 +15,8 @@ class Network(object):
             # setattr(module.Module, 'name', modulename)
             self.modules.append(module.Module(self.irc, conf))
 
-            self.commands.update(self.modules[-1].get_commands())
+            self.modules[-1].setDaemon(True)
+            self.modules[-1].start()
 
     def dispatch(self, data):
         """ Deals with messages and sends modules the information they need. """
@@ -58,9 +58,5 @@ class Network(object):
                 pass
 
             elif type == 'PRIVMSG':
-                for command in self.commands:
-                    print '%s%s' % (self.conf.get('comchar'), command)
-            
-                    if the_message.content.startswith('%s%s' % (self.conf.get('comchar'), command)):
-                        print 'match!'
-                        self.commands[command](the_message)
+                for module in self.modules:
+                    module.queue.put(the_message)
