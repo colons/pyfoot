@@ -36,7 +36,6 @@ class IRC(object):
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
         self.socket.send('PONG %s\r\n' % data.split()[1])
-
     
     def who(self, user):
         self.socket.send('WHO %s' % user)
@@ -101,7 +100,6 @@ class IRC(object):
             out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
             print ' >>', out,
             self.socket.send(out)
-
 
     def beautify(self, message):
         message = message.replace(' :: ', '\x034 ::\x03 ')

@@ -1,10 +1,11 @@
 #!/usr/bin/env python2.7
 
-from config import Config
+from conf import Config
 from irc import IRC
 from network import Network
+from sys import argv
 
-conf = Config()
+conf = Config(argv[-1])
 
 irc = IRC(conf)
 network = Network(conf, irc)
