@@ -3,7 +3,9 @@ import module
 
 class Module(module.Module):
     def register_commands(self):
-        self.commands = {'konata <nick>': self.konata}
+        self.commands = [
+                ('konata <nick>', self.konata)
+                ]
 
     def konata(self, message, args):
         nick = args['nick']
