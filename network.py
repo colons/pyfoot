@@ -18,9 +18,9 @@ class Network(object):
             self.modules.append(module.Module(self.irc, conf))
 
         try:
-            cause_of_death = conf.get('quit_message')
+            quit_message = conf.get('quit_message')
         except ConfigParser.NoOptionError:
-            cause_of_death = ''
+            quit_message = ''
 
         try:
             while True:
@@ -31,8 +31,8 @@ class Network(object):
                 parser.dispatch(data, self.irc, self.modules, conf)
         except KeyboardInterrupt:
             print '^C pressed, exiting.'
-            self.irc.close(cause_of_death)
+            self.irc.close(quit_message)
             sys.exit()
         else:
-            self.irc.close(cause_of_death)
+            self.irc.close(quit_message)
             raise
