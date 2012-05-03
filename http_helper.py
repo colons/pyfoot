@@ -1,4 +1,5 @@
 from random import choice
+import urllib
 
 user_agents = [
     'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11',
@@ -8,6 +9,20 @@ user_agents = [
     'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.12) Gecko/20070731 Ubuntu/dapper-security Firefox/1.5.0.12',
     'Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.2.9'
 ]
+html_types = ['text/html','application/xhtml+xml']
 
-def choose():
+def choose_agent():
     return choice(user_agents)
+
+def ajax_url(url):
+    """AJAX HTML Snapshot URL parsing"""
+    """ https://developers.google.com/webmasters/ajax-crawling/docs/specification """
+    hashbang_index = url.find('#!')
+    if hashbang_index != -1:
+        base = url[:hashbang_index]
+        if '?' in base:
+            join = '&'
+        else:
+            join = '?'
+        url = base + join + '_escaped_fragment_=' + urllib.quote(url[hashbang_index+2:], '=')
+    return url

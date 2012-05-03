@@ -1,8 +1,8 @@
-import lxml
+import lxml.html
+#import lxml.etree
 import requests
-import urllib
 from urlparse import urlparse
-import string
+#import string
 import http_helper
 import re
 
@@ -21,32 +21,33 @@ class Module(metamodule.MetaModule):
                         permitted = False
 
                 if permitted:
-
-                    '''AJAX HTML Snapshot URL parsing'''
-                    hashbang_index = word.find('#!')
-                    if hashbang_index != -1:
-                        url_base = word[:hashbang_index]
-                        if '?' in url_base:
-                            join = '&'
-                        else:
-                            join = '?'
-                        url_fragment = urllib.quote(word[hashbang_index+2:], '=')
-                        word = url_base + join + '_escaped_fragment_=' + url_fragment
-
-                    parsed_url = urlparse(word)
-                    page = requests.get(word, headers={'User-Agent': http_helper.choose()})
-
+                    url_hostname = urlparse(word).hostname
+                    word = http_helper.ajax_url(word)
+                    request_headers = {'User-Agent': http_helper.choose_agent()}
 
                     try:
-                        pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
-                        title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                        summary = '%s\x034 |\x03\x02 %s\x02' % (title, parsed_url.hostname)
-                        self.irc.send(message.source, summary)
-                    except AttributeError:
-                        pass
-                    except IOError as (errno, strerror):
-                        #if errno == 'socket error':
-                            #if strerror.find('-2') != -1:
-                            #if strerror.error == -2:
-                                #self.irc.send(message.source, "Errorno %s: %s:\x02 %s\x02" % (errno, strerror, parsed_url.hostname))
-                        pass
+                        resource = requests.head(word, headers=request_headers, allow_redirects=True)
+                        if resource.status_code == 404:
+                            resource.raise_for_status()
+                        elif resource.history != []:
+                            word = resource.history[-1].headers['Location']
+                            url_hostname_redir = urlparse(word).hostname
+                            if (url_hostname_redir != url_hostname):
+                                url_hostname = url_hostname + ' \x034->\x03 ' + url_hostname_redir
+                        resource_type = resource.headers['Content-Type'].split(';')[0]
+                        if resource_type in http_helper.html_types:
+                            resource = requests.get(word, headers=request_headers)
+                            #if (http_helper.html_types[1] in resource_type) or (('xhtml' or 'xml') in resource.text.split('>')[0].lower()):  # application/xhtml+xml
+                            #    title = lxml.etree.fromstring(resource.text).find('.//xhtml:title', namespaces={'xhtml':'http://www.w3.org/1999/xhtml'}).text.strip()
+                            #else:  # text/html
+                            """Seems that most pages claiming to be XHTML—including many large websites—
+                            are not strict enough to parse correctly, usually for some very minor reason."""
+                            title = lxml.html.fromstring(resource.text).find(".//title").text.replace('\n','').strip()
+                        else:
+                            title = 'Type: %s, Size: %s bytes' % (resource_type, resource.headers['Content-Length'])
+                    except requests.exceptions.ConnectionError:
+                        title = 'Error connecting to server'
+                    except requests.exceptions.HTTPError:
+                        title = '404 Not Found'
+                    summary = '%s\x034 |\x03\x02 %s\x02' % (title, url_hostname)
+                    self.irc.send(message.source, summary.encode('utf-8'))
