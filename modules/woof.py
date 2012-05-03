@@ -7,5 +7,7 @@ class Module(module.Module):
                 ]
 
     def woof(self, the_message):
-        """ He's a <a href="http://d.bldm.us/gallery/photos/a3300/120125%20006.jpg">dog</a>; he's excitable. """
+        """ He's a <a href="http://d.bldm.us/gallery/photos/a3300/120125%20006.jpg">dog</a>; he's excitable.
+        $woof
+        >woof"""
         self.irc.send(the_message.source, self.conf.get('woof_greeting'))

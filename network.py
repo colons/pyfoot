@@ -12,7 +12,7 @@ class Network(object):
         for modulename in conf.get('modules'):
             __import__('modules.'+modulename)
             module = sys.modules['modules.'+modulename]
-            # setattr(module.Module, 'name', modulename)
+            setattr(module.Module, 'name', modulename)
             self.modules.append(module.Module(self.irc, conf))
 
             self.modules[-1].setDaemon(True)
