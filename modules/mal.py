@@ -12,8 +12,8 @@ class Module(module.Module):
     """ Fresh MyAnimeList facts, milled from <a href="http://mal-api.com">mal-api.com</a>. """
     def register_commands(self):
         self.commands = [
-                ('mal set <user>', self.define),
                 ('mal search <query>', self.search),
+                ('mal set <user>', self.define),
                 ('mal fight <user1> <user2>', self.fight),
                 ('mal fight <user>', self.fight_self),
                 ('mal compare <user1> <user2>', self.compare),
@@ -38,6 +38,7 @@ class Module(module.Module):
             print ' :: error reading MAL user pickle, will create one when necessary'
     
     def define(self, message, args):
+        """ Many of these functions benefit from knowing whose IRC nicks correspond to which MAL user, so be sure to tell pyfoot who you are. """
         user = args['user']
 
         try:
@@ -148,6 +149,7 @@ class Module(module.Module):
         return common
 
     def compare_self(self, message, args):
+        """ Like a fight, but friendlier."""
         self.compare(message, {'user1': message.nick, 'user2': args['user']})
 
     def compare(self, message, args):
@@ -204,6 +206,13 @@ class Module(module.Module):
 
 
     def fight_self(self, message, args):
+        """ Fight someone:
+        $<comchar>mal fight xinil
+        >\x02colons\x02 vs. \x02xinil\x02\x034 |\x03 average contention\x034 :\x03 \x021.12\x02\x034 |\x03 Tengen Toppa Gurren Lagann\x034 :\x03 \x024\x02 vs. \x028\x02
+        If you specify an additional username, you don't have to get involved yourself.
+        $<comchar>mal fight xinil theshillito
+        >\x02xinil\x02 vs. \x02theshillito\x02\x034 | \x03average contention\x034 :\x03 \x022.10\x02\x034 |\x03 Cowboy Bebop\x034 :\x03 \x0210\x02 vs. \x024\x02\x034 |\x03 Fate/stay night\x034 :\x03 \x027\x02 vs. \x021\x02
+        """
         self.fight(message, {
             'user1': message.nick,
             'user2': args['user']
