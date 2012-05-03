@@ -30,14 +30,16 @@ class Module(metamodule.MetaModule):
                         resource.raise_for_status()
 
                         if resource.history != [] and resource.history[-1].status_code in http_helper.redirect_codes:
-                            word = http_helper.ajax_url(resource.history[-1].headers['Location'])
+                            word = resource.history[-1].headers['Location']
                             url_hostname_redir = urlparse(word).hostname
-                            if (url_hostname_redir != url_hostname):
+                            if url_hostname_redir != url_hostname:
                                 url_hostname = url_hostname + ' \x034->\x03 ' + word
+                            word = http_helper.ajax_url(word)
 
                         resource_type = resource.headers['Content-Type'].split(';')[0]
                         if resource_type in http_helper.html_types:
                             resource = requests.get(word, headers=request_headers)
+                            resource.raise_for_status()
                             """Seems that most pages claiming to be XHTML—including many large websites—
                             are not strict enough to parse correctly, usually for some very minor reason."""
                             #if (http_helper.html_types[1] in resource_type) or (('xhtml' or 'xml') in resource.text.split('>')[0].lower()):  # application/xhtml+xml
