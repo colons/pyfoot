@@ -52,4 +52,4 @@ class Module(metamodule.MetaModule):
                     except requests.exceptions.HTTPError, httpe:
                         title = str(httpe.response.status_code) + ' ' + http_helper.responses[httpe.response.status_code][0]
                     summary = '%s\x034 |\x03\x02 %s\x02' % (title, url_hostname)
-                    eelf.irc.send(message.source, summary.encode('utf-8'))
+                    self.irc.send(message.source, summary.encode('utf-8'))
