@@ -1,4 +1,3 @@
-import parser
 import module
 
 class Module(module.Module):
