@@ -13,15 +13,15 @@ class Module(threading.Thread):
         self.regexes = False
         
         try:
-            self.register_commands()
-        except AttributeError:
-            pass
-
-        try:
             self.prepare()
         except AttributeError:
             pass
     
+        try:
+            self.register_commands()
+        except AttributeError:
+            pass
+
     def run(self):
         while True:
             the_message = self.queue.get()

@@ -62,6 +62,9 @@ def examine_function(command, function, comchar):
             explanation.append(parse_paragraph(line, comchar))
 
         docstring = '\n'.join(explanation)
+
+        if not comchar and len(command) > 40:
+            command = command[:40]+'...'
         
         return {
             'command': command,
@@ -81,8 +84,6 @@ def get_entries(network):
         modules.append(module.Module(None, conf))
         modules[-1].setDaemon(False)
     
-    print modules
-
     entries = []
 
     for module in modules:
