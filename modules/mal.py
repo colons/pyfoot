@@ -208,7 +208,7 @@ class Module(module.Module):
 
 
     def fight_self(self, message, args):
-        """ Fight someone:
+        """ Fight someone.
         $<comchar>mal fight xinil
         >\x02colons\x02 vs. \x02xinil\x02\x034 |\x03 average contention\x034 :\x03 \x021.12\x02\x034 |\x03 Tengen Toppa Gurren Lagann\x034 :\x03 \x024\x02 vs. \x028\x02
         If you specify an additional username, you don't have to get involved yourself.

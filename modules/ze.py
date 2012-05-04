@@ -46,13 +46,8 @@ class Module(module.Module):
         lines = transcript.split('\n')
         lines = [self.reformat(l) for l in lines]
         lines = [l for l in lines if len(l) > 0 and not l.startswith(('#', '(', '|', '{', '}'))]
-        print lines
 
         line = choice(lines)
-        print line
-
-
-        print line
 
         return (line, source)
 

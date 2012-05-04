@@ -32,6 +32,7 @@ def convert_mirc_entities(line):
 
     return line
 
+
 def parse_paragraph(line, comchar):
     if comchar:
         line = line.replace('<comchar>', comchar)
@@ -47,7 +48,6 @@ def parse_paragraph(line, comchar):
         line = '<p>%s</p>' % line
 
     return line
-
 
 
 def examine_function(command, function, comchar):
@@ -73,7 +73,10 @@ def examine_function(command, function, comchar):
 
 
 def get_entries(network):
-    conf = config_module.Config(network)
+    if network:
+        conf = config_module.Config(network)
+    else:
+        conf = config_module.Config('GLOBAL')
 
     modules = []
 
@@ -84,7 +87,7 @@ def get_entries(network):
         modules.append(module.Module(None, conf))
         modules[-1].setDaemon(False)
     
-    entries = []
+    module_dicts = []
 
     for module in modules:
         functions = []
@@ -112,15 +115,24 @@ def get_entries(network):
         except AttributeError:
             module_dict['docstring'] = None
 
-        entries.append(module_dict)
+        try:
+            module_dict['blacklist'] = conf.get('module_blacklist')[module.name]
+        except KeyError:
+            module_dict['blacklist'] = False
+
+        module_dicts.append(module_dict)
         
-    return entries
+    return (module_dicts, conf)
 
 @bottle.route('/')
+def defaults():
+    module_dicts, conf = get_entries(None)
+    return bottle.template('docs', modules=module_dicts, conf=False)
 
-def index():
-    entries = get_entries('nnchan')
-    return bottle.template('docs', modules=entries)
+@bottle.route('/<network>')
+def per_network(network):
+    module_dicts, conf = get_entries(network)
+    return bottle.template('docs', modules=module_dicts, conf=conf.conf)
 
 bottle.run(host='localhost', port=8080)
 # application = bottle.default_app()
