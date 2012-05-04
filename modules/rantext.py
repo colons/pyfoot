@@ -20,15 +20,13 @@ class Module(module.Module):
         self.commands = []
         for source in self.conf.get('rantext_sources'):
             everyone_func = lambda message, args: self.do_a_thing(message, source, args)
-            setattr(everyone_func, '__doc__', '$<comchar>%s\n>%s' % (source, self.extract(source)))
+            everyone_func.__doc__ = '$<comchar>%s\n>%s' % (source, self.extract(source))
 
             targetted_func = lambda message, args: self.do_a_thing(message, source, args)
 
             self.commands.append((source, everyone_func))
             self.commands.append(('%s <nick>' % source, targetted_func))
 
-        print self.commands
-    
     def do_a_thing(self, message, source, args):
         line = self.extract(source)
 
