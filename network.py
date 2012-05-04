@@ -51,6 +51,10 @@ class Network(object):
                 channel = message.content(line)
                 self.irc.join(channel)
 
+            elif type == 'KICK':
+                channel = message.content(line)
+                self.irc.part(channel)
+
             elif type == 'NOTICE':
                 pass
 
@@ -59,4 +63,10 @@ class Network(object):
 
             elif type == 'PRIVMSG':
                 for module in self.modules:
-                    module.queue.put(the_message)
+                    try:
+                        blacklist = self.conf.get('module_blacklist')[module.name]
+                    except KeyError:
+                        module.queue.put(the_message)
+                    else:
+                        if the_message.source not in blacklist:
+                            module.queue.put(the_message)

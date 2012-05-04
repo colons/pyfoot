@@ -50,6 +50,11 @@ class IRC(object):
             self.socket.send('JOIN %s\r\n' % channel)
             self.getmode(channel)
 
+    def part(self, channel):
+        self.socket.send('PART %s\r\n' % channel)
+
+        if channel in self.channels:
+            del self.channels[channel]
 
     def getmode(self, name):
         self.socket.send('MODE %s\r\n' % name)
