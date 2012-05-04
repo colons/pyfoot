@@ -14,6 +14,8 @@ class IRC(object):
     """ An IRC connection """
     def __init__(self, conf):
         """ Connects to a network """
+        self.channels = {}
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(
                 (conf.get('network_address'), conf.get('network_port'))
@@ -31,14 +33,18 @@ class IRC(object):
                 )
             )
 
-        self.channels = {}
+        if conf.conf['network_nickserv_pass']:
+            self.send('NickServ', 'identify %s' % conf.get('network_nickserv_pass'))
+
 
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
         self.socket.send('PONG %s\r\n' % data.split()[1])
+
     
     def who(self, user):
         self.socket.send('WHO %s' % user)
+
 
     def join(self, channel):
         """ Joins a channel. If already joined, requests channel modes. """
@@ -50,11 +56,13 @@ class IRC(object):
             self.socket.send('JOIN %s\r\n' % channel)
             self.getmode(channel)
 
-    def part(self, channel):
-        self.socket.send('PART %s\r\n' % channel)
+
+    def part(self, channel, reason=''):
+        self.socket.send('PART %s %s\r\n' % (channel, reason))
 
         if channel in self.channels:
             del self.channels[channel]
+
 
     def getmode(self, name):
         self.socket.send('MODE %s\r\n' % name)
@@ -103,7 +111,7 @@ class IRC(object):
                 pass
 
             out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
-            print ' >>', out,
+            print ' >> %s' % out
             self.socket.send(out)
 
     def beautify(self, message):
@@ -141,7 +149,8 @@ class IRC(object):
             return self.data
 
 
-    def close(self, reason='woof'):
-        print 'irc.close(\'%s\') invoked, shutting down' % reason
-        self.socket.send('QUIT :%s\r\n' % reason)
+    def quit(self, reason='woof'):
+        out = 'QUIT :%s\r\n' % reason
+        print '\n >> %s' % out
+        self.socket.send(out)
         sys.exit()

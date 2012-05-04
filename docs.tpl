@@ -21,13 +21,15 @@
             <p>autojoin</p>
         </div>
         <div class="item">
-            <p class="channels"><span class="irc">{{!'</span> <span class=separator>|</span> <span class="irc">'.join(conf['network_channels'])}}</span></p>
+            <p>{{!' <span class=separator>:span> '.join(conf['network_channels'])}}</p>
         </div>
+    </div>
+    <div class="setting">
         <div class="key">
             <p>admin</p>
         </div>
         <div class="item">
-            <p><span class="irc">{{!'</span> <span class=separator>|</span> <span class="irc">'.join(conf['admin_admins'])}}</span></p>
+            <p>{{!' <span class=separator>:</span> '.join(conf['admin_admins'])}}</p>
         </div>
     </div>
 </div>
@@ -40,11 +42,8 @@
     </div>
     %if module['blacklist']:
     <div class="blacklist">
-        <div class="disabled_in">
-            <p>disabled in</p>
-        </div>
-        <div class="disabled">
-            <p class="channels"><span class="irc">{{!'</span> <span class=separator>|</span> <span class="irc">'.join(module['blacklist'])}}</span></p>
+        <div class="item">
+            <p>disabled in {{!' <span class=separator>:</span> '.join(module['blacklist'])}}</p>
         </div>
     </div>
     %end
@@ -56,7 +55,7 @@
     %for function in module['functions']:
     <div class="command">
         <div class="usage">
-            {{function['command']}}
+            <p class="irc">{{function['command']}}</p>
         </div>
         <div class="docstring">
             {{!function['docstring']}}
