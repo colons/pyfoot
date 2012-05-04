@@ -11,5 +11,8 @@ irc = IRC(conf)
 network = Network(conf, irc)
 
 while True:
-    data = irc.listen()
-    network.dispatch(data)
+    try:
+        data = irc.listen()
+        network.dispatch(data)
+    except KeyboardInterrupt:
+        irc.quit()

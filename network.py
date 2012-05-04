@@ -5,6 +5,7 @@ import thread
 
 class Network(object):
     def __init__(self, conf, irc):
+        self.initial = True
         self.conf = conf
         self.irc = irc
         self.modules = []
@@ -26,7 +27,7 @@ class Network(object):
         
         if data == '':
             print ' :: empty response, assuming disconnection\a' # alert
-            self.irc.close()
+            sys.exit()
 
         for line in [line for line in data.split('\r\n') if len(line) > 0]:
             print '    %s' % line
@@ -41,11 +42,22 @@ class Network(object):
             else:
                 the_message = message.Message(line)
                 
+            if type == '353':
+                # this is a channel names list
+                pass
+
             if type == '324':
                 # this is a list of channel modes
                 splitline = line.split(' ')
                 name = splitline[3]
                 modelist = splitline[4]
+                try:
+                    self.irc.channels[name]['modes'] = modelist
+                except KeyError:
+                    self.irc.channels[name] = {}
+                    self.irc.channels[name]['modes'] = modelist
+
+                print self.irc.channels
 
             elif type == 'INVITE':
                 channel = message.content(line)
@@ -60,6 +72,12 @@ class Network(object):
 
             elif type == 'NICK':
                 pass
+
+            elif type == 'MODE' and self.initial == True:
+                for channel in self.conf.get('network_channels'):
+                    self.irc.join(channel)
+
+                self.initial = False
 
             elif type == 'PRIVMSG':
                 for module in self.modules:
