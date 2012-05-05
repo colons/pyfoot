@@ -32,7 +32,7 @@ content_dir = ~/.pyfoot/
 comchar = !
 
 # which modules (from ./modules/) to load
-modules = woof,party,httpresource_info,konata,ctcp_version,say,rantext,mal,ddg
+modules = woof,party,http,konata,ctcp_version,say,rantext,mal,ddg
 
 # MODULE-SPECIFIC SETTINGS
 

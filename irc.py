@@ -1,27 +1,7 @@
 import socket
 import ssl
-#from django.utils.encoding import smart_str
 import sys
 import re
-
-def strip_formatting(part):
-
-    # colours first
-    odd = True
-    while re.search('\x03', part):
-        if odd:
-            part = re.sub('\x03\d?\d?', '', part, count=1)
-        else:
-            part = re.sub('\x03', '', part, count=1)
-
-        odd = not odd
-
-    part = re.sub('\x01', '', part)
-    part = re.sub('\x02', '', part)
-    part = re.sub('\x0F', '', part)
-    part = re.sub('\x16', '', part)
-
-    return part
 
 def split_len(seq, length):
     """ Splits messages into manageable chunks """
@@ -98,6 +78,25 @@ class IRC(object):
         out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
         self.irc.send(out)
 
+    def strip_formatting(self, part):
+    
+        # colours first
+        odd = True
+        while re.search('\x03', part):
+            if odd:
+                part = re.sub('\x03\d?\d?', '', part, count=1)
+            else:
+                part = re.sub('\x03', '', part, count=1)
+    
+            odd = not odd
+    
+        part = re.sub('\x01', '', part)
+        part = re.sub('\x02', '', part)
+        part = re.sub('\x0F', '', part)
+        part = re.sub('\x16', '', part)
+    
+        return part
+
 
     def send(self, channel, message, pretty=False, crop=False):
         """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
@@ -117,7 +116,6 @@ class IRC(object):
             except KeyError:
                 pass
 
-            #out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
             part = part.encode('utf-8') if type(part) is unicode else part
             out = 'PRIVMSG %s :%s\r\n' % (channel, part)
             print ' >>', out,

@@ -4,7 +4,6 @@ import lxml.html
 import requests
 from urlparse import urlparse
 import http_helper
-import irc
 import re
 
 import metamodule
@@ -24,7 +23,7 @@ class Module(metamodule.MetaModule):
                 if permitted:
                     url_parsed = urlparse(word)
                     url_hostname = url_parsed.hostname
-                    word = irc.strip_formatting(http_helper.ajax_url(word))
+                    word = self.irc.strip_formatting(http_helper.ajax_url(word))
                     request_headers = {'User-Agent': http_helper.choose_agent()}
 
                     try:
@@ -45,10 +44,13 @@ class Module(metamodule.MetaModule):
                             resource = requests.get(word, headers=request_headers)
                             resource.raise_for_status()
                             """Seems that most pages claiming to be XHTML—including many large websites—
-                            are not strict enough to parse correctly, usually for some very minor reason."""
+                            are not strict enough to parse correctly, usually for some very minor reason,
+                            and it's a waste to attempt to parse it as XML first. This code will remain
+                            for the day we can reliably parse XHTML as XML for the majority of sites."""
                             #if (http_helper.html_types[1] in resource_type) or (('xhtml' or 'xml') in resource.text.split('>')[0].lower()):  # application/xhtml+xml
                             #    title = lxml.etree.fromstring(resource.text).find('.//xhtml:title', namespaces={'xhtml':'http://www.w3.org/1999/xhtml'}).text.strip()
                             #else:  # text/html
+
                             title = lxml.html.fromstring(resource.text).find(".//title").text.replace('\n','').strip()
                         else:
                             """TODO: Make this feature togglable, since it can seem spammy for image dumps."""
