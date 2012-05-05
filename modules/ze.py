@@ -41,7 +41,7 @@ class Module(module.Module):
         try:
             transcript = transcript.split('|next]]')[1]
         except IndexError:
-            transcript = transcript.split(' | next\n\n')[1]
+            transcript = transcript.split(' | next\n')[1]
 
         lines = transcript.split('\n')
         lines = [self.reformat(l) for l in lines]

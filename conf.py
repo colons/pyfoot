@@ -29,7 +29,7 @@ class Config(object):
                 },
             'nick_blacklist': [],
 
-            'woof_trigger': '(?i)\bwoof\b',
+            'woof_trigger': '(?i).*\bwoof\b',
             'woof_greeting': 'woof',
         }
 

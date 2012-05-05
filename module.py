@@ -1,6 +1,7 @@
 import Queue
 import threading
 import re
+import traceback
 
 class Module(threading.Thread):
     def __init__(self, irc, conf):
@@ -30,7 +31,7 @@ class Module(threading.Thread):
                 for command, function in self.commands:
                     args = {}
                     arglist = re.findall('(?<=<).*?(?=>)', command)
-                    regex = re.sub('<.*?>', '(.+?)', command+'$')
+                    regex = re.sub('<.*?>', '(.+?)', command)
                     
                     match = re.match(regex, the_message.content[len(self.conf.get('comchar')):])
 
@@ -38,10 +39,19 @@ class Module(threading.Thread):
                         for arg in arglist:
                             args[arg] = match.groups()[arglist.index(arg)].strip()
 
-                        function(the_message, args)
+                        try:
+                            function(the_message, args)
+                        except:
+                            traceback.print_exc()
+
                         break # only one command per module per message
             
             if self.regexes:
                 for regex, function in self.regexes:
-                    if re.search(regex, the_message.content):
-                        function(the_message)
+                    if re.match(regex, the_message.content):
+                        try:
+                            function(the_message)
+                        except:
+                            traceback.print_exc()
+
+                        break
