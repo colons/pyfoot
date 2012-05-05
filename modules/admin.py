@@ -58,7 +58,7 @@ class Module(module.Module):
             self.irc.join(args['channel'])
     
     def part_with_reason(self, message, args):
-        """ Make <pyfoot> leave a channel. Reason optional """
+        """ Make <pyfoot> leave a channel. Reason optional. """
         if self.can_trust(message):
             self.irc.part(args['channel'], args['reason'])
 
