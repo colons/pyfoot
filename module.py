@@ -10,8 +10,8 @@ class Module(threading.Thread):
         self.irc = irc
         self.conf = conf
         self.queue = Queue.Queue()
-        self.commands = False
-        self.regexes = False
+        self.commands = []
+        self.regexes = []
         
         try:
             self.prepare()
