@@ -27,7 +27,8 @@ class Module(module.Module):
     def get_quote(self):
         ep_index = self.get_wikitext('A_Show_Episode_Guide')
         eps = ep_index.split('== ... Episodes ..::.. Transcripts ==')[1].split('\n==')[0].split('\n')
-        eps = [e.split('[[')[-1].split('|')[0].replace(' ', '_') for e in eps if len(e) > 0]
+        eps = [e.split('[[')[-1].split('|')[0].replace(' ', '_') for e in eps if len(e) > 0 and e.startswith('# [')]
+        eps = [e for e in eps if e.startswith('A_show:_')]
 
         ep = choice(eps)
 

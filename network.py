@@ -57,8 +57,6 @@ class Network(object):
                     self.irc.channels[name] = {}
                     self.irc.channels[name]['modes'] = modelist
 
-                print self.irc.channels
-
             elif type == 'INVITE':
                 channel = message.content(line)
                 self.irc.join(channel)
