@@ -82,13 +82,13 @@ class Network(object):
                 self.initial = False
 
             elif type == 'PRIVMSG':
+                nick_blacklist = [n.lower() for n in self.conf.get('nick_blacklist')]
+
                 for module in self.modules:
                     try:
-                        module_blacklist = [c.lower for c in self.conf.get('module_blacklist')[module.name]]
+                        module_blacklist = [c.lower() for c in self.conf.get('module_blacklist')[module.name]]
                     except KeyError:
                         module_blacklist = []
                     
-                    nick_blacklist = [n.lower() for n in self.conf.get('nick_blacklist')]
-
                     if the_message.source.lower() not in module_blacklist and the_message.nick.lower() not in self.conf.get('nick_blacklist'):
                         module.queue.put(the_message)
