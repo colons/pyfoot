@@ -9,15 +9,19 @@ class Network(object):
         self.conf = conf
         self.irc = irc
         self.modules = []
+        self.all_commands = []
 
         for modulename in conf.get('modules'):
             __import__('modules.'+modulename)
             module = sys.modules['modules.'+modulename]
             setattr(module.Module, 'name', modulename)
             self.modules.append(module.Module(self.irc, conf))
+            self.all_commands.extend([c[0] for c in self.modules[-1].commands])
 
-            self.modules[-1].setDaemon(True)
-            self.modules[-1].start()
+        for module in self.modules:
+            module.all_commands = self.all_commands
+            module.setDaemon(True)
+            module.start()
 
     def dispatch(self, data):
         """ Deals with messages and sends modules the information they need. """
