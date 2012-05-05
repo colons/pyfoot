@@ -155,7 +155,11 @@ def per_network(network):
 @bottle.route('/party/<network>/<filename>')
 def party(network, filename):
     conf = config_module.Config(network)
-    party = open(os.path.expanduser(conf.get('party_dir'))+filename+'.txt')
+    try:
+        party = open(os.path.expanduser(conf.get('party_dir'))+network+'/'+filename+'.txt')
+    except IOError:
+        party = open(os.path.expanduser(conf.get('party_dir'))+filename+'.txt')
+
     return bottle.template('tpl/party', party=party.readlines(), network=network)
     party.close()
 

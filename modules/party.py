@@ -34,7 +34,7 @@ class Module(module.Module):
             party.append(self.translator.translate(transvia, 'en', party[-1]))
         
         filename = '%s-%s' % (message.nick, time.strftime('%y%m%d-%H%M%S'))
-        filepath = path.expanduser(self.conf.get('party_dir')+filename+'.txt')
+        filepath = path.expanduser(self.conf.get('party_dir')+self.conf.alias+'/'+filename+'.txt')
 
         print ' -- Writing to %s...' % filepath
         file = codecs.open(filepath, mode='w')
