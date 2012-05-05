@@ -35,6 +35,8 @@ class Config(object):
             'woof_greeting': 'woof',
 
             'rss_feeds': {},
+
+            'url_blacklist': [],
         }
 
     def __init__(self, network):
