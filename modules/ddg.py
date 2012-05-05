@@ -47,7 +47,7 @@ class Module(module.Module):
 
     def ddg(self, message):
         """ Issue a <a href="http://duckduckgo.com/api.html">DuckDuckGo</a> query.
-        $<comchar> ddg 2^10
+        $<comchar>ddg 2^10
         >\x02calc\x02\x034 :\x03 2 ^ 10 = 1,024\x034 |\x03 http://ddg.gg/?q=2%5E10 """
         post_arg = parser.args(message.content, 'ddg', self.conf)
         if post_arg != False and len(post_arg) != 0:
