@@ -31,7 +31,7 @@ class Module(threading.Thread):
                 for command, function in self.commands:
                     args = {}
                     arglist = re.findall('(?<=<).*?(?=>)', command)
-                    regex = re.sub('<.*?>', '(.+?)', command)
+                    regex = re.sub('<.*?>', '(.+?)', command+'$')
                     
                     match = re.match(regex, the_message.content[len(self.conf.get('comchar')):])
 
