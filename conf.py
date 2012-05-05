@@ -33,6 +33,8 @@ class Config(object):
 
             'woof_trigger': '(?i).*\bwoof\b',
             'woof_greeting': 'woof',
+
+            'rss_feeds': {},
         }
 
     def __init__(self, network):

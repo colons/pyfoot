@@ -51,14 +51,12 @@
 <div class="module section">
     <div class="heading">
         <h3>{{module['name']}}</h3>
+        %if module['blacklist']:
+            <div class="blacklist key">
+                <p>disabled in {{!' <span class=separator>:</span> '.join(module['blacklist'])}}</p>
+            </div>
+        %end
     </div>
-    %if module['blacklist']:
-    <div class="blacklist">
-        <div class="item">
-            <p>disabled in {{!' <span class=separator>:</span> '.join(module['blacklist'])}}</p>
-        </div>
-    </div>
-    %end
     %if module['docstring']:
     <div class="overview">
         <p>{{!module['docstring']}}</p>
@@ -66,10 +64,10 @@
     %end
     %for function in module['functions']:
     <div class="command">
-        <div class="usage">
+        <div class="usage key">
             <p class="irc">{{function['command']}}</p>
         </div>
-        <div class="docstring">
+        <div class="docstring item">
             {{!function['docstring']}}
         </div>
     </div>
