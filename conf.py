@@ -19,7 +19,15 @@ class Config(object):
             'network_ssl': False,
             'network_channels': [],
 
+            'admin_salt': '',
+            'admin_admins': {
+                },
+
             'modules': [],
+
+            'module_blacklist': {
+                },
+            'nick_blacklist': [],
 
             'woof_trigger': '(?i)\bwoof\b',
             'woof_greeting': 'woof',
