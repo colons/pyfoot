@@ -1,5 +1,7 @@
 from random import choice
 import urllib
+import urlparse
+import re
 from BaseHTTPServer import BaseHTTPRequestHandler
 
 user_agents = [
@@ -19,14 +21,19 @@ def choose_agent():
     return choice(user_agents)
 
 def ajax_url(url):
-    """AJAX HTML Snapshot URL parsing"""
+    """ AJAX HTML snapshot URL parsing, pretty much required for a modern scraper. """
     """ https://developers.google.com/webmasters/ajax-crawling/docs/specification """
     hashbang_index = url.find('#!')
     if hashbang_index != -1:
         base = url[:hashbang_index]
-        if '?' in base:
-            join = '&'
-        else:
-            join = '?'
-        url = base + join + '_escaped_fragment_=' + urllib.quote(url[hashbang_index+2:], '=')
+        joiner = '&' if '?' in base else '?'
+        url = ''.join([base,joiner,'_escaped_fragment_=',urllib.quote(url[hashbang_index+2:], '=')])
     return url
+
+def prettify_url(url):
+    """ Removes URL baggage to display a clean hostname/path. """
+    """ Can be passed a string or a urlparse.ParseResult object. """
+    """ Note: This is not meant to be clickable and I'm not responsible if it breaks things. """
+    if isinstance(url, urlparse.ParseResult) == False:
+        url = urlparse.urlparse(url)
+    return url.hostname + re.sub('/$', '', url.path)

@@ -1,8 +1,27 @@
 import socket
 import ssl
-from django.utils.encoding import smart_str
+#from django.utils.encoding import smart_str
 import sys
 import re
+
+def strip_formatting(part):
+
+    # colours first
+    odd = True
+    while re.search('\x03', part):
+        if odd:
+            part = re.sub('\x03\d?\d?', '', part, count=1)
+        else:
+            part = re.sub('\x03', '', part, count=1)
+
+        odd = not odd
+
+    part = re.sub('\x01', '', part)
+    part = re.sub('\x02', '', part)
+    part = re.sub('\x0F', '', part)
+    part = re.sub('\x16', '', part)
+
+    return part
 
 def split_len(seq, length):
     """ Splits messages into manageable chunks """
@@ -98,7 +117,9 @@ class IRC(object):
             except KeyError:
                 pass
 
-            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
+            #out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
+            part = part.encode('utf-8') if type(part) is unicode else part
+            out = 'PRIVMSG %s :%s\r\n' % (channel, part)
             print ' >>', out,
             self.irc.send(out)
 
@@ -110,25 +131,6 @@ class IRC(object):
         message = message.replace(' @ ', '\x034 @\x03 ')
         return message
 
-
-    def strip_formatting(self, part):
-
-        # colours first
-        odd = True
-        while re.search('\x03', part):
-            if odd:
-                part = re.sub('\x03\d?\d?', '', part, count=1)
-            else:
-                part = re.sub('\x03', '', part, count=1)
-
-            odd = not odd
-        
-        part = re.sub('\x01', '', part)
-        part = re.sub('\x02', '', part)
-        part = re.sub('\x0F', '', part)
-        part = re.sub('\x16', '', part)
-
-        return part
 
         
     def listen(self):

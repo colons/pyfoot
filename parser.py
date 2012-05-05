@@ -1,10 +1,11 @@
 import message
 import thread
-
+import chardet
 
 def content(data):
     """ Return message content """
-    return ':'.join(data.split(':')[2:])
+    line = ':'.join(data.split(':')[2:])
+    return unicode(line, chardet.detect(line)['encoding'])
 
 def nick(data):
     """ Return message nick """

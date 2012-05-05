@@ -4,6 +4,7 @@ import lxml.html
 import requests
 from urlparse import urlparse
 import http_helper
+import irc
 import re
 
 import metamodule
@@ -21,8 +22,9 @@ class Module(metamodule.MetaModule):
                         permitted = False
 
                 if permitted:
-                    url_hostname = urlparse(word).hostname
-                    word = http_helper.ajax_url(word)
+                    url_parsed = urlparse(word)
+                    url_hostname = url_parsed.hostname
+                    word = irc.strip_formatting(http_helper.ajax_url(word))
                     request_headers = {'User-Agent': http_helper.choose_agent()}
 
                     try:
@@ -31,9 +33,11 @@ class Module(metamodule.MetaModule):
 
                         if resource.history != [] and resource.history[-1].status_code in http_helper.redirect_codes:
                             word = resource.history[-1].headers['Location']
-                            url_hostname_redir = urlparse(word).hostname
-                            if url_hostname_redir != url_hostname:
-                                url_hostname = url_hostname + ' \x034->\x03 ' + word
+                            redirection_url = urlparse(word)
+                            if redirection_url.netloc == '':
+                                word = ''.join([url_parsed.scheme,'://',url_hostname,redirection_url.path])
+                            elif redirection_url.netloc != url_hostname:
+                                url_hostname = '%s \x034->\x03 %s' % (url_hostname, http_helper.prettify_url(word))
                             word = http_helper.ajax_url(word)
 
                         resource_type = resource.headers['Content-Type'].split(';')[0]
@@ -52,6 +56,6 @@ class Module(metamodule.MetaModule):
                     except requests.exceptions.ConnectionError:
                         title = 'Error connecting to server'
                     except requests.exceptions.HTTPError, httpe:
-                        title = str(httpe.response.status_code) + ' ' + http_helper.responses[httpe.response.status_code][0]
+                        title = '%s %s' % (httpe.response.status_code, http_helper.responses[httpe.response.status_code][0])
                     summary = '%s\x034 |\x03\x02 %s\x02' % (title, url_hostname)
-                    self.irc.send(message.source, summary.encode('utf-8'))
+                    self.irc.send(message.source, summary)
