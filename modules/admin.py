@@ -20,9 +20,7 @@ class Module(module.Module):
                 ]
 
     def authenticate(self, message, args):
-        """ Authenticate with pyfoot.
-        $<comchar>auth woof
-        """
+        """ Authenticate with pyfoot. """
         sha = self.sha.copy()
         sha.update(args['pass'])
         
