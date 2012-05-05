@@ -15,7 +15,6 @@ class Module(module.Module):
                 line_list.append(line)
             self.sources[source] = line_list
 
-
     def register_commands(self):
         self.commands = []
         for source in self.conf.get('rantext_sources'):

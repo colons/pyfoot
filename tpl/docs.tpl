@@ -20,7 +20,7 @@
             <p>autojoin</p>
         </div>
         <div class="item">
-            <p>{{!' <span class=separator>:span> '.join(conf['network_channels'])}}</p>
+            <p>{{!' <span class=separator>:</span> '.join(conf['network_channels'])}}</p>
         </div>
     </div>
     <div class="setting">
