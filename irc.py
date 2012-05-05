@@ -113,7 +113,7 @@ class IRC(object):
 
             try:
                 if 'c' in self.channels[channel]['modes']:
-                    part = self.strip_formatting(part)
+                    part = strip_formatting(part)
             except KeyError:
                 pass
 

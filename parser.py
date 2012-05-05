@@ -5,7 +5,10 @@ import chardet
 def content(data):
     """ Return message content """
     line = ':'.join(data.split(':')[2:])
-    return unicode(line, chardet.detect(line)['encoding'])
+    try:
+        return unicode(line, chardet.detect(line)['encoding'])
+    except TypeError:
+        return unicode(line, 'utf-8')
 
 def nick(data):
     """ Return message nick """
