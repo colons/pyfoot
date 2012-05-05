@@ -45,7 +45,7 @@
 %end
 
 %for module in modules:
-<div class="module section">
+<div class="module section" id="{{module['name']}}">
     <div class="heading">
         <h3>{{module['name']}}</h3>
         %if module['blacklist']:

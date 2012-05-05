@@ -47,14 +47,9 @@ class IRC(object):
 
 
     def join(self, channel):
-        """ Joins a channel. If already joined, requests channel modes. """
-        try:
-            self.channels[channel]
-        except KeyError:
-            # we are not in this channel
-            print ' :: Joining %s' % channel
-            self.socket.send('JOIN %s\r\n' % channel)
-            self.getmode(channel)
+        """ Joins a channel. """
+        self.socket.send('JOIN %s\r\n' % channel)
+        self.getmode(channel)
 
 
     def part(self, channel, reason=''):
