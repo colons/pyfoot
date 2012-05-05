@@ -43,6 +43,7 @@ class Module(threading.Thread):
                             function(the_message, args)
                         except:
                             traceback.print_exc()
+                            self.irc.act(the_message.source, 'rolls over')
 
                         break # only one command per module per message
             
@@ -53,5 +54,6 @@ class Module(threading.Thread):
                             function(the_message)
                         except:
                             traceback.print_exc()
+                            self.irc.act(the_message.source, 'rolls over')
 
                         break
