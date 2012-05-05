@@ -20,7 +20,7 @@ class Module(module.Module):
 
     def register_commands(self):
         self.regexes = [
-                ('.*\\bhttp://.*', self.title)
+                ('.*\\bhttps?://.*', self.title)
                 ]
 
     def title(self, message):
