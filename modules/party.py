@@ -24,7 +24,7 @@ class Module(module.Module):
     def party(self, message, args):
         """ A recreation of <a href="http://translationparty.com/">Translation Party</a> using the Bing translate API.
         $<comchar>party scissor me timbers
-        >I have a tree.\x034 |\x03 \x027\x02 attempts\x034 |\x03 http://woof.bldm.us/party/Derasonika-120213-235608.txt """
+        >I have a tree.\x034 |\x03 \x027\x02 attempts\x034 |\x03 http://woof.bldm.us/party/<network>/Derasonika-120213-235608 """
         transvia = self.conf.get('party_via')
     
 

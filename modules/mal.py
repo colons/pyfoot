@@ -38,7 +38,7 @@ class Module(module.Module):
             print ' :: error reading MAL user pickle, will create one when necessary'
     
     def define(self, message, args):
-        """ Many of these functions benefit from knowing whose IRC nicks correspond to which MAL user, so be sure to tell pyfoot who you are.
+        """ Many of these functions benefit from knowing whose IRC nicks correspond to which MAL user, so be sure to tell <pyfoot> who you are.
         $<comchar>mal set colons
         >\x02nivi\x02 is now MAL user \x02colons\x02\x034 |\x03 http://myanimelist.net/profile/colons"""
         user = args['user']

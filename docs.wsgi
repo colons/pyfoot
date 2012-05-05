@@ -33,9 +33,17 @@ def convert_mirc_entities(line):
     return line
 
 
-def parse_paragraph(line, comchar):
-    if comchar:
-        line = line.replace('<comchar>', comchar)
+def parse_paragraph(line, conf):
+    if conf: 
+        line = line.replace('<comchar>', conf.get('comchar'))
+        
+    if conf.alias != 'GLOBAL':
+        line = line.replace('<network>', conf.alias)
+    else:
+        line = line.replace('<network>', 'network')
+
+    line = line.replace('<pyfoot>', conf.get('nick'))
+
 
     if line.startswith('$'):
         line = convert_mirc_entities(line)
@@ -50,20 +58,21 @@ def parse_paragraph(line, comchar):
     return line
 
 
-def examine_function(command, function, comchar):
+def examine_function(command, function, conf, regex=False):
     if function.__doc__:
-        if comchar:
-            command = comchar+command
+        if not regex:
+            command = conf.get('comchar')+command
+
         docstring = function.__doc__
         doc_lines = docstring.split('\n')
 
         explanation = []
         for line in [l.strip() for l in doc_lines if len(l.strip()) > 0]:
-            explanation.append(parse_paragraph(line, comchar))
+            explanation.append(parse_paragraph(line, conf))
 
         docstring = '\n'.join(explanation)
 
-        if not comchar and len(command) > 40:
+        if regex and len(command) > 40:
             command = command[:40]+'...'
         
         return {
@@ -74,7 +83,10 @@ def examine_function(command, function, comchar):
 
 def get_entries(network):
     if network:
-        conf = config_module.Config(network)
+        try:
+            conf = config_module.Config(network)
+        except AttributeError:
+            raise bottle.HTTPError(code=404)
     else:
         conf = config_module.Config('GLOBAL')
 
@@ -94,13 +106,13 @@ def get_entries(network):
 
         if module.commands:
             for command, function in module.commands:
-                entry = examine_function(command, function, conf.get('comchar'))
+                entry = examine_function(command, function, conf)
                 if entry:
                     functions.append(entry)
 
         if module.regexes:
             for command, function in module.regexes:
-                entry = examine_function(command, function, False)
+                entry = examine_function(command, function, conf, regex=True)
                 if entry:
                     functions.append(entry)
 
@@ -111,7 +123,7 @@ def get_entries(network):
             }
 
         try:
-            module_dict['docstring'] = module.__doc__.strip()
+            module_dict['docstring'] = '\n'.join([parse_paragraph(l.strip(), conf) for l in module.__doc__.split('\n') if len(l.strip()) > 0])
         except AttributeError:
             module_dict['docstring'] = None
 
@@ -132,19 +144,19 @@ def redir_to_help():
 @bottle.route('/help/')
 def defaults():
     module_dicts, conf = get_entries(None)
-    return bottle.template('docs', modules=module_dicts, conf=False)
+    return bottle.template('tpl/docs', modules=module_dicts, conf=conf.conf, per_network=False)
 
 @bottle.route('/help/<network>')
 @bottle.route('/help/<network>/')
 def per_network(network):
     module_dicts, conf = get_entries(network)
-    return bottle.template('docs', modules=module_dicts, conf=False)
+    return bottle.template('tpl/docs', modules=module_dicts, conf=conf.conf, per_network=True)
 
 @bottle.route('/party/<network>/<filename>')
 def party(network, filename):
     conf = config_module.Config(network)
     party = open(os.path.expanduser(conf.get('party_dir'))+filename+'.txt')
-    return bottle.template('party', party=party.readlines(), network=network)
+    return bottle.template('tpl/party', party=party.readlines(), network=network)
     party.close()
 
 
