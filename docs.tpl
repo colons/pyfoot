@@ -4,6 +4,8 @@
 <title>!help | a pyfoot document</title>
 
 <link rel="stylesheet" type="text/css" href="http://d.bldm.us/woof.css">
+<link rel="shortcut icon" href="http://d.bldm.us/favicon.ico" type="image/vnd.microsoft.icon">
+
 </head>
 
 <body>
