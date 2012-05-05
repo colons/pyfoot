@@ -125,14 +125,28 @@ def get_entries(network):
     return (module_dicts, conf)
 
 @bottle.route('/')
+def redir_to_help():
+    bottle.redirect("/help")
+
+@bottle.route('/help')
+@bottle.route('/help/')
 def defaults():
     module_dicts, conf = get_entries(None)
     return bottle.template('docs', modules=module_dicts, conf=False)
 
-@bottle.route('/<network>')
+@bottle.route('/help/<network>')
+@bottle.route('/help/<network>/')
 def per_network(network):
     module_dicts, conf = get_entries(network)
-    return bottle.template('docs', modules=module_dicts, conf=conf.conf)
+    return bottle.template('docs', modules=module_dicts, conf=False)
+
+@bottle.route('/party/<network>/<filename>')
+def party(network, filename):
+    conf = config_module.Config(network)
+    party = open(os.path.expanduser(conf.get('party_dir'))+filename+'.txt')
+    return bottle.template('party', party=party.readlines(), network=network)
+    party.close()
+
 
 bottle.run(host='localhost', port=8080)
 # application = bottle.default_app()

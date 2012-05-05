@@ -14,6 +14,8 @@ class Config(object):
 
             'content_dir': os.path.expanduser('~/.pyfoot/'),
 
+            'web_url': 'http://woof.bldm.us/',
+
             'network_address': 'localhost',
             'network_port': 6667,
             'network_ssl': False,
@@ -41,6 +43,7 @@ class Config(object):
 
         self.conf.update(getattr(config, 'GLOBAL'))
         self.conf.update(getattr(config, network))
+        self.alias = network
 
     def get(self, item):
         return self.conf[item]
