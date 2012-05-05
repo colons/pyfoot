@@ -20,7 +20,7 @@ class Module(module.Module):
                 ]
 
     def authenticate(self, message, args):
-        """ Authenticate with pyfoot. """
+        """ Authenticate with <pyfoot>. """
         sha = self.sha.copy()
         sha.update(args['pass'])
         
@@ -34,12 +34,12 @@ class Module(module.Module):
             return False
 
     def act(self, message, args):
-        """ Make pyfoot do something. """
+        """ Make <pyfoot> do something. """
         if self.can_trust(message):
             self.irc.act(args['target'], args['message'])
 
     def say(self, message, args):
-        """ Make pyfoot say something. """
+        """ Make <pyfoot> say something. """
         if self.can_trust(message):
             self.irc.send(args['target'], args['message'])
 
@@ -53,12 +53,12 @@ class Module(module.Module):
             self.irc.ctcp(args['target'], args['ctcp'])
 
     def join(self, message, args):
-        """ Make pyfoot join a channel. """
+        """ Make <pyfoot> join a channel. """
         if self.can_trust(message):
             self.irc.join(args['channel'])
     
     def part_with_reason(self, message, args):
-        """ Make pyfoot leave a channel. Reason optional """
+        """ Make <pyfoot> leave a channel. Reason optional """
         if self.can_trust(message):
             self.irc.part(args['channel'], args['reason'])
 

@@ -160,5 +160,7 @@ def party(network, filename):
     party.close()
 
 
-bottle.run(host='localhost', port=8080)
-# application = bottle.default_app()
+if __name__ == '__main__':
+    bottle.run(host='localhost', port=8080)
+else:
+    application = bottle.default_app()
