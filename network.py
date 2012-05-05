@@ -85,6 +85,6 @@ class Network(object):
                         module_blacklist = self.conf.get('module_blacklist')[module.name]
                     except KeyError:
                         module_blacklist = []
-                    else:
-                        if the_message.source not in module_blacklist and the_message.nick not in nick_blacklist:
-                            module.queue.put(the_message)
+
+                    if the_message.source not in module_blacklist and the_message.nick not in self.conf.get('nick_blacklist'):
+                        module.queue.put(the_message)
