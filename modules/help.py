@@ -22,10 +22,12 @@ class Module(Module):
         print self.argless_commands
 
     def specific_help(self, message, args):
-        """ Get help for a module or command.
+        """ Get help for a module or command. Commands can be shortened beyond ambiguity.
         $<comchar>help help
         >\x02help\x02\x034 |\x03 http://woof.bldm.us/help/<network>/#help
-        $<comchar>help <comchar>help"""
+        $<comchar>he <comchar>h
+        >\x02hhg\x02\x034 |\x03 <comchar>hhg &lt;character&gt;\x034 :\x03 <comchar>hhg\x034 |\x03 http://woof.bldm.us/help/<network>/#hhg
+        >\x02help\x02\x034 |\x03 <comchar>help\x034 :\x03 <comchar>help &lt;subject&gt;\x034 |\x03 http://woof.bldm.us/help/<network>/#help"""
 
         if args['subject'].startswith(self.conf.get('comchar')):
             command = args['subject'][len(self.conf.get('comchar')):]
@@ -35,6 +37,10 @@ class Module(Module):
             for command, module, function, arglist in possibilities:
                 if module.name not in modules:
                     modules[module.name] = []
+
+                command.replace('>>', '>')
+                command.replace('<<', '<')
+
                 modules[module.name].append('%s%s' % (self.conf.get('comchar'), command))
             print modules
 
