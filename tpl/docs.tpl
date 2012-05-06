@@ -1,4 +1,4 @@
-%rebase tpl/base title='%shelp | a pyfoot document' % conf['comchar']
+%rebase tpl/base title='%shelp' % conf['comchar']
 
 <p class="summary">A Python IRC robot. Source available on <a href="https://bitbucket.org/colons/pyfoot/">Bitbucket</a>.</p>
 
