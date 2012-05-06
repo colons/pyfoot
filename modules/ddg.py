@@ -10,7 +10,7 @@ class Module(module.Module):
 
     def register_commands(self):
         self.commands = [
-                ('ddg <query>', self.ddg)
+                ('ddg <<query>>', self.ddg)
                 ]
 
     def query(self, query):

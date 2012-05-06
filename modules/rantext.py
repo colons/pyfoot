@@ -1,4 +1,5 @@
 from random import choice
+from copy import copy
 
 import module
 
@@ -17,25 +18,20 @@ class Module(module.Module):
 
     def register_commands(self):
         self.commands = []
-        for source in self.conf.get('rantext_sources'):
-            everyone_func = lambda message, args: self.do_a_thing(message, args)
-            everyone_func.__doc__ = '$<comchar>%s\n>%s' % (source, self.extract(source))
+        for source in self.sources:
+            everyone_func = lambda message, args: self.rantext(message, args)
+            everyone_func.__doc__ = '$<comchar>%s\n>%s' % (source, choice(self.sources[source]))
 
-            targetted_func = lambda message, args: self.do_a_thing(message, args)
+            targetted_func = lambda message, args: self.rantext(message, args)
 
             self.commands.append((source, everyone_func))
             self.commands.append(('%s <nick>' % source, targetted_func))
 
-    def do_a_thing(self, message, args):
-        source = message.content[len(self.conf.get('comchar')):].split(' ')[0]
-
-        line = self.extract(source)
+    def rantext(self, message, args):
+        source = self.sources[args['_command'].split(' ')[0]]
+        line = choice(source)
 
         if 'nick' in args:
             line = '%s: %s' % (args['nick'], line)
 
         self.irc.send(message.source, line)
-    
-    def extract(self, source):
-        """ Opens file and returns a random item from it """
-        return choice(self.sources[source])

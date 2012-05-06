@@ -2,6 +2,7 @@ import message
 
 import sys
 import thread
+import re
 
 class Network(object):
     def __init__(self, conf, irc):
@@ -10,18 +11,104 @@ class Network(object):
         self.irc = irc
         self.modules = []
         self.all_commands = []
+        self.all_regexes = []
 
         for modulename in conf.get('modules'):
             __import__('modules.'+modulename)
             module = sys.modules['modules.'+modulename]
             setattr(module.Module, 'name', modulename)
             self.modules.append(module.Module(self.irc, conf))
-            self.all_commands.extend([c[0] for c in self.modules[-1].commands])
+
+            for command, function in self.modules[-1].commands:
+                regex, arglist = self.command_to_regex_and_arglist(command)
+                self.all_commands.append((command, regex, arglist, function, self.modules[-1]))
+
+            for regex, function in self.modules[-1].regexes:
+                self.all_regexes.append((re.compile(regex), function, self.modules[-1]))
 
         for module in self.modules:
             module.all_commands = self.all_commands
             module.setDaemon(True)
             module.start()
+    
+
+
+    def command_to_regex_and_arglist(self, command):
+        regex = ''
+        arglist = []
+
+        for word in command.split(' '):
+            arg = re.match('<(\w+)>$', word)
+            if arg:
+                arglist.append(arg.group(1))
+                if re.match('<<(\w+)>>$', word):
+                    regex += '(.+)'
+                else:
+                    regex += '(\w+)'
+            else:
+                regex += word[0]
+
+                for letter in word[1:]:
+                    regex += '(?:\\b|%s' % letter
+                for letter in word[1:]:
+                    regex += ')'
+
+            regex += '\s+'
+        
+        regex = regex[:-3]
+        regex += '$'
+
+        compiled_regex = re.compile(regex)
+
+        return compiled_regex, arglist
+
+
+    def delegate(self, the_message):
+        nick_blacklist = [n.lower() for n in self.conf.get('nick_blacklist')]
+        
+        if the_message.content.startswith(self.conf.get('comchar')):
+            commands = self.get_possible_commands(the_message.content[len(self.conf.get('comchar')):].rstrip())
+            ambiguity = len(commands)
+
+            if ambiguity == 1:
+                command, module, function, args = commands[0]
+                args['_command'] = command
+                module.queue.put((function, the_message, args))
+
+            elif ambiguity > 1:
+                self.irc.send(the_message.source, '\x02ambiguous command\x02\x034 |\x03 %s' % '\x034 :\x03 '.join(
+                    [self.conf.get('comchar')+c[0] for c in commands])
+                    )
+
+        
+        for regex, function, module in self.all_regexes:
+            match = regex.match(the_message.content)
+
+            if match:
+                try:
+                    module_blacklist = [c.lower() for c in self.conf.get('module_blacklist')[module.name]]
+                except KeyError:
+                    module_blacklist = []
+                
+                if the_message.source.lower() not in module_blacklist and the_message.nick.lower() not in self.conf.get('nick_blacklist'):
+                    module.queue.put((function, the_message, match))
+
+    def get_possible_commands(self, content):
+        possible_commands = []
+        
+        for command, regex, arglist, function, module in self.all_commands:
+            args = {}
+
+            match = regex.match(content)
+            if match:
+                i = 1
+                for arg in arglist:
+                    args[arg] = match.group(i)
+                    i += 1
+
+                possible_commands.append((command, module, function, args))
+
+        return possible_commands
 
     def dispatch(self, data):
         """ Deals with messages and sends modules the information they need. """
@@ -62,11 +149,11 @@ class Network(object):
                     self.irc.channels[name]['modes'] = modelist
 
             elif type == 'INVITE':
-                channel = message.content(line)
+                channel = the_message.content(line)
                 self.irc.join(channel)
 
             elif type == 'KICK':
-                channel = message.content(line)
+                channel = the_message.content(line)
                 self.irc.part(channel)
 
             elif type == 'NOTICE':
@@ -82,13 +169,4 @@ class Network(object):
                 self.initial = False
 
             elif type == 'PRIVMSG':
-                nick_blacklist = [n.lower() for n in self.conf.get('nick_blacklist')]
-
-                for module in self.modules:
-                    try:
-                        module_blacklist = [c.lower() for c in self.conf.get('module_blacklist')[module.name]]
-                    except KeyError:
-                        module_blacklist = []
-                    
-                    if the_message.source.lower() not in module_blacklist and the_message.nick.lower() not in self.conf.get('nick_blacklist'):
-                        module.queue.put(the_message)
+                self.delegate(the_message)

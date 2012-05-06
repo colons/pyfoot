@@ -23,7 +23,7 @@ class Module(module.Module):
                 ('.*\\bhttps?://.*', self.title)
                 ]
 
-    def title(self, message):
+    def title(self, message, args):
         """ Returns the HTML title tag of URLs posted.
         $https://twitter.com/#!/camh/statuses/147449116551680001
         >Twitter / Cameron Kenley Hunt: There are only three hard  ...\x034 |\x03 \x02twitter.com\x02

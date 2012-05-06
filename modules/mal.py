@@ -12,13 +12,14 @@ class Module(module.Module):
     """ Fresh MyAnimeList facts, milled from <a href="http://mal-api.com">mal-api.com</a>. """
     def register_commands(self):
         self.commands = [
-                ('mal search <query>', self.search),
+                ('mal search <<query>>', self.search),
                 ('mal set <user>', self.define),
                 ('mal fight <user1> <user2>', self.fight),
                 ('mal fight <user>', self.fight_self),
                 ('mal compare <user1> <user2>', self.compare),
                 ('mal compare <user>', self.compare_self),
-                ('mal <user>', self.summarise),
+                ('mal info <user>', self.summarise),
+                ('mal info', self.summarise_self),
                 ('mal', self.summarise_self),
             ]
 
@@ -40,7 +41,7 @@ class Module(module.Module):
     def define(self, message, args):
         """ Many of these functions benefit from knowing whose IRC nicks correspond to which MAL user, so be sure to tell <pyfoot> who you are.
         $<comchar>mal set colons
-        >\x02nivi\x02 is now MAL user \x02colons\x02\x034 |\x03 http://myanimelist.net/profile/colons"""
+        >\x02nivi\x02 is now MAL user \x02colons\x02\x034 |\x03 http://myanimelist.net/profile/\x02colons"""
         user = args['user']
 
         try:
@@ -59,7 +60,7 @@ class Module(module.Module):
             userfile = open(self.user_file_path, 'w')
             pickle.dump(malusers, userfile)
             userfile.close()
-            self.irc.send(message.source, '\x02%s\x02 is now MAL user \x02%s\x02 | http://myanimelist.net/profile/%s' % (message.nick, user, user), pretty=True)
+            self.irc.send(message.source, '\x02%s\x02 is now MAL user \x02%s\x02 | http://myanimelist.net/profile/\x02%s' % (message.nick, user, user), pretty=True)
 
     
     def maluser(self, user):
@@ -258,6 +259,8 @@ class Module(module.Module):
 
 
     def search(self, message, args):
+        """ $!mal search churuya
+        >\x02Nyoro-n Churuya-san\x02\x034 :\x03 ONA\x034 |\x03 http://myanimelist.net/anime/5957\x034 |\x03 An anime adaptation of the 4-panel strip manga release: Nyoron Churuya-san. Based on Suzumiya Haruhi's energetic and 'always up to go' character, Tsuruya."""
         query = args['query']
 
         search = self.query('anime/search', ['q=%s' % urllib2.quote(query)])

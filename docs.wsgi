@@ -13,6 +13,7 @@ import re
 
 import conf as config_module
 
+
 def convert_mirc_entities(line):
     odd = True
     while re.search('\x03', line):
@@ -21,6 +22,8 @@ def convert_mirc_entities(line):
         else:
             line = re.sub('\x03', '</span>', line, count=1)
         odd = not odd
+    if not odd:
+        line += '</span>'
 
     odd = True
     while re.search('\x02', line):
@@ -29,6 +32,8 @@ def convert_mirc_entities(line):
         else:
             line = re.sub('\x02', '</span>', line, count=1)
         odd = not odd
+    if not odd:
+        line += '</span>'
 
     return line
 

@@ -18,7 +18,7 @@ class Module(module.Module):
 
     def register_commands(self):
         self.commands = [
-                ('party <phrase>', self.party)
+                ('party <<phrase>>', self.party)
                 ]
 
     def party(self, message, args):
