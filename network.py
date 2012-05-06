@@ -52,7 +52,10 @@ def command_to_regex_and_arglist(command, ignore_variables=False):
             regex += '\s+'
 
     
-    regex = regex[:-3]+'$'
+    regex = regex[:-3]
+
+    if not ignore_variables:
+        regex += '$'
 
     compiled_regex = re.compile(regex)
 
