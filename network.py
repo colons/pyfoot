@@ -167,11 +167,11 @@ class Network(object):
                     self.irc.channels[name]['modes'] = modelist
 
             elif type == 'INVITE':
-                channel = the_message.content(line)
+                channel = the_message.content
                 self.irc.join(channel)
 
             elif type == 'KICK':
-                channel = the_message.content(line)
+                channel = the_message.content
                 self.irc.part(channel)
 
             elif type == 'NOTICE':
