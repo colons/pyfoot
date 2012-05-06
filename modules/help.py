@@ -1,15 +1,55 @@
-import module
+from module import Module
+from network import command_to_regex_and_arglist, get_possible_commands
 
-class Module(module.Module):
+class Module(Module):
     def register_commands(self):
         self.commands = [
                 ('help', self.all_help),
-                ('help <module>', self.targetted_help),
+                ('help <<subject>>', self.specific_help),
                 ]
 
-    def targetted_help(self, message, args):
-        if args['module'] in self.conf.get('modules'):
+    def prefork(self):
+        # we can't build our command regexes until we fork;
+        # self.network.all_commands will not exist when prepare() is called
+        self.argless_commands = []
+
+        for command, regex, arglist, function, module in self.network.all_commands:
+            print command
+            print arglist
+            argless_regex, arglist = command_to_regex_and_arglist(command, ignore_variables=True)
+            self.argless_commands.append((command, argless_regex, arglist, function, module))
+
+        print self.argless_commands
+
+    def specific_help(self, message, args):
+        """ Get help for a module or command.
+        $<comchar>help help
+        >\x02help\x02\x034 |\x03 http://woof.bldm.us/help/<network>/#help
+        $<comchar>help <comchar>help"""
+
+        if args['subject'].startswith(self.conf.get('comchar')):
+            command = args['subject'][len(self.conf.get('comchar')):]
+            possibilities = get_possible_commands(command, self.argless_commands)
+            
+            modules = {}
+            for command, module, function, arglist in possibilities:
+                if module.name not in modules:
+                    modules[module.name] = []
+                modules[module.name].append('%s' % command)
+            print modules
+
+            outlist = []
+
+            for module in modules:
+                commands = '\x034 :\x03 '.join(modules[module])
+                outlist.append('\x02%s\x02\x034 |\x03 %s\x034 |\x03 %shelp/%s/#%s' % (module, commands, self.conf.get('web_url'), self.conf.alias, module))
+            
+            for out in outlist:
+                self.irc.send(message.source, out)
+
+        elif args['subject'] in self.conf.get('modules'):
             self.irc.send(message.source, '\x02%s\x02 | http://woof.bldm.us/help/%s/#%s' % (args['module'], self.conf.alias, args['module']), pretty=True)
+
         else:
             self.irc.send(message.source, '\x02%s\x02 | no such module' % args['module'], pretty=True)
 
