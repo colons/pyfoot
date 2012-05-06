@@ -35,7 +35,7 @@ class Module(Module):
             for command, module, function, arglist in possibilities:
                 if module.name not in modules:
                     modules[module.name] = []
-                modules[module.name].append('%s' % command)
+                modules[module.name].append('%s%s' % (self.conf.get('comchar'), command))
             print modules
 
             outlist = []
