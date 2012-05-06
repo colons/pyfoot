@@ -38,8 +38,7 @@ class Module(Module):
                 if module.name not in modules:
                     modules[module.name] = []
 
-                command.replace('>>', '>')
-                command.replace('<<', '<')
+                command = command.replace('>>', '>').replace('<<', '<')
 
                 modules[module.name].append('%s%s' % (self.conf.get('comchar'), command))
             print modules
@@ -53,11 +52,14 @@ class Module(Module):
             for out in outlist:
                 self.irc.send(message.source, out)
 
+            if len(outlist) == 0:
+                self.irc.send(message.source, '\x02%s\x02\x034 |\x03 no such command\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias))
+
         elif args['subject'] in self.conf.get('modules'):
             self.irc.send(message.source, '\x02%s\x02 | http://woof.bldm.us/help/%s/#%s' % (args['subject'], self.conf.alias, args['subject']), pretty=True)
 
         else:
-            self.irc.send(message.source, '\x02%s\x02 | no such module' % args['subject'], pretty=True)
+            self.irc.send(message.source, '\x02%s\x02 | no such module\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias), pretty=True)
 
     def all_help(self, message, args):
         """ Returns links to this page and to pyfoot's <a href="https://bitbucket.org/colons/pyfoot/">source code</a> and <a href="https://bitbucket.org/colons/pyfoot/issues/new">issue tracker</a>.
