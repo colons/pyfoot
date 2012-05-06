@@ -111,7 +111,7 @@ class Network(object):
 
             elif ambiguity > 1:
                 self.irc.send(the_message.source, '\x02ambiguous command\x02\x034 |\x03 %s' % '\x034 :\x03 '.join(
-                    [self.conf.get('comchar')+c[0] for c in commands])
+                    [self.conf.get('comchar')+c[0].replace('>>', '>').replace('<<', '<') for c in commands])
                     )
 
         
