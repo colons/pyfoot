@@ -23,15 +23,18 @@ class Network(object):
             self.quit_message = ''
 
         try:
+            self.roll_message = conf.get('roll_message')
+        except ConfigParser.NoOptionError:
+            self.roll_message = 'rolls over'
+
+        try:
             while True:
                 """ Here's where the shit happens """
                 data = self.irc.listen()
                 print data,
 
-                parser.dispatch(data, self.irc, self.modules, conf)
+                parser.dispatch(data, self.irc, self.modules, conf, self.quit_message, self.roll_message)
         except KeyboardInterrupt:
             print '^C pressed'
             self.irc.close(self.quit_message)
             sys.exit()
-        else:
-            traceback.print_stack()

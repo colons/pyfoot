@@ -1,4 +1,5 @@
 import message
+import traceback
 import thread
 import chardet
 
@@ -44,7 +45,7 @@ def args(content, args, conf):
         return False
 
 
-def dispatch(data, irc, modules, conf):
+def dispatch(data, irc, modules, conf, quit_message, roll_message):
     """ Deals with messages and sends modules the information they need. """
     if data == None:
         print ' :: no data'
@@ -52,7 +53,7 @@ def dispatch(data, irc, modules, conf):
     
     if data == '':
         print ' :: empty response, assuming disconnection\a' # alert
-        irc.close()
+        irc.close(quit_message)
 
     for line in data.split('\r\n'):
 
@@ -139,7 +140,11 @@ def dispatch(data, irc, modules, conf):
             if the_message.nick.lower() not in [n.lower() for n in conf.get('blacklist').split(',')]:
                 for module in modules:
                     if '%s %s' % (the_message.source, module.name) not in conf.get('exclude').split(','):
-                        if conf.get('debug') == '1':
-                            module.act(the_message)
-                        else:
-                            thread.start_new_thread(module.act, (the_message,))
+                        try:
+                            if conf.get('debug') == '1':
+                                module.act(the_message)
+                            else:
+                                thread.start_new_thread(module.act, (the_message,))
+                        except:
+                            traceback.print_exc()
+                            irc.act(the_message.source, roll_message)
