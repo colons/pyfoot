@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 <head lang="en">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>{{title}}</title>
@@ -16,3 +17,4 @@
     
 <p class="credit">A <a href="http://www.musicfortheblind.co.uk/">Music for the Blind</a> production.</p>
 </body>
+</html>

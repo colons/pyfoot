@@ -1,28 +1,17 @@
-<!DOCTYPE html>
-<head lang="en">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>party</title>
-
-<link rel="stylesheet" type="text/css" href="http://d.bldm.us/woof.css">
-<link rel="shortcut icon" href="http://d.bldm.us/favicon.ico" type="image/vnd.microsoft.icon">
-
-</head>
-
-<body>
-
-<h1>pyfoot</h1>
-<p class="summary"><a href="/help/{{network}}">help</a>
+%rebase tpl/base title='party'
+<p class="summary"><a href="/help/{{network}}/">help</a> | <a href="..">additional parties</a></p>
 
 <div class="section party">
     <div class="heading">
         <h3>party</h3>
     </div>
+    <div class="key">
+        <p>{{party['nick']}}</p>
+        <p>via {{len(party['lines'])-2}}</p>
+    </div>
     <div class="item phrases">
-        %for phrase in party:
-            <p>{{phrase}}</p>
-        %end
+    %for line in party['lines']:
+        <p>{{line}}</p>
+    %end
     </div>
 </div>
-    
-<p class="credit">A <a href="http://www.musicfortheblind.co.uk/">Music for the Blind</a> production.</p>
-</body>
