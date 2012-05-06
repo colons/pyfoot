@@ -48,10 +48,10 @@ class Module(Module):
                 self.irc.send(message.source, out)
 
         elif args['subject'] in self.conf.get('modules'):
-            self.irc.send(message.source, '\x02%s\x02 | http://woof.bldm.us/help/%s/#%s' % (args['module'], self.conf.alias, args['module']), pretty=True)
+            self.irc.send(message.source, '\x02%s\x02 | http://woof.bldm.us/help/%s/#%s' % (args['subject'], self.conf.alias, args['subject']), pretty=True)
 
         else:
-            self.irc.send(message.source, '\x02%s\x02 | no such module' % args['module'], pretty=True)
+            self.irc.send(message.source, '\x02%s\x02 | no such module' % args['subject'], pretty=True)
 
     def all_help(self, message, args):
         """ Returns links to this page and to pyfoot's <a href="https://bitbucket.org/colons/pyfoot/">source code</a> and <a href="https://bitbucket.org/colons/pyfoot/issues/new">issue tracker</a>.
