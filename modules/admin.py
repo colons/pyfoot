@@ -10,12 +10,12 @@ class Module(module.Module):
         self.commands = [
                 ('auth <pass>', self.authenticate),
                 ('sit', self.sit),
-                ('say <target> <message>', self.say),
-                ('act <target> <message>', self.act),
-                ('ctcp <target> <ctcp> <content>', self.ctcp),
+                ('say <target> <<message>>', self.say),
+                ('act <target> <<message>>', self.act),
+                ('ctcp <target> <ctcp> <<content>>', self.ctcp),
                 ('ctcp <target> <ctcp>', self.solo_ctcp),
                 ('join <channel>', self.join),
-                ('part <channel> <reason>', self.part_with_reason),
+                ('part <channel> <<reason>>', self.part_with_reason),
                 ('part <channel>', self.part),
                 ]
 

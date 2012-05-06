@@ -23,7 +23,7 @@ class Module(module.Module):
 
     def register_commands(self):
         self.commands = [
-                ('translate <from> <to> <phrase>', self.translate),
+                ('translate <from> <to> <<phrase>>', self.translate),
                 ]
 
     def translate(self, message, args):
