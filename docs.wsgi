@@ -146,25 +146,69 @@ def defaults():
     module_dicts, conf = get_entries(None)
     return bottle.template('tpl/docs', modules=module_dicts, conf=conf.conf, per_network=False)
 
-@bottle.route('/help/<network>')
 @bottle.route('/help/<network>/')
 def per_network(network):
     module_dicts, conf = get_entries(network)
     return bottle.template('tpl/docs', modules=module_dicts, conf=conf.conf, per_network=True)
 
-@bottle.route('/party/<network>/<filename>')
-def party(network, filename):
-    conf = config_module.Config(network)
+@bottle.route('/party/<network>/')
+def party_index(network):
     try:
-        party = open(os.path.expanduser(conf.get('party_dir'))+network+'/'+filename+'.txt')
-    except IOError:
-        party = open(os.path.expanduser(conf.get('party_dir'))+filename+'.txt')
+        conf = config_module.Config(network)
+    except AttributeError:
+        raise bottle.HTTPError(code=404)
 
-    return bottle.template('tpl/party', party=party.readlines(), network=network)
+    parties = []
+    party_path = os.path.expanduser(conf.get('party_dir'))+network
+
+    try:
+        party_files = os.listdir(party_path)
+    except IOError:
+        raise bottle.HTTPError(code=404)
+
+    for party_filename in party_files:
+        party_file = open(party_path+'/'+party_filename)
+        party = party_file.readlines()
+        party_file.close()
+        party_dict = {
+                'nick': '-'.join(party_filename.split('-')[:-2]),
+                'date': party_filename.split('-')[-2],
+                'time': party_filename.split('-')[-1][:-4],
+                'initial': party[0],
+                'final': party[-1],
+                'length': len(party),
+                'url': party_filename[:-4]+'/',
+                }
+        
+        parties.append(party_dict)
+
+    parties.sort(key=lambda p:int(p['date']+p['time']), reverse=True)
+    return bottle.template('tpl/party_index', parties=parties, network=network)
     party.close()
 
 
+@bottle.route('/party/<network>/<filename>/')
+def party(network, filename):
+    conf = config_module.Config(network)
+    try:
+        party_file = open(os.path.expanduser(conf.get('party_dir'))+network+'/'+filename+'.txt')
+    except IOError:
+        raise bottle.HTTPError(code=404)
+    else:
+        party_lines = party_file.readlines()
+        party_file.close()
+
+    party = {
+            'lines': party_lines,
+            'nick': '-'.join(filename.split('-')[:-2]),
+            'date': filename.split('-')[-2],
+            'time': filename.split('-')[-1],
+            }
+    
+    return bottle.template('tpl/party', party=party, network=network)
+
+
 if __name__ == '__main__':
-    bottle.run(host='localhost', port=8080)
+    bottle.run(host='0.0.0.0', port=8080)
 else:
     application = bottle.default_app()
