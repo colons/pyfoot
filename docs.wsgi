@@ -138,9 +138,8 @@ def get_entries(network):
 
 @bottle.route('/')
 def redir_to_help():
-    bottle.redirect("/help")
+    bottle.redirect("/help/")
 
-@bottle.route('/help')
 @bottle.route('/help/')
 def defaults():
     module_dicts, conf = get_entries(None)
@@ -206,7 +205,6 @@ def party(network, filename):
             }
     
     return bottle.template('tpl/party', party=party, network=network)
-
 
 if __name__ == '__main__':
     bottle.run(host='0.0.0.0', port=8080)
