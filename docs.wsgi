@@ -67,6 +67,8 @@ def examine_function(command, function, conf, regex=False):
     if function.__doc__:
         if not regex:
             command = conf.get('comchar')+command
+            command = command.replace('<<', '<')
+            command = command.replace('>>', '>')
 
         docstring = function.__doc__
         doc_lines = docstring.split('\n')
