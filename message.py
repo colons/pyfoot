@@ -45,11 +45,15 @@ class Message(object):
     def __init__(self, data):
         try:
             self.message_type = ''.join(data.split(':')[:2]).split(' ')[1]
+        except IndexError:
+            self.message_type = None
+
+        try:
             self.nick = nick(data)
             self.content = content(data)
             self.source = destination(data)
             self.host = host(data)
         except IndexError:
             # one of these failed, so we can't trust any of them
-            self.message_type = self.nick = self.content = self.source = self.host = None
+            self.nick = self.content = self.source = self.host = None
 
