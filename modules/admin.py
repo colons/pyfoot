@@ -31,6 +31,7 @@ class Module(module.Module):
         if message.host in self.authenticated_hosts and self.authenticated_hosts[message.host] == message.nick:
             return True
         else:
+            self.irc.act(message.source, 'growls')
             return False
 
     def act(self, message, args):

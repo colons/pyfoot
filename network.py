@@ -136,13 +136,17 @@ class Network(object):
         if data == None:
             print ' :: no data'
             return None
-        
+
         if data == '':
             print ' :: empty response, assuming disconnection\a' # alert
             sys.exit()
 
         for line in [line for line in data.split('\r\n') if len(line) > 0]:
             print '    %s' % line
+
+            if line.startswith(':%s!%s@' % (self.conf.get('nick'), self.conf.get('username'))):
+                self.irc.own_hostname = line.split(' ')[0][1:]
+                print ' -- we are %s' % self.irc.own_hostname
 
             if line.startswith('PING :'):
                 self.irc.pong(line)
@@ -188,6 +192,9 @@ class Network(object):
                     self.irc.join(channel)
 
                 self.initial = False
+
+            elif type == 'MODE':
+                self.irc.getmode(line.split(' ')[2])
 
             elif type == 'PRIVMSG':
                 self.delegate(the_message)
