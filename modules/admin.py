@@ -24,6 +24,7 @@ class Module(module.Module):
         sha = self.sha.copy()
         sha.update(args['pass'])
         
+        print '\a !! auth attempt: sha.hexdigest()'
         if sha.hexdigest() == self.conf.get('admin_admins')[message.nick]:
             self.authenticated_hosts[message.host] = message.nick
 
@@ -71,5 +72,3 @@ class Module(module.Module):
         """ Test authentication state. """
         if self.can_trust(message):
             self.irc.act(message.source, 'sits')
-        else:
-            self.irc.act(message.source, 'growls')
