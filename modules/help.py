@@ -14,12 +14,8 @@ class Module(Module):
         self.argless_commands = []
 
         for command, regex, arglist, function, module in self.network.all_commands:
-            print command
-            print arglist
             argless_regex, arglist = command_to_regex_and_arglist(command, ignore_variables=True)
             self.argless_commands.append((command, argless_regex, arglist, function, module))
-
-        print self.argless_commands
 
     def specific_help(self, message, args):
         """ Get help for a module or command. Commands can be shortened beyond ambiguity.
@@ -41,7 +37,6 @@ class Module(Module):
                 command = command.replace('>>', '>').replace('<<', '<')
 
                 modules[module.name].append('%s%s' % (self.conf.get('comchar'), command))
-            print modules
 
             outlist = []
 
