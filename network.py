@@ -154,11 +154,11 @@ class Network(object):
 
             the_message = message.Message(line)
 
-            if the_message.message_type == '353':
+            if the_message.type == '353':
                 # this is a channel names list
                 pass
 
-            if the_message.message_type == '324':
+            if the_message.type == '324':
                 # this is a list of channel modes
                 splitline = line.split(' ')
                 name = splitline[3]
@@ -169,28 +169,28 @@ class Network(object):
                     self.irc.channels[name] = {}
                     self.irc.channels[name]['modes'] = modelist
 
-            elif the_message.message_type == 'INVITE':
+            elif the_message.type == 'INVITE':
                 channel = the_message.content
                 self.irc.join(channel)
 
-            elif the_message.message_type == 'KICK':
+            elif the_message.type == 'KICK':
                 channel = the_message.content
                 self.irc.part(channel)
 
-            elif the_message.message_type == 'NOTICE':
+            elif the_message.type == 'NOTICE':
                 pass
 
-            elif the_message.message_type == 'NICK':
+            elif the_message.type == 'NICK':
                 pass
 
-            elif the_message.message_type == 'MODE' and self.initial == True:
+            elif the_message.type == 'MODE' and self.initial == True:
                 for channel in self.conf.get('network_channels'):
                     self.irc.join(channel)
 
                 self.initial = False
 
-            elif the_message.message_type == 'MODE':
+            elif the_message.type == 'MODE':
                 self.irc.getmode(line.split(' ')[2])
 
-            elif the_message.message_type == 'PRIVMSG':
+            elif the_message.type == 'PRIVMSG':
                 self.delegate(the_message)
