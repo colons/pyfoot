@@ -39,8 +39,8 @@
         <div class="item">
             <p>{{!' <span class=separator>:</span> '.join(conf['nick_blacklist'])}}</p>
         </div>
-    %end
     </div>
+    %end
 </div>
 %end
 
