@@ -13,6 +13,12 @@ import re
 
 import conf as config_module
 
+control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
+control_char_re = re.compile('[%s]' % re.escape(control_chars))
+
+def remove_control_chars(s):
+    """ thanks http://stackoverflow.com/questions/92438/stripping-non-printable-characters-from-a-string-in-python """
+    return control_char_re.sub('', s)
 
 def convert_mirc_entities(line):
     odd = True
@@ -69,6 +75,8 @@ def examine_function(command, function, conf, regex=False):
             command = conf.get('comchar')+command
             command = command.replace('<<', '<')
             command = command.replace('>>', '>')
+
+        command = remove_control_chars(command)
 
         docstring = function.__doc__
         doc_lines = docstring.split('\n')
