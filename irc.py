@@ -1,6 +1,5 @@
 import socket
 import ssl
-from django.utils.encoding import smart_str
 import sys
 import re
 
