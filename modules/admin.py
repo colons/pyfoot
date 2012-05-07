@@ -24,7 +24,7 @@ class Module(module.Module):
         sha = self.sha.copy()
         sha.update(args['pass'])
         
-        print '\a !! auth attempt: sha.hexdigest()'
+        print '\a !! auth attempt' % sha.hexdigest()
         if sha.hexdigest() == self.conf.get('admin_admins')[message.nick]:
             self.authenticated_hosts[message.host] = message.nick
 
