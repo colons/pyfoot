@@ -36,7 +36,7 @@ class IRC(object):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
         self.socket.send('PONG %s\r\n' % data.split()[1])
 
-    
+
     def who(self, user):
         self.socket.send('WHO %s' % user)
 
@@ -57,14 +57,17 @@ class IRC(object):
     def getmode(self, name):
         self.socket.send('MODE %s\r\n' % name)
 
-    
+
     def who(self, host):
         self.socket.send('WHO %s\r\n' % host)
 
-    
+
     def act(self, target, message, pretty=False, crop=True):
         self.ctcp(target, 'ACTION', message, notice=False, crop=crop)
 
+    def deliver(self, message):
+        print ' >> %s' % message
+        self.socket.send(message.encode('utf-8')) if isinstance(message, unicode) else self.socket.send(message)
 
     def ctcp(self, target, ctcp, message=None, notice=False, crop=True):
         """ Issue a CTCP message """
@@ -80,9 +83,7 @@ class IRC(object):
             s = ctcp
 
         out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
-        print ' >> %s' % out
-        self.socket.send(out)
-
+        self.deliver(out)
 
     def send(self, target, message, pretty=False, crop=True):
         """ Sends a channel or user a message. If the message exceeds the 512 character limit, it gets cropped. """
@@ -98,17 +99,14 @@ class IRC(object):
         message = self.crop(message, 'PRIVMSG', target)
 
         out = 'PRIVMSG %s :%s\r\n' % (target, message)
-
-        print ' >> %s' % out
-        self.socket.send(out)
-
+        self.deliver(out)
 
     def crop(self, message, command, target):
         """ Crops a message based on how long the command will be on the client side --- IRC can not exceed 512 characters, we must account for this.
         message is the type of message you're sending. It's only used for length, so feel free to include \\x01\\x01 in CTCP messages, etc. """
         cruft = len(':%s %s %s :' % (self.own_hostname, command, target))
         excess = (len(message) - (512 - cruft))
-        
+
         if excess > 0:
             message = message[:-(excess+5)].rstrip()+'...'
 
@@ -132,7 +130,7 @@ class IRC(object):
                 part = re.sub('\x03', '', part, count=1)
 
             odd = not odd
-        
+
         part = re.sub('\x01', '', part)
         part = re.sub('\x02', '', part)
         part = re.sub('\x0F', '', part)
@@ -140,11 +138,11 @@ class IRC(object):
 
         return part
 
-        
+
     def listen(self):
         """ Listens for incoming stuffs and returns them """
         self.data = self.socket.recv(4096)
-        
+
         if self.data.find(' '):
             return self.data
 

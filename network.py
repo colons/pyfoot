@@ -8,7 +8,7 @@ def get_possible_commands(content, commands, module_blacklist=[]):
     """ Return a list of matching command descriptions. """
     possible_commands = []
     print content
-    
+
     for command, regex, arglist, function, module in commands:
         args = {}
 
@@ -18,7 +18,7 @@ def get_possible_commands(content, commands, module_blacklist=[]):
             for arg in arglist:
                 args[arg] = match.group(i)
                 i += 1
-            
+
             if module.name not in module_blacklist:
                 possible_commands.append((command, module, function, args))
 
@@ -52,7 +52,7 @@ def command_to_regex_and_arglist(command, loose=False):
 
             regex += '\s+'
 
-    
+
     regex = regex[:-3]
 
     if not loose:
@@ -96,7 +96,7 @@ class Network(object):
 
             module.setDaemon(True)
             module.start()
-    
+
 
 
 
@@ -123,7 +123,7 @@ class Network(object):
                 self.irc.send(the_message.source, '\x02ambiguous command\x02\x034 |\x03 %s' % '\x034 :\x03 '.join(
                     [self.conf.get('comchar')+c[0].replace('>>', '>').replace('<<', '<') for c in commands])
                     )
-        
+
         for regex, function, module in self.all_regexes:
             match = regex.match(the_message.content)
 
@@ -151,19 +151,15 @@ class Network(object):
 
             if line.startswith('PING :'):
                 self.irc.pong(line)
-            
-            try:
-                type = ''.join(line.split(':')[:2]).split(' ')[1]
-            except(IndexError):
-                type = None
-            else:
-                the_message = message.Message(line)
-                
-            if type == '353':
+
+            the_message = message.Message(line)
+            print the_message.message_type
+
+            if the_message.message_type == '353':
                 # this is a channel names list
                 pass
 
-            if type == '324':
+            if the_message.message_type == '324':
                 # this is a list of channel modes
                 splitline = line.split(' ')
                 name = splitline[3]
@@ -174,28 +170,28 @@ class Network(object):
                     self.irc.channels[name] = {}
                     self.irc.channels[name]['modes'] = modelist
 
-            elif type == 'INVITE':
+            elif the_message.message_type == 'INVITE':
                 channel = the_message.content
                 self.irc.join(channel)
 
-            elif type == 'KICK':
+            elif the_message.message_type == 'KICK':
                 channel = the_message.content
                 self.irc.part(channel)
 
-            elif type == 'NOTICE':
+            elif the_message.message_type == 'NOTICE':
                 pass
 
-            elif type == 'NICK':
+            elif the_message.message_type == 'NICK':
                 pass
 
-            elif type == 'MODE' and self.initial == True:
+            elif the_message.message_type == 'MODE' and self.initial == True:
                 for channel in self.conf.get('network_channels'):
                     self.irc.join(channel)
 
                 self.initial = False
 
-            elif type == 'MODE':
+            elif the_message.message_type == 'MODE':
                 self.irc.getmode(line.split(' ')[2])
 
-            elif type == 'PRIVMSG':
+            elif the_message.message_type == 'PRIVMSG':
                 self.delegate(the_message)

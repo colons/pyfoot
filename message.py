@@ -1,8 +1,12 @@
-import parser
+import chardet
 
 def content(data):
     """ Return message content """
-    return ':'.join(data.split(':')[2:])
+    line = ':'.join(data.split(':')[2:])
+    try:
+        return unicode(line, chardet.detect(line)['encoding'])
+    except TypeError:
+        return unicode(line, 'utf-8')
 
 def nick(data):
     """ Return message nick """
@@ -40,11 +44,12 @@ def args(content, args, conf):
 class Message(object):
     def __init__(self, data):
         try:
+            self.message_type = ''.join(data.split(':')[:2]).split(' ')[1]
             self.nick = nick(data)
             self.content = content(data)
             self.source = destination(data)
             self.host = host(data)
         except IndexError:
             # one of these failed, so we can't trust any of them
-            self.nick = self.content = self.source = self.host = None
+            self.message_type = self.nick = self.content = self.source = self.host = None
 
