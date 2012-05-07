@@ -11,7 +11,7 @@
     </div>
     <div class="item">
         <p>{{party['initial']}} <span class="separator">-&gt;</span> {{party['final']}}</p>
-        <p><a href="{{party['url']}}">via {{party['length']-2}}</a></p>
+        <p><a href="{{party['url']}}">{{(party['length']-1)/2}} attempts</a></p>
     </div>
     %end
 </div>

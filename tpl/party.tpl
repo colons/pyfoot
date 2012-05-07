@@ -7,7 +7,7 @@
     </div>
     <div class="key">
         <p>{{party['nick']}}</p>
-        <p>via {{len(party['lines'])-2}}</p>
+        <p>{{(len(party['lines'])-1)/2}} attempts</p>
     </div>
     <div class="item phrases">
     %for line in party['lines']:
