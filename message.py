@@ -44,9 +44,9 @@ def args(content, args, conf):
 class Message(object):
     def __init__(self, data):
         try:
-            self.message_type = ''.join(data.split(':')[:2]).split(' ')[1]
+            self.type = ''.join(data.split(':')[:2]).split(' ')[1]
         except IndexError:
-            self.message_type = None
+            self.type = None
 
         try:
             self.nick = nick(data)
