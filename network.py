@@ -153,7 +153,6 @@ class Network(object):
                 self.irc.pong(line)
 
             the_message = message.Message(line)
-            print the_message.message_type
 
             if the_message.message_type == '353':
                 # this is a channel names list
