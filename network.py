@@ -4,7 +4,7 @@ import sys
 import thread
 import re
 
-def get_possible_commands(content, commands):
+def get_possible_commands(content, commands, module_blacklist=[]):
     """ Return a list of matching command descriptions. """
     possible_commands = []
     print content
@@ -18,8 +18,9 @@ def get_possible_commands(content, commands):
             for arg in arglist:
                 args[arg] = match.group(i)
                 i += 1
-
-            possible_commands.append((command, module, function, args))
+            
+            if module.name not in module_blacklist:
+                possible_commands.append((command, module, function, args))
 
     return possible_commands
 
@@ -102,9 +103,15 @@ class Network(object):
 
     def delegate(self, the_message):
         nick_blacklist = [n.lower() for n in self.conf.get('nick_blacklist')]
-        
+
+        try:
+            module_blacklist = [m.lower() for m in self.conf.get('module_blacklist')[the_message.source]]
+        except KeyError:
+            module_blacklist = []
+
         if the_message.content.startswith(self.conf.get('comchar')):
-            commands = get_possible_commands(the_message.content[len(self.conf.get('comchar')):].rstrip(), self.all_commands)
+
+            commands = get_possible_commands(the_message.content[len(self.conf.get('comchar')):].rstrip(), self.all_commands, module_blacklist=module_blacklist)
             ambiguity = len(commands)
 
             if ambiguity == 1:
@@ -116,18 +123,12 @@ class Network(object):
                 self.irc.send(the_message.source, '\x02ambiguous command\x02\x034 |\x03 %s' % '\x034 :\x03 '.join(
                     [self.conf.get('comchar')+c[0].replace('>>', '>').replace('<<', '<') for c in commands])
                     )
-
         
         for regex, function, module in self.all_regexes:
             match = regex.match(the_message.content)
 
             if match:
-                try:
-                    module_blacklist = [c.lower() for c in self.conf.get('module_blacklist')[module.name]]
-                except KeyError:
-                    module_blacklist = []
-                
-                if the_message.source.lower() not in module_blacklist and the_message.nick.lower() not in self.conf.get('nick_blacklist'):
+                if module.name.lower() not in module_blacklist and the_message.nick.lower() not in self.conf.get('nick_blacklist'):
                     module.queue.put((function, the_message, match))
 
 
