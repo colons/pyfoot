@@ -43,15 +43,15 @@ class Module(module.Module):
         if len(data['RelatedTopics']) > 1:
             return self.frame+' |  %i other topics' % (data['RelatedTopics'][0]['Text'], data['RelatedTopics'][0]['FirstURL'], len(data['RelatedTopics']))
 
-        return 'search'
+        return '\x02search\x02'
 
-    def ddg(self, message):
+    def ddg(self, message, args):
         """ Issue a <a href="http://duckduckgo.com/api.html">DuckDuckGo</a> query.
         $<comchar>ddg 2^10
         >\x02calc\x02\x034 :\x03 2 ^ 10 = 1,024\x034 |\x03 http://ddg.gg/?q=2%5E10 """
-        post_arg = parser.args(message.content, 'ddg', self.conf)
-        if post_arg != False and len(post_arg) != 0:
-            query = urllib2.quote(post_arg)
-            answer = self.get_answer(query)
-            if answer:
-                self.irc.send(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query), pretty=True)
+        query = urllib2.quote(args['query'])
+
+        answer = self.get_answer(query)
+
+        if answer:
+            self.irc.send(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query), pretty=True)
