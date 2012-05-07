@@ -14,7 +14,7 @@ class Module(Module):
         self.argless_commands = []
 
         for command, regex, arglist, function, module in self.network.all_commands:
-            argless_regex, arglist = command_to_regex_and_arglist(command, ignore_variables=True)
+            argless_regex, arglist = command_to_regex_and_arglist(command, loose=True)
             self.argless_commands.append((command, argless_regex, arglist, function, module))
 
     def specific_help(self, message, args):

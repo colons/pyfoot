@@ -24,7 +24,7 @@ def get_possible_commands(content, commands):
     return possible_commands
 
 
-def command_to_regex_and_arglist(command, ignore_variables=False):
+def command_to_regex_and_arglist(command, loose=False):
     """ Take a command and return a regex and a list of arguments. ignore_variables if you're help.py """
     regex = ''
     arglist = []
@@ -33,7 +33,7 @@ def command_to_regex_and_arglist(command, ignore_variables=False):
         arg = re.match('<(\S+)>$', word)
 
         if arg:
-            if ignore_variables:
+            if loose:
                 pass
             elif re.match('<<(\S+)>>$', word):
                 arglist.append(arg.group(1)[1:-1])
@@ -54,7 +54,7 @@ def command_to_regex_and_arglist(command, ignore_variables=False):
     
     regex = regex[:-3]
 
-    if not ignore_variables:
+    if not loose:
         regex += '$'
 
     compiled_regex = re.compile(regex)
