@@ -4,17 +4,13 @@ from django.utils.encoding import smart_str
 import sys
 import re
 
-def split_len(seq, length):
-    """ Splits messages into manageable chunks """
-    """ Thanks to http://code.activestate.com/recipes/496784-split-string-into-n-size-pieces/ """
-    return [seq[i:i+length] for i in range(0, len(seq), length)]
-
 
 class IRC(object):
     """ An IRC connection """
     def __init__(self, conf):
         """ Connects to a network """
         self.channels = {}
+        self.own_hostname = False
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(
@@ -67,47 +63,57 @@ class IRC(object):
         self.socket.send('WHO %s\r\n' % host)
 
     
-    def act(self, target, message, pretty=False, crop=False):
-        self.ctcp(target, 'ACTION', message, notice=False)
+    def act(self, target, message, pretty=False, crop=True):
+        self.ctcp(target, 'ACTION', message, notice=False, crop=crop)
 
 
-    def ctcp(self, target, ctcp, message=None, notice=False):
-        """ Issue a CTCP """
-        if message:
-            s = ctcp+' '+message
-        else:
-            s = ctcp
-
+    def ctcp(self, target, ctcp, message=None, notice=False, crop=True):
+        """ Issue a CTCP message """
         if notice:
             message_type = 'NOTICE'
         else:
             message_type = 'PRIVMSG'
 
+        if message:
+            message = self.crop(message, message_type+ctcp+'\x01 \x01', target)
+            s = ctcp+' '+message
+        else:
+            s = ctcp
+
         out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
+        print ' >> %s' % out
         self.socket.send(out)
 
 
-    def send(self, channel, message, pretty=False, crop=False):
-        """ Sends a channel (or user) a message. If the message exceeds 420 characters, it gets split up. """
-        message_list = split_len(message, 420)
+    def send(self, target, message, pretty=False, crop=True):
+        """ Sends a channel or user a message. If the message exceeds the 512 character limit, it gets cropped. """
+        if pretty:
+            message = self.beautify(message)
+
+        try:
+            if 'c' in self.channels[target]['modes']:
+                message = self.strip_formatting(message)
+        except KeyError:
+            pass
+
+        message = self.crop(message, 'PRIVMSG', target)
+
+        out = 'PRIVMSG %s :%s\r\n' % (target, message)
+
+        print ' >> %s' % out
+        self.socket.send(out)
+
+
+    def crop(self, message, command, target):
+        """ Crops a message based on how long the command will be on the client side --- IRC can not exceed 512 characters, we must account for this.
+        message is the type of message you're sending. It's only used for length, so feel free to include \\x01\\x01 in CTCP messages, etc. """
+        cruft = len(':%s %s %s :' % (self.own_hostname, command, target))
+        excess = (len(message) - (512 - cruft))
         
-        if crop and len(message_list) > 1:
-            message_list = [message_list[0]]
-            message_list[0] = message_list[0][:-3].rstrip()+'...'
+        if excess > 0:
+            message = message[:-(excess+5)].rstrip()+'...'
 
-        for part in message_list:
-            if pretty:
-                part = self.beautify(part)
-
-            try:
-                if 'c' in self.channels[channel]['modes']:
-                    part = self.strip_formatting(part)
-            except KeyError:
-                pass
-
-            out = 'PRIVMSG %s :%s\r\n' % (channel, smart_str(part))
-            print ' >> %s' % out
-            self.socket.send(out)
+        return message
 
     def beautify(self, message):
         message = message.replace(' :: ', '\x034 ::\x03 ')
