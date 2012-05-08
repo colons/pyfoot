@@ -11,6 +11,8 @@ class Module(threading.Thread):
         self.queue = Queue.Queue()
         self.commands = []
         self.regexes = []
+
+        self.error_message = conf.get('error_message')
         
         try:
             self.prepare()
@@ -30,4 +32,4 @@ class Module(threading.Thread):
                 function(message, args)
             except:
                 traceback.print_exc()
-                self.irc.act(message.source, 'rolls over')
+                self.irc.act(message.source, self.error_message)
