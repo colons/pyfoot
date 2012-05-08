@@ -38,7 +38,7 @@ class Module(module.Module):
 
         print ' -- Writing to %s...' % filepath
         file = open(filepath, mode='w')
-        file.write('\n'.join(party).encode('utf-8')
+        file.write('\n'.join(party).encode('utf-8'))
         file.close()
         
         attempts = (len(party)-1)/2
