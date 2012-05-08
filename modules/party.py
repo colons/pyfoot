@@ -1,5 +1,5 @@
 import time
-import codecs
+#import codecs
 from os import path
 
 from translate import Translator
@@ -37,8 +37,8 @@ class Module(module.Module):
         filepath = path.expanduser(self.conf.get('party_dir')+self.conf.alias+'/'+filename+'.txt')
 
         print ' -- Writing to %s...' % filepath
-        file = codecs.open(filepath, mode='w', encoding='utf-8')
-        file.write('\n'.join(party))
+        file = open(filepath, mode='w')
+        file.write('\n'.join(party).encode('utf-8')
         file.close()
         
         attempts = (len(party)-1)/2
