@@ -31,6 +31,11 @@ class IRC(object):
         if conf.conf['network_nickserv_pass']:
             self.privmsg('NickServ', 'identify %s' % conf.get('network_nickserv_pass'))
 
+        try:
+            self.quit_message = conf.get('quit_message')
+        except KeyError:
+            self.quit_message = None
+
 
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
@@ -151,8 +156,9 @@ class IRC(object):
             return self.data
 
 
-    def quit(self, reason='woof'):
+    def quit(self, reason=None):
+        reason = reason or self.quit_message or 'woof'
         out = 'QUIT :%s\r\n' % reason
-        print '\n >> %s' % out
-        self.socket.send(out)
+        print ''
+        self.send(out)
         sys.exit()
