@@ -29,7 +29,7 @@ class Module(module.Module):
     
 
         party = [args['phrase']]
-        while dupes (party) == False:
+        while dupes(party) == False:
             party.append(self.translator.translate('en', transvia, party[-1]))
             party.append(self.translator.translate(transvia, 'en', party[-1]))
         
@@ -37,7 +37,7 @@ class Module(module.Module):
         filepath = path.expanduser(self.conf.get('party_dir')+self.conf.alias+'/'+filename+'.txt')
 
         print ' -- Writing to %s...' % filepath
-        file = codecs.open(filepath, mode='w')
+        file = codecs.open(filepath, mode='w', encoding='utf-8')
         file.write('\n'.join(party))
         file.close()
         
