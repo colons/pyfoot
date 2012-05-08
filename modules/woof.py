@@ -10,4 +10,4 @@ class Module(module.Module):
         """ He's a <a href="http://d.bldm.us/gallery/photos/a3300/120125%20006.jpg">dog</a>; he's excitable.
         $woof
         >woof"""
-        self.irc.send(message.source, self.conf.get('woof_greeting'))
+        self.irc.privmsg(message.source, self.conf.get('woof_greeting'))

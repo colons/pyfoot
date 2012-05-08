@@ -45,20 +45,20 @@ class Module(Module):
                 outlist.append('\x02%s\x02\x034 |\x03 %s\x034 |\x03 %shelp/%s/#%s' % (module, commands, self.conf.get('web_url'), self.conf.alias, module))
             
             for out in outlist:
-                self.irc.send(message.source, out)
+                self.irc.privmsg(message.source, out)
 
             if len(outlist) == 0:
-                self.irc.send(message.source, '\x02%s\x02\x034 |\x03 no such command\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias))
+                self.irc.privmsg(message.source, '\x02%s\x02\x034 |\x03 no such command\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias))
 
         elif args['subject'] in self.conf.get('modules'):
-            self.irc.send(message.source, '\x02%s\x02 | http://woof.bldm.us/help/%s/#%s' % (args['subject'], self.conf.alias, args['subject']), pretty=True)
+            self.irc.privmsg(message.source, '\x02%s\x02 | http://woof.bldm.us/help/%s/#%s' % (args['subject'], self.conf.alias, args['subject']), pretty=True)
 
         else:
-            self.irc.send(message.source, '\x02%s\x02 | no such module\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias), pretty=True)
+            self.irc.privmsg(message.source, '\x02%s\x02 | no such module\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias), pretty=True)
 
     def all_help(self, message, args):
         """ Returns links to this page and to pyfoot's <a href="https://bitbucket.org/colons/pyfoot/">source code</a> and <a href="https://bitbucket.org/colons/pyfoot/issues/new">issue tracker</a>.
         $<comchar>help
         >\x02features\x02\x034 :\x03 http://woof.bldm.us/help/<network>/\x034 |\x03\x02 code\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot\x034 |\x03\x02 bug?\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot/issues/new
         """
-        self.irc.send(message.source, '\x02features\x02\x034 :\x03 http://woof.bldm.us/help/%s/\x034 |\x03\x02 code\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot\x034 |\x03\x02 bug?\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot/issues/new' % self.conf.alias)
+        self.irc.privmsg(message.source, '\x02features\x02\x034 :\x03 http://woof.bldm.us/help/%s/\x034 |\x03\x02 code\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot\x034 |\x03\x02 bug?\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot/issues/new' % self.conf.alias)

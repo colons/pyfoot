@@ -47,7 +47,7 @@ class Module(module.Module):
         try:
             data = self.query('animelist/%s' % user)
         except urllib2.HTTPError:
-            self.irc.send(message.source, self.help_missing % user, pretty=True)
+            self.irc.privmsg(message.source, self.help_missing % user, pretty=True)
         else:
             try: # just in case other instances of pyfoot have altered the file since we last read it
                 userfile = open(self.user_file_path)
@@ -60,7 +60,7 @@ class Module(module.Module):
             userfile = open(self.user_file_path, 'w')
             pickle.dump(malusers, userfile)
             userfile.close()
-            self.irc.send(message.source, '\x02%s\x02 is now MAL user \x02%s\x02 | http://myanimelist.net/profile/\x02%s' % (message.nick, user, user), pretty=True)
+            self.irc.privmsg(message.source, '\x02%s\x02 is now MAL user \x02%s\x02 | http://myanimelist.net/profile/\x02%s' % (message.nick, user, user), pretty=True)
 
     
     def maluser(self, user):
@@ -110,7 +110,7 @@ class Module(module.Module):
         try:
             data = self.query('animelist/%s' % user)
         except urllib2.HTTPError:
-            self.irc.send(message.source, self.help_missing % user, pretty=True)
+            self.irc.privmsg(message.source, self.help_missing % user, pretty=True)
             return
 
         days = data['statistics']['days']
@@ -130,7 +130,7 @@ class Module(module.Module):
         summary = 'http://myanimelist.net/animelist/\x02%s\x02 | \x02%s\x02 days across \x02%d\x02 shows | %s' % (user, days, len(consumed),
                 ' | '.join(['%s : \x02%s\x02/\x02%s\x02 : \x02%s\x02' % (a['title'], self.oiz(a['watched_episodes']),
                     self.oiz(a['episodes']), self.oiz(a['score'])) for a in selection]))
-        self.irc.send(message.source, summary, pretty=True)
+        self.irc.privmsg(message.source, summary, pretty=True)
     
     def common_shows(self, users):
         """ Get a list of tuples of shows that any two users have in common """
@@ -159,7 +159,7 @@ class Module(module.Module):
         users = [self.maluser(u) for u in [args['user1'], args['user2']]]
         common = self.common_shows(users)
         if type(common) == str:
-            self.irc.send(message.source, common, pretty=True)
+            self.irc.privmsg(message.source, common, pretty=True)
             return
 
         total_score_diff = 0
@@ -175,7 +175,7 @@ class Module(module.Module):
         
         if len(consensus) > 0:
             selection = self.select(consensus)
-            self.irc.send(message.source,
+            self.irc.privmsg(message.source,
                     '\x02%s\x02 and \x02%s\x02 | \x02%d\x02 common shows | agreement on \x02%d\x02/\x02%d\x02 mutually scored shows | %s' % (
                     users[0], users[1], len(common), len(consensus), both_scored,
                     ' | '.join(['%s : \x02%d\x02' % (a['title'], a['score']) for a in selection])),
@@ -196,14 +196,14 @@ class Module(module.Module):
                 
             if len(closest) > 0:
                 selection = self.select(closest)
-                self.irc.send(message.source, "\x02%s\x02 and \x02%s\x02 | \x02%d\x02 common shows | %s" % (
+                self.irc.privmsg(message.source, "\x02%s\x02 and \x02%s\x02 | \x02%d\x02 common shows | %s" % (
                         users[0], users[1], len(common),
                         ' | '.join(['%s : \x02%d\x02, \x02%d\x02' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection])),
                         pretty=True)
             else:
                 # we have no common ground :<
                 selection = self.select(common)
-                self.irc.send(message.source, "\x02%s\x02 and \x02%s\x02 have \x02%d\x02 shows in common | %s" % (users[0], users[1],
+                self.irc.privmsg(message.source, "\x02%s\x02 and \x02%s\x02 have \x02%d\x02 shows in common | %s" % (users[0], users[1],
                         len(common), ' | '.join([a[0]['title'] for a in selection])),
                         pretty=True)
 
@@ -225,7 +225,7 @@ class Module(module.Module):
         users = [self.maluser(u) for u in [args['user1'], args['user2']]]
         common = self.common_shows(users)
         if type(common) == str:
-            self.irc.send(message.source, common, pretty=True)
+            self.irc.privmsg(message.source, common, pretty=True)
             return
         
         largest_gap = 0
@@ -249,12 +249,12 @@ class Module(module.Module):
 
         if len(contention) > 0:
             selection = self.select(contention)
-            self.irc.send(message.source, "\x02%s\x02 vs. \x02%s\x02 | average contention : \x02%.2f\x02 | %s" % (
+            self.irc.privmsg(message.source, "\x02%s\x02 vs. \x02%s\x02 | average contention : \x02%.2f\x02 | %s" % (
                     users[0], users[1], average_gap,
                     ' | '. join(['%s : \x02%d\x02 vs. \x02%d\x02' % (a[0]['title'], a[0]['score'], a[1]['score']) for a in selection])),
                     pretty=True)
         else:
-            self.irc.send(message.source, "\x02%s\x02 and \x02%s\x02 need to watch and score more stuff" % (users[0], users[1]),
+            self.irc.privmsg(message.source, "\x02%s\x02 and \x02%s\x02 need to watch and score more stuff" % (users[0], users[1]),
                     pretty=True)
 
 
@@ -269,7 +269,7 @@ class Module(module.Module):
         try:
             data = search[0]
         except IndexError:
-            self.irc.send(message.source,
+            self.irc.privmsg(message.source,
                     'no results | http://myanimelist.net/anime.php?q=%s' % urllib2.quote(query),
                     pretty=True)
             return
@@ -277,7 +277,7 @@ class Module(module.Module):
         showpage = 'http://myanimelist.net/anime/%i' % search[0]['id']
         
         # the html stripping should not be here, but it is for now because fuck you
-        self.irc.send(message.source,
+        self.irc.privmsg(message.source,
                 '\x02%s\x02 : %s | %s | %s' % (data['title'], data['type'], showpage, re.sub('<[^<]+?>', '', data['synopsis'])),
                 pretty=True, crop=True)
 

@@ -31,4 +31,4 @@ class Module(module.Module):
         $<comchar>translate fr en le jambon est mort
         >the ham is dead"""
         translation = self.translator.translate(args['from'], args['to'], args['phrase'])
-        self.irc.send(message.source, translation)
+        self.irc.privmsg(message.source, translation)

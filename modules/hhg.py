@@ -32,4 +32,4 @@ class Module(module.Module):
                 quote = ''.join(line.split(':')[1:])
                 linelist.append(quote)
 
-        self.irc.send(message.source, choice(linelist))
+        self.irc.privmsg(message.source, choice(linelist))

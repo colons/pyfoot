@@ -36,4 +36,4 @@ class Module(module.Module):
                         title = self.latestitem[url]['title']
                         link = self.latestitem[url]['link']
                     
-                        self.irc.send(channel, '%s | %s' % (title, link), pretty=True)
+                        self.irc.privmsg(channel, '%s | %s' % (title, link), pretty=True)
