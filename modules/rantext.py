@@ -34,4 +34,4 @@ class Module(module.Module):
         if 'nick' in args:
             line = '%s: %s' % (args['nick'], line)
 
-        self.irc.send(message.source, line)
+        self.irc.privmsg(message.source, line)

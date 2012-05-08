@@ -54,4 +54,4 @@ class Module(module.Module):
         answer = self.get_answer(query)
 
         if answer:
-            self.irc.send(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query), pretty=True)
+            self.irc.privmsg(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query), pretty=True)

@@ -55,4 +55,4 @@ class Module(module.Module):
     def ze(self, message, args):
         """ Returns a random quote from the <a href="http://srcommunity.org/wiki/A_Show_Episode_Guide">a show transcriptions</a>. """
         quote, source = self.get_quote()
-        self.irc.send(message.source, quote+' | '+source, pretty=True)
+        self.irc.privmsg(message.source, quote+' | '+source, pretty=True)

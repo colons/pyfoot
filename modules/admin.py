@@ -43,7 +43,7 @@ class Module(module.Module):
     def say(self, message, args):
         """ Make <pyfoot> say something. """
         if self.can_trust(message):
-            self.irc.send(args['target'], args['message'])
+            self.irc.privmsg(args['target'], args['message'])
 
     def ctcp(self, message, args):
         """ Send a CTCP message. Content optional. """

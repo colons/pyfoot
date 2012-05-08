@@ -42,4 +42,4 @@ class Module(module.Module):
         file.close()
         
         attempts = (len(party)-1)/2
-        self.irc.send(message.source, '%s | \x02%i\x02 attempts | %sparty/%s/%s/' % (party[-1], attempts, self.conf.get('web_url'), self.conf.alias, filename), pretty=True)
+        self.irc.privmsg(message.source, '%s | \x02%i\x02 attempts | %sparty/%s/%s/' % (party[-1], attempts, self.conf.get('web_url'), self.conf.alias, filename), pretty=True)

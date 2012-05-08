@@ -29,7 +29,7 @@ class IRC(object):
             )
 
         if conf.conf['network_nickserv_pass']:
-            self.send('NickServ', 'identify %s' % conf.get('network_nickserv_pass'))
+            self.privmsg('NickServ', 'identify %s' % conf.get('network_nickserv_pass'))
 
 
     def pong(self, data):
@@ -65,9 +65,11 @@ class IRC(object):
     def act(self, target, message, pretty=False, crop=True):
         self.ctcp(target, 'ACTION', message, notice=False, crop=crop)
 
-    def deliver(self, message):
+
+    def send(self, message):
         print ' >> %s' % message
         self.socket.send(message.encode('utf-8')) if isinstance(message, unicode) else self.socket.send(message)
+
 
     def ctcp(self, target, ctcp, message=None, notice=False, crop=True):
         """ Issue a CTCP message """
@@ -83,9 +85,10 @@ class IRC(object):
             s = ctcp
 
         out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
-        self.deliver(out)
+        self.send(out)
 
-    def send(self, target, message, pretty=False, crop=True):
+
+    def privmsg(self, target, message, pretty=False, crop=True):
         """ Sends a channel or user a message. If the message exceeds the 512 character limit, it gets cropped. """
         if pretty:
             message = self.beautify(message)
@@ -99,7 +102,8 @@ class IRC(object):
         message = self.crop(message, 'PRIVMSG', target)
 
         out = 'PRIVMSG %s :%s\r\n' % (target, message)
-        self.deliver(out)
+        self.send(out)
+
 
     def crop(self, message, command, target):
         """ Crops a message based on how long the command will be on the client side --- IRC can not exceed 512 characters, we must account for this.
