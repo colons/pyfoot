@@ -34,6 +34,7 @@ class Config(object):
             'woof_trigger': '(?i).*\bwoof\b',
             'woof_greeting': 'woof',
             'quit_message': 'woof',
+            'error_message': 'rolls over',
 
             'rss_feeds': {},
 
