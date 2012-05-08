@@ -1,6 +1,6 @@
 import time
 #import codecs
-from os import path
+from os import path,mkdir
 
 from translate import Translator
 import module 
@@ -28,17 +28,24 @@ class Module(module.Module):
         transvia = self.conf.get('party_via')
     
 
-        party = [args['phrase']]
+        party = [args['phrase'].encode('utf-8')]
+        print party
         while dupes(party) == False:
             party.append(self.translator.translate('en', transvia, party[-1]))
             party.append(self.translator.translate(transvia, 'en', party[-1]))
         
         filename = '%s-%s' % (message.nick, time.strftime('%y%m%d-%H%M%S'))
-        filepath = path.expanduser(self.conf.get('party_dir')+self.conf.alias+'/'+filename+'.txt')
+        filepath = path.expanduser(self.conf.get('party_dir')+self.conf.alias+'/')
+        if not path.exists(filepath):
+            mkdir(filepath)
+        elif path.exists(filepath) and not path.isdir(filepath):
+            raise OSError('\'party_dir\' is not a directory')
+        filepath = filepath+filename+'.txt'
 
         print ' -- Writing to %s...' % filepath
         file = open(filepath, mode='w')
-        file.write('\n'.join(party).encode('utf-8'))
+        sup = '\n'.join(party)
+        file.write(sup)
         file.close()
         
         attempts = (len(party)-1)/2
