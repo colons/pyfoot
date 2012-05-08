@@ -31,10 +31,7 @@ class IRC(object):
         if conf.conf['network_nickserv_pass']:
             self.privmsg('NickServ', 'identify %s' % conf.get('network_nickserv_pass'))
 
-        try:
-            self.quit_message = conf.get('quit_message')
-        except KeyError:
-            self.quit_message = None
+        self.quit_message = conf.get('quit_message')
 
 
     def pong(self, data):
@@ -157,7 +154,7 @@ class IRC(object):
 
 
     def quit(self, reason=None):
-        reason = reason or self.quit_message or 'woof'
+        reason = reason or self.quit_message
         out = 'QUIT :%s\r\n' % reason
         print ''
         self.send(out)
