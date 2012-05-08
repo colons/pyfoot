@@ -49,7 +49,7 @@ class Module(module.Module):
         """ Issue a <a href="http://duckduckgo.com/api.html">DuckDuckGo</a> query.
         $<comchar>ddg 2^10
         >\x02calc\x02\x034 :\x03 2 ^ 10 = 1,024\x034 |\x03 http://ddg.gg/?q=2%5E10 """
-        query = urllib2.quote(args['query'])
+        query = urllib2.quote(args['query'].encode('utf-8'))
 
         answer = self.get_answer(query)
 
