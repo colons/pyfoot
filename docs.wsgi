@@ -143,7 +143,7 @@ def get_entries(network):
             module_dict['docstring'] = None
 
         try:
-            module_dict['blacklist'] = conf.get('module_blacklist')[module.name]
+            module_dict['blacklist'] = [c for c in conf.get('module_blacklist') if module.name in conf.get('module_blacklist')[c]]
         except KeyError:
             module_dict['blacklist'] = False
 
