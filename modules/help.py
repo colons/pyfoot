@@ -29,35 +29,33 @@ class Module(Module):
 
         if args['subject'].startswith(self.conf.get('comchar')):
             command = args['subject'][len(self.conf.get('comchar')):]
-            possibilities = get_possible_commands(command, self.argless_commands)
-            
-            modules = {}
-            for possibility in possibilities:
-                module = possibility['module']
-                if module.name not in modules:
-                    modules[module.name] = []
-
-                command = possibility['command'].replace('>>', '>').replace('<<', '<')
-
-                modules[module.name].append('%s%s' % (self.conf.get('comchar'), command))
-
-            outlist = []
-
-            for module in modules:
-                commands = '\x034 :\x03 '.join(modules[module])
-                outlist.append('\x02%s\x02\x034 |\x03 %s\x034 |\x03 %shelp/%s/#%s' % (module, commands, self.conf.get('web_url'), self.conf.alias, module))
-            
-            for out in outlist:
-                self.irc.privmsg(message.source, out)
-
-            if len(outlist) == 0:
-                self.irc.privmsg(message.source, '\x02%s\x02\x034 |\x03 no such command\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias))
-
-        elif args['subject'] in self.conf.get('modules'):
-            self.irc.privmsg(message.source, '\x02%s\x02 | http://woof.bldm.us/help/%s/#%s' % (args['subject'], self.conf.alias, args['subject']), pretty=True)
-
         else:
-            self.irc.privmsg(message.source, '\x02%s\x02 | no such module\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias), pretty=True)
+            command = args['subject']
+
+        possibilities = get_possible_commands(command, self.argless_commands)
+        
+        modules = {}
+        for possibility in possibilities:
+            module = possibility['module']
+            if module.name not in modules:
+                modules[module.name] = []
+
+            command = possibility['command'].replace('>>', '>').replace('<<', '<')
+
+            modules[module.name].append('%s%s' % (self.conf.get('comchar'), command))
+
+        outlist = []
+
+        for module in modules:
+            commands = '\x034 :\x03 '.join(modules[module])
+            outlist.append('\x02%s\x02\x034 |\x03 %s\x034 |\x03 %shelp/%s/#%s' % (module, commands, self.conf.get('web_url'), self.conf.alias, module))
+        
+        for out in outlist:
+            self.irc.privmsg(message.source, out)
+
+        if len(outlist) == 0:
+            self.irc.privmsg(message.source, '\x02%s\x02\x034 |\x03 no such command\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias))
+
 
     def all_help(self, message, args):
         """ Returns links to this page and to pyfoot's <a href="https://bitbucket.org/colons/pyfoot/">source code</a> and <a href="https://bitbucket.org/colons/pyfoot/issues/new">issue tracker</a>.
