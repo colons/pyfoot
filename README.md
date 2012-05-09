@@ -32,7 +32,8 @@ When queried with a !help command (the command delimiter can be anything, I'm
 using ! here as an example), pyfoot will respond with a selection of
 appropriate commands that could match, along with links to the relevant online
 documentation.
-
+    
+    :::irc
     < luser> !help !ddg
     <&pyfoot> ddg | !ddg <query> | http://woof.bldm.us/help/rizon/#ddg
     < luser> !help p
