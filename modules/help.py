@@ -13,9 +13,11 @@ class Module(Module):
         # self.network.all_commands will not exist when prepare() is called
         self.argless_commands = []
 
-        for command, regex, arglist, function, module in self.network.all_commands:
-            argless_regex, arglist = command_to_regex_and_arglist(command, loose=True)
-            self.argless_commands.append((command, argless_regex, arglist, function, module))
+        for orig_dict in self.network.all_commands:
+            command_dict = orig_dict.copy()
+            command_dict['fuzzy_regex'], command_dict['arglist'] = command_to_regex_and_arglist(command_dict['command'], loose=True)
+
+            self.argless_commands.append(command_dict)
 
     def specific_help(self, message, args):
         """ Get help for a module or command. Commands can be shortened beyond ambiguity.
@@ -30,11 +32,12 @@ class Module(Module):
             possibilities = get_possible_commands(command, self.argless_commands)
             
             modules = {}
-            for command, module, function, arglist in possibilities:
+            for possibility in possibilities:
+                module = possibility['module']
                 if module.name not in modules:
                     modules[module.name] = []
 
-                command = command.replace('>>', '>').replace('<<', '<')
+                command = possibility['command'].replace('>>', '>').replace('<<', '<')
 
                 modules[module.name].append('%s%s' % (self.conf.get('comchar'), command))
 
