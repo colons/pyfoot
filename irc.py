@@ -68,13 +68,13 @@ class IRC(object):
     def act(self, target, message, pretty=False, crop=True):
         self.ctcp(target, 'ACTION', message, notice=False, crop=crop)
 
-
     def send(self, message):
         if self.charset == 'utf-8':
             print ' >> %s' % message
+            message = message if not isinstance(message, unicode) else message.encode('utf-8')
             self.socket.send(message)
         else:
-            message = message.decode('utf-8')
+            message = message.decode('utf-8') if not isinstance(message, unicode) else message
             print ' >> %s' % message  # Printing a Unicode string lets Python decide the stdout charset
             try:
                 self.socket.send(message.encode(self.charset))
