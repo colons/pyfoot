@@ -1,15 +1,18 @@
-def content(data, charset):
+def content(data):
     """ Return message content """
-    line = ':'.join(data.split(':')[2:])
+    return ':'.join(data.split(':')[2:])
+
+def convert(data, charset):
+    """ Return message content encoded in utf-8 """
     if charset == 'utf-8':
-        return line
+        return data
     else:
         try:
-            line = line.decode(charset).encode('utf-8')
+            data = data.decode(charset).encode('utf-8')
         except UnicodeDecodeError:
             print '\n !! Some characters could not be reproduced in the above input using \'charset\': \'%s\'' % charset
-            line = line.decode(charset, 'ignore').encode('utf-8')
-        return line
+            data = data.decode(charset, 'ignore').encode('utf-8')
+        return data
 
 def nick(data):
     """ Return message nick """
@@ -53,10 +56,11 @@ class Message(object):
 
         try:
             self.nick = nick(data)
-            self.content = content(data, charset)
+            self.content_raw = content(data)
+            self.content = convert(self.content_raw, charset)
             self.source = destination(data)
             self.host = host(data)
         except IndexError:
             # one of these failed, so we can't trust any of them
-            self.nick = self.content = self.source = self.host = None
+            self.nick = self.content_raw = self.content = self.source = self.host = None
 
