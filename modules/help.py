@@ -20,9 +20,7 @@ class Module(Module):
             self.argless_commands.append(command_dict)
 
     def specific_help(self, message, args):
-        """ Get help for a module or command. Commands can be shortened beyond ambiguity.
-        $<comchar>help help
-        >\x02help\x02\x034 |\x03 http://woof.bldm.us/help/<network>/#help
+        """ Get help for a particular command.
         $<comchar>he <comchar>h
         >\x02hhg\x02\x034 |\x03 <comchar>hhg &lt;character&gt;\x034 :\x03 <comchar>hhg\x034 |\x03 http://woof.bldm.us/help/<network>/#hhg
         >\x02help\x02\x034 |\x03 <comchar>help\x034 :\x03 <comchar>help &lt;subject&gt;\x034 |\x03 http://woof.bldm.us/help/<network>/#help"""
