@@ -64,7 +64,6 @@
         </p>
     </div>
     % end
-    </div>
 </div>
 
 %for module in modules:
