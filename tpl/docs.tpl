@@ -20,7 +20,7 @@
             <p>autojoin</p>
         </div>
         <div class="item">
-            <p>{{!' <span class=separator>:</span> '.join(conf['network_channels'])}}</p>
+            <p>{{!' <span class="separator">:</span> '.join(conf['network_channels'])}}</p>
         </div>
     </div>
     <div class="setting">
@@ -28,7 +28,7 @@
             <p>admin</p>
         </div>
         <div class="item">
-            <p>{{!' <span class=separator>:</span> '.join(conf['admin_admins'])}}</p>
+            <p>{{!' <span class="separator">:</span> '.join(conf['admin_admins'])}}</p>
         </div>
     </div>
     %if len(conf['nick_blacklist']) > 0:
@@ -37,12 +37,35 @@
             <p>ignored</p>
         </div>
         <div class="item">
-            <p>{{!' <span class=separator>:</span> '.join(conf['nick_blacklist'])}}</p>
+            <p>{{!' <span class="separator">:</span> '.join(conf['nick_blacklist'])}}</p>
         </div>
     </div>
     %end
 </div>
 %end
+
+<div class="module_list section">
+    <div class="heading">
+        <h3>modules</h3>
+    </div>
+    % for module in modules:
+    <div class="key">
+        <p><a href="#{{module['name']}}">{{module['name']}}</a>
+    </div>
+    <div class="item">
+        <p class="irc">
+        % commands = [f['command'] for f in module['functions']]
+        % for command in commands:
+        {{command}}
+            % if command != commands[-1]:
+            <span class="separator"> | </span>
+            % end
+        % end
+        </p>
+    </div>
+    % end
+    </div>
+</div>
 
 %for module in modules:
 <div class="module section" id="{{module['name']}}">
@@ -50,7 +73,7 @@
         <h3>{{module['name']}}</h3>
         %if module['blacklist']:
             <div class="blacklist item">
-                <p>disabled in {{!' <span class=separator>:</span> '.join(module['blacklist'])}}</p>
+                <p>disabled in {{!' <span class="separator">:</span> '.join(module['blacklist'])}}</p>
             </div>
         %end
     </div>

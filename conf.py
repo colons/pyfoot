@@ -20,6 +20,7 @@ class Config(object):
             'network_port': 6667,
             'network_ssl': False,
             'network_channels': [],
+
             'charset': 'utf-8',
 
             'admin_salt': '',
