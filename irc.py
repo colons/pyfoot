@@ -28,6 +28,7 @@ class IRC(object):
                 )
             )
 
+        self.charset = conf.get('charset')
         if conf.conf['network_nickserv_pass']:
             self.privmsg('NickServ', 'identify %s' % conf.get('network_nickserv_pass'))
 
@@ -50,7 +51,7 @@ class IRC(object):
 
 
     def part(self, channel, reason=''):
-        self.socket.send('PART %s %s\r\n' % (channel, reason))
+        self.send('PART %s %s\r\n' % (channel, reason))
 
         if channel in self.channels:
             del self.channels[channel]
@@ -69,8 +70,13 @@ class IRC(object):
 
 
     def send(self, message):
-        print ' >> %s' % message
-        self.socket.send(message.encode('utf-8')) if isinstance(message, unicode) else self.socket.send(message)
+        if self.charset == 'utf-8':
+            print ' >> %s' % message
+            self.socket.send(message)
+        else:
+            message = message.decode('utf-8')
+            print ' >> %s' % message  # Printing a Unicode string lets Python decide the charset
+            self.socket.send(message.encode(self.charset))
 
 
     def ctcp(self, target, ctcp, message=None, notice=False, crop=True):

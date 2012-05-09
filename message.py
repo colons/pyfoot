@@ -1,12 +1,9 @@
-import chardet
-
-def content(data):
+def content(data, charset):
     """ Return message content """
-    line = ':'.join(data.split(':')[2:])
-    try:
-        return unicode(line, chardet.detect(line)['encoding'])
-    except TypeError:
-        return unicode(line, 'utf-8')
+    if charset == 'utf-8':
+        return ':'.join(data.split(':')[2:])
+    else:
+        return ':'.join(data.split(':')[2:]).decode(charset).encode('utf-8')
 
 def nick(data):
     """ Return message nick """
@@ -42,7 +39,7 @@ def args(content, args, conf):
 
 
 class Message(object):
-    def __init__(self, data):
+    def __init__(self, data, charset):
         try:
             self.type = ''.join(data.split(':')[:2]).split(' ')[1]
         except IndexError:
@@ -50,7 +47,7 @@ class Message(object):
 
         try:
             self.nick = nick(data)
-            self.content = content(data)
+            self.content = content(data, charset)
             self.source = destination(data)
             self.host = host(data)
         except IndexError:
