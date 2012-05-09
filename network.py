@@ -7,60 +7,111 @@ import re
 def get_possible_commands(content, commands, module_blacklist=[]):
     """ Return a list of matching command descriptions. """
     possible_commands = []
-    print content
 
-    for command, regex, arglist, function, module in commands:
+    for command_dict in [c for c in commands if c['module'].name not in module_blacklist]:
         args = {}
+        
+        exact_match = command_dict['exact_regex'].match(content)
+        
+        if exact_match:
+            match = exact_match
+        else:
+            match = command_dict['fuzzy_regex'].match(content)
 
-        match = regex.match(content)
         if match:
-            i = 1
-            for arg in arglist:
-                args[arg] = match.group(i)
-                i += 1
+            if len(match.groups()) > 0:
+                i = 1
+                for arg in command_dict['arglist']:
+                    args[arg] = match.group(i)
+                    i += 1
+            
+            command_dict['args'] = args
 
-            if module.name not in module_blacklist:
-                possible_commands.append((command, module, function, args))
+            if exact_match:
+                print ' -- exact match!'
+                return [command_dict]
+            else:
+                possible_commands.append(command_dict)
 
     return possible_commands
 
 
 def command_to_regex_and_arglist(command, loose=False):
-    """ Take a command and return a regex and a list of arguments. ignore_variables if you're help.py """
-    regex = ''
+    """ Take a command and return an exact and fuzzy regex and a list of arguments. ignore_variables if you're help.py, and we'll omit the exact regex. """
+    fuzzy_regex = ''
+
+    if not loose:
+        exact_regex = ''
+
     arglist = []
+    
+    if loose:
+        first_word = True
 
     for word in command.split(' '):
+        if loose and not first_word:
+            fuzzy_regex += '(?:\s*$|'
+
+        if loose:
+            first_word = False
+
         arg = re.match('<(\S+)>$', word)
 
         if arg:
-            if loose:
-                pass
-            elif re.match('<<(\S+)>>$', word):
+            if re.match('<<(\S+)>>$', word):
                 arglist.append(arg.group(1)[1:-1])
-                regex += '(.+)\s+'
+                if loose:
+                    fuzzy_regex += '(.*)\s*'
+                else:
+                    fuzzy_regex += '(.+)\s+'
+                    exact_regex += '(.+)\s+'
             else:
                 arglist.append(arg.group(1))
-                regex += '(\S+)\s+'
+                if loose:
+                    fuzzy_regex += '(\S*)\s*'
+                else:
+                    fuzzy_regex += '(\S+)\s+'
+                    exact_regex += '(\S+)\s+'
         else:
-            regex += word[0]
+            if not loose:
+                exact_regex += word
+
+            fuzzy_regex += word[0]
 
             for letter in word[1:]:
-                regex += '(?:\\b|[%s]' % letter
+                fuzzy_regex += '(?:\\b|[%s]' % letter
             for letter in word[1:]:
-                regex += ')'
+                fuzzy_regex += ')'
+            
+            if loose:
+                fuzzy_regex += '\s*'
+            else:
+                fuzzy_regex += '\s+'
+                exact_regex += '\s+'
+    
+    # strip final whitespace requirements; they're only necessary between words
+    fuzzy_regex = fuzzy_regex[:-3]
 
-            regex += '\s+'
+    if loose:
+        for word in command.split(' ')[1:]:
+            fuzzy_regex += ')'
+    else:
+        exact_regex = exact_regex[:-3]
 
-
-    regex = regex[:-3]
 
     if not loose:
-        regex += '$'
+        fuzzy_regex += '$'
+        exact_regex += '$'
 
-    compiled_regex = re.compile(regex)
+    compiled_fuzzy_regex = re.compile(fuzzy_regex)
 
-    return compiled_regex, arglist
+    if not loose:
+        compiled_exact_regex = re.compile(exact_regex)
+        return compiled_exact_regex, compiled_fuzzy_regex, arglist
+    else:
+        return compiled_fuzzy_regex, arglist
+
+
 
 
 class Network(object):
@@ -80,8 +131,15 @@ class Network(object):
             self.modules.append(module.Module(self.irc, conf))
 
             for command, function in self.modules[-1].commands:
-                regex, arglist = command_to_regex_and_arglist(command)
-                self.all_commands.append((command, regex, arglist, function, self.modules[-1]))
+                exact_regex, fuzzy_regex, arglist = command_to_regex_and_arglist(command)
+                self.all_commands.append({
+                    'command': command, 
+                    'exact_regex': exact_regex,
+                    'fuzzy_regex': fuzzy_regex,
+                    'arglist': arglist,
+                    'function': function,
+                    'module': self.modules[-1]
+                    })
 
             for regex, function in self.modules[-1].regexes:
                 self.all_regexes.append((re.compile(regex), function, self.modules[-1]))
@@ -115,13 +173,13 @@ class Network(object):
             ambiguity = len(commands)
 
             if ambiguity == 1:
-                command, module, function, args = commands[0]
-                args['_command'] = command
-                module.queue.put((function, the_message, args))
+                command_dict = commands[0]
+                command_dict['args']['_command'] = command_dict['command']
+                command_dict['module'].queue.put((command_dict['function'], the_message, command_dict['args']))
 
             elif ambiguity > 1:
                 self.irc.privmsg(the_message.source, '\x02ambiguous command\x02\x034 |\x03 %s' % '\x034 :\x03 '.join(
-                    [self.conf.get('comchar')+c[0].replace('>>', '>').replace('<<', '<') for c in commands])
+                    [self.conf.get('comchar')+c['command'].replace('>>', '>').replace('<<', '<') for c in commands])
                     )
 
         for regex, function, module in self.all_regexes:
