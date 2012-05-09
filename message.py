@@ -1,9 +1,15 @@
 def content(data, charset):
     """ Return message content """
+    line = ':'.join(data.split(':')[2:])
     if charset == 'utf-8':
-        return ':'.join(data.split(':')[2:])
+        return line
     else:
-        return ':'.join(data.split(':')[2:]).decode(charset).encode('utf-8')
+        try:
+            line = line.decode(charset).encode('utf-8')
+        except UnicodeDecodeError:
+            print '\n !! Some characters could not be reproduced in the above input using \'charset\': \'%s\'' % charset
+            line = line.decode(charset, 'ignore').encode('utf-8')
+        return line
 
 def nick(data):
     """ Return message nick """
