@@ -1,6 +1,6 @@
 %rebase tpl/base title='%shelp' % conf['comchar']
 
-<p class="summary">A Python IRC robot. Source available on <a href="https://bitbucket.org/colons/pyfoot/">Bitbucket</a>.</p>
+<p class="summary">A Python IRC robot. Source available on <a href="https://github.com/colons/pyfoot/">Bitbucket</a>.</p>
 
 %if per_network:
 <div class="network section">
