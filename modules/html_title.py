@@ -56,16 +56,7 @@ class Module(module.Module):
                     opener = urllib.FancyURLopener()
                     setattr(opener, 'version', choice(self.user_agents))
 
-                    try:
-                        pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
-                        title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                        summary = '%s\x034 |\x03\x02 %s\x02' % (title, parsed_url.hostname)
-                        self.irc.privmsg(message.source, summary)
-                    except AttributeError:
-                        pass
-                    except IOError as (errno, strerror):
-                        #if errno == 'socket error':
-                            #if strerror.find('-2') != -1:
-                            #if strerror.error == -2:
-                                #self.irc.privmsg(message.source, "Errorno %s: %s:\x02 %s\x02" % (errno, strerror, parsed_url.hostname))
-                        pass
+                    pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
+                    title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
+                    summary = '%s\x034 |\x03\x02 %s\x02' % (title, parsed_url.hostname)
+                    self.irc.privmsg(message.source, summary)
