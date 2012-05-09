@@ -75,8 +75,12 @@ class IRC(object):
             self.socket.send(message)
         else:
             message = message.decode('utf-8')
-            print ' >> %s' % message  # Printing a Unicode string lets Python decide the charset
-            self.socket.send(message.encode(self.charset))
+            print ' >> %s' % message  # Printing a Unicode string lets Python decide the stdout charset
+            try:
+                self.socket.send(message.encode(self.charset))
+            except UnicodeEncodeError:
+                print '\n !! Some characters could not be reproduced in the following output using \'charset\': \'%s\'' % self.charset
+                self.socket.send(message.encode(self.charset, 'ignore'))
 
 
     def ctcp(self, target, ctcp, message=None, notice=False, crop=True):

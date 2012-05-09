@@ -29,7 +29,6 @@ class Module(module.Module):
     
 
         party = [args['phrase']]
-        print party
         while dupes(party) == False:
             party.append(self.translator.translate('en', transvia, party[-1]))
             party.append(self.translator.translate(transvia, 'en', party[-1]))
