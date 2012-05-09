@@ -22,8 +22,8 @@ class Module(Module):
     def specific_help(self, message, args):
         """ Get help for a particular command.
         $<comchar>he <comchar>h
-        >\x02hhg\x02\x034 |\x03 <comchar>hhg &lt;character&gt;\x034 :\x03 <comchar>hhg\x034 |\x03 http://woof.bldm.us/help/<network>/#hhg
-        >\x02help\x02\x034 |\x03 <comchar>help\x034 :\x03 <comchar>help &lt;subject&gt;\x034 |\x03 http://woof.bldm.us/help/<network>/#help"""
+        >\x02hhg\x02 \x034|\x03 <comchar>hhg &lt;character&gt; \x034:\x03 <comchar>hhg \x034|\x03 http://woof.bldm.us/help/<network>/#hhg
+        >\x02help\x02 \x034|\x03 <comchar>help \x034:\x03 <comchar>help &lt;subject&gt; \x034|\x03 http://woof.bldm.us/help/<network>/#help"""
 
         if args['subject'].startswith(self.conf.get('comchar')):
             command = args['subject'][len(self.conf.get('comchar')):]
@@ -45,19 +45,19 @@ class Module(Module):
         outlist = []
 
         for module in modules:
-            commands = '\x034 :\x03 '.join(modules[module])
-            outlist.append('\x02%s\x02\x034 |\x03 %s\x034 |\x03 %shelp/%s/#%s' % (module, commands, self.conf.get('web_url'), self.conf.alias, module))
+            commands = ' \x034:\x03 '.join(modules[module])
+            outlist.append('\x02%s\x02 \x034|\x03 %s \x034|\x03 %shelp/%s/#%s' % (module, commands, self.conf.get('web_url'), self.conf.alias, module))
         
         for out in outlist:
             self.irc.privmsg(message.source, out)
 
         if len(outlist) == 0:
-            self.irc.privmsg(message.source, '\x02%s\x02\x034 |\x03 no such command\x034 |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias))
+            self.irc.privmsg(message.source, '\x02%s\x02 \x034|\x03 no such command \x034|\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias))
 
 
     def all_help(self, message, args):
-        """ Returns links to this page and to pyfoot's <a href="https://bitbucket.org/colons/pyfoot/">source code</a> and <a href="https://bitbucket.org/colons/pyfoot/issues/new">issue tracker</a>.
+        """ Returns links to this page and to pyfoot's <a href="https://github.com/colons/pyfoot/">source code</a> and <a href="https://github.com/colons/pyfoot/issues/new">issue tracker</a>.
         $<comchar>help
-        >\x02features\x02\x034 :\x03 http://woof.bldm.us/help/<network>/\x034 |\x03\x02 code\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot\x034 |\x03\x02 bug?\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot/issues/new
+        >\x02features\x02 \x034:\x03 http://woof.bldm.us/help/<network>/ \x034|\x03\x02 code\x02 \x034:\x03 https://github.com/colons/pyfoot \x034|\x03\x02 bug?\x02 \x034:\x03 https://github.com/colons/pyfoot/issues/new
         """
-        self.irc.privmsg(message.source, '\x02features\x02\x034 :\x03 http://woof.bldm.us/help/%s/\x034 |\x03\x02 code\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot\x034 |\x03\x02 bug?\x02\x034 :\x03 https://bitbucket.org/colons/pyfoot/issues/new' % self.conf.alias)
+        self.irc.privmsg(message.source, '\x02features\x02 \x034:\x03 http://woof.bldm.us/help/%s/ \x034|\x03\x02 code\x02 \x034:\x03 https://github.com/colons/pyfoot \x034|\x03\x02 bug?\x02 \x034:\x03 https://github.com/colons/pyfoot/issues/new' % self.conf.alias)
