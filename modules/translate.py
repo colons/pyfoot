@@ -30,9 +30,5 @@ class Module(module.Module):
         """ Translates <span class="irc"><span class="repl">phrase</span></span> from <span class="irc"><span class="repl">from</span></span> to <span class="irc"><span class="repl">to</span></span> using the Bing translate API. <span class="irc"><span class="repl">from</span></span> and <span class="irc"><span class="repl">to</span></span> must be any of the language codes <a href="http://msdn.microsoft.com/en-us/library/dd877907.aspx">here</a> and <a href="http://msdn.microsoft.com/en-us/library/dd877886.aspx">here</a>, respectively.
         $<comchar>translate fr en le jambon est mort
         >the ham is dead"""
-        print args
-        print args['phrase']
-        from, to, phrase = (args[key].encode('utf-8') for key in ('from', 'to', 'phrase'))
-        print args
-        translation = self.translator.translate(args[0], args[1], args[2])
+        translation = self.translator.translate(args['from'], args['to'], args['phrase'])
         self.irc.privmsg(message.source, translation)

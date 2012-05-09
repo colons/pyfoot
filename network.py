@@ -152,7 +152,7 @@ class Network(object):
             if line.startswith('PING :'):
                 self.irc.pong(line)
 
-            the_message = message.Message(line)
+            the_message = message.Message(line, self.irc.charset)
 
             if the_message.type == '353':
                 # this is a channel names list

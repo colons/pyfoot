@@ -28,7 +28,7 @@ class Module(module.Module):
         transvia = self.conf.get('party_via')
     
 
-        party = [args['phrase'].encode('utf-8')]
+        party = [args['phrase']]
         print party
         while dupes(party) == False:
             party.append(self.translator.translate('en', transvia, party[-1]))
