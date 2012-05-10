@@ -1,4 +1,4 @@
-%rebase tpl/base title='%shelp' % conf['comchar']
+%rebase tpl/base title='%shelp' % conf['comchar'], network=conf['alias']
 
 <p class="summary">A Python IRC robot. Source available on <a href="https://github.com/colons/pyfoot/">Bitbucket</a>.</p>
 

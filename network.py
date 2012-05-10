@@ -178,7 +178,7 @@ class Network(object):
                 command_dict['module'].queue.put((command_dict['function'], the_message, command_dict['args']))
 
             elif ambiguity > 1:
-                self.irc.privmsg(the_message.source, '\x02ambiguous command\x02\x034 |\x03 %s' % '\x034 :\x03 '.join(
+                self.irc.privmsg(the_message.source, '\x02ambiguous command\x02\x03# |\x03 %s' % '\x03# :\x03 '.join(
                     [self.conf.get('comchar')+c['command'].replace('>>', '>').replace('<<', '<') for c in commands])
                     )
 
