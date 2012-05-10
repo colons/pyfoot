@@ -15,6 +15,9 @@ class Config(object):
             'content_dir': os.path.expanduser('~/.pyfoot/'),
 
             'web_url': 'http://woof.bldm.us/',
+
+            'quit_message': 'woof',
+            'error_message': 'rolls over',
             'pigment': 4,
 
             'network_address': 'localhost',
@@ -28,7 +31,7 @@ class Config(object):
             'admin_admins': {
                 },
 
-            'modules': [],
+            'modules': ['help', 'admin'],
 
             'module_blacklist': {
                 },
@@ -36,8 +39,6 @@ class Config(object):
 
             'woof_trigger': '(?i).*\bwoof\b',
             'woof_greeting': 'woof',
-            'quit_message': 'woof',
-            'error_message': 'rolls over',
 
             'rss_feeds': {},
 
