@@ -27,6 +27,9 @@ class Module(module.Module):
         print '\a !! auth attempt: %s' % sha.hexdigest()
         if sha.hexdigest() == self.conf.get('admin_admins')[message.nick]:
             self.authenticated_hosts[message.host] = message.nick
+            self.irc.privmsg(message.source, 'woof')
+        else:
+            self.irc.privmsg(message.source, 'grr')
 
     def can_trust(self, message):
         if message.host in self.authenticated_hosts and self.authenticated_hosts[message.host] == message.nick:
