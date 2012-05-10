@@ -129,9 +129,21 @@ class Network(object):
 
         for modulename in conf.get('modules'):
             __import__('modules.'+modulename)
-            module = sys.modules['modules.'+modulename]
+            module = sys.modules['modules.%s' % modulename]
+            
+            try:
+                module.defaults
+            except AttributeError:
+                pass
+            else:
+                for key in module.defaults:
+                    if key not in conf.conf:
+                        conf.conf[key] = module.defaults[key]
+
             setattr(module.Module, 'name', modulename)
-            self.modules.append(module.Module(self.irc, conf))
+            module_instance = module.Module(self.irc, conf)
+
+            self.modules.append(module_instance)
 
             for command, function in self.modules[-1].commands:
                 exact_regex, fuzzy_regex, arglist = command_to_regex_and_arglist(command)
