@@ -72,12 +72,12 @@ class IRC(object):
 
     def send(self, message):
         if self.charset == 'utf-8':
-            print ' >> %s' % message
+            print ' >> %s' % message,
             message = message if not isinstance(message, unicode) else message.encode('utf-8')
             self.socket.send(message)
         else:
             message = message.decode('utf-8') if not isinstance(message, unicode) else message
-            print ' >> %s' % message  # Printing a Unicode string lets Python decide the stdout charset
+            print ' >> %s' % message,  # Printing a Unicode string lets Python decide the stdout charset
             try:
                 self.socket.send(message.encode(self.charset))
             except UnicodeEncodeError:

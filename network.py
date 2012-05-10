@@ -30,7 +30,6 @@ def get_possible_commands(content, commands, module_blacklist=[]):
             command_dict['args'] = args
 
             if exact_match:
-                print ' -- exact match!'
                 return [command_dict]
             else:
                 possible_commands.append(command_dict)
