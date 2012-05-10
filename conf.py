@@ -27,9 +27,9 @@ class Config(object):
 
             'charset': 'utf-8',
 
-            'modules': ['help', 'admin'],
+            'plugins': ['help', 'admin'],
 
-            'module_blacklist': {
+            'plugin_blacklist': {
                 },
             'nick_blacklist': [],
         }

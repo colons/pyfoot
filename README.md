@@ -22,7 +22,7 @@ documentation as complete and as hassle-free as possible for all involved.
 [This page](http://woof.bldm.us/help/rizon/) is the documentation for my pyfoot
 instance that runs on Rizon. The page is generated in a
 [Bottle](http://bottlepy.org/) automatically, based on that network's specific
-configuration and docstrings in the modules themselves. All documentation is
+configuration and docstrings in the plugins themselves. All documentation is
 kept in context and the help page will always reflect the current state of your
 pyfoot instance.
 
@@ -43,8 +43,8 @@ documentation.
 
 ### Easy extensibility
 
-The environment that modules live in is simple, consistent and flexible. For
-some examples, see the Module Development tutorial below.
+The environment that pyfoot's plugins live in is simple, consistent and flexible. For
+some examples, see the Plugin Development tutorial below.
 
 ### And more…
 
@@ -52,14 +52,14 @@ some examples, see the Module Development tutorial below.
 * Automatic mIRC format stripping in +c channels
 * Pretty, colour-configurable output
 * [Very liberal](http://sam.zoy.org/wtfpl/) distribution terms
-* A bunch of pointless modules
+* A bunch of pointless pluginss
 
 Setup and Use
 -------------
 
 still to come
 
-Module Development
+Plugin Development
 ------------------
 
 still to come

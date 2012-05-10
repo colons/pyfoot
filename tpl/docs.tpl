@@ -44,17 +44,17 @@
 </div>
 %end
 
-<div class="module_list section">
+<div class="plugin_list section">
     <div class="heading">
-        <h3>modules</h3>
+        <h3>plugins</h3>
     </div>
-    % for module in modules:
+    % for plugin in plugins:
     <div class="key">
-        <p><a href="#{{module['name']}}">{{module['name']}}</a>
+        <p><a href="#{{plugin['name']}}">{{plugin['name']}}</a>
     </div>
     <div class="item">
         <p class="irc">
-        % commands = [f['command'] for f in module['functions']]
+        % commands = [f['command'] for f in plugin['functions']]
         % for command in commands:
         {{command}}
             % if command != commands[-1]:
@@ -66,22 +66,22 @@
     % end
 </div>
 
-%for module in modules:
-<div class="module section" id="{{module['name']}}">
+%for plugin in plugins:
+<div class="plugin section" id="{{plugin['name']}}">
     <div class="heading">
-        <h3>{{module['name']}}</h3>
-        %if module['blacklist']:
+        <h3>{{plugin['name']}}</h3>
+        %if plugin['blacklist']:
             <div class="blacklist item">
-                <p>disabled in {{!' <span class="separator">:</span> '.join(module['blacklist'])}}</p>
+                <p>disabled in {{!' <span class="separator">:</span> '.join(plugin['blacklist'])}}</p>
             </div>
         %end
     </div>
-    %if module['docstring']:
+    %if plugin['docstring']:
     <div class="overview">
-        {{!module['docstring']}}
+        {{!plugin['docstring']}}
     </div>
     %end
-    %for function in module['functions']:
+    %for function in plugin['functions']:
     <div class="command">
         <div class="usage key">
             <p class="irc">{{function['command']}}</p>
