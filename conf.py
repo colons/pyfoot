@@ -27,22 +27,11 @@ class Config(object):
 
             'charset': 'utf-8',
 
-            'admin_salt': '',
-            'admin_admins': {
-                },
-
             'modules': ['help', 'admin'],
 
             'module_blacklist': {
                 },
             'nick_blacklist': [],
-
-            'woof_trigger': '(?i).*\bwoof\b',
-            'woof_greeting': 'woof',
-
-            'rss_feeds': {},
-
-            'url_blacklist': [],
         }
 
     def __init__(self, network):

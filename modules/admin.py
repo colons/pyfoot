@@ -1,6 +1,12 @@
 import module
 import sha
 
+defaults = {
+        'admin_salt': 'changeme',
+        'admin_admins': {
+            },
+        }
+
 class Module(module.Module):
     def prepare(self):
         self.authenticated_hosts = {}
