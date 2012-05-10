@@ -4,13 +4,13 @@ import sys
 import os
 import thread
 import re
-import modules
+import plugins
 
-def get_possible_commands(content, commands, module_blacklist=[]):
+def get_possible_commands(content, commands, plugin_blacklist=[]):
     """ Return a list of matching command descriptions. """
     possible_commands = []
 
-    for command_dict in [c for c in commands if c['module'].name not in module_blacklist]:
+    for command_dict in [c for c in commands if c['plugin'].name not in plugin_blacklist]:
         args = {}
         
         exact_match = command_dict['exact_regex'].match(content)
@@ -120,32 +120,31 @@ class Network(object):
         self.initial = True
         self.conf = conf
         self.irc = irc
-        self.irc = irc
-        self.modules = []
+        self.plugins = []
         self.all_commands = []
         self.all_regexes = []
 
-        modules.__path__.insert(0, '%s/modules' % conf.get('content_dir'))
+        plugins.__path__.insert(0, '%s/plugins' % conf.get('content_dir'))
 
-        for modulename in conf.get('modules'):
-            __import__('modules.'+modulename)
-            module = sys.modules['modules.%s' % modulename]
+        for plugin_name in conf.get('plugins'):
+            __import__('plugins.'+plugin_name)
+            plugin = sys.modules['plugins.%s' % plugin_name]
             
             try:
-                module.defaults
+                plugin.defaults
             except AttributeError:
                 pass
             else:
-                for key in module.defaults:
+                for key in plugin.defaults:
                     if key not in conf.conf:
-                        conf.conf[key] = module.defaults[key]
+                        conf.conf[key] = plugin.defaults[key]
 
-            setattr(module.Module, 'name', modulename)
-            module_instance = module.Module(self.irc, conf)
+            setattr(plugin.Plugin, 'name', plugin_name)
+            plugin_instance = plugin.Plugin(self.irc, conf)
 
-            self.modules.append(module_instance)
+            self.plugins.append(plugin_instance)
 
-            for command, function in self.modules[-1].commands:
+            for command, function in self.plugins[-1].commands:
                 exact_regex, fuzzy_regex, arglist = command_to_regex_and_arglist(command)
                 self.all_commands.append({
                     'command': command, 
@@ -153,22 +152,22 @@ class Network(object):
                     'fuzzy_regex': fuzzy_regex,
                     'arglist': arglist,
                     'function': function,
-                    'module': self.modules[-1]
+                    'plugin': plugin_instance
                     })
 
-            for regex, function in self.modules[-1].regexes:
-                self.all_regexes.append((re.compile(regex), function, self.modules[-1]))
+            for regex, function in plugin_instance.regexes:
+                self.all_regexes.append((re.compile(regex), function, plugin_instance))
 
-        for module in self.modules:
-            module.network = self
+        for plugin in self.plugins:
+            plugin.network = self
 
             try:
-                module.prefork()
+                plugin.prefork()
             except AttributeError:
                 pass
 
-            module.setDaemon(True)
-            module.start()
+            plugin.setDaemon(True)
+            plugin.start()
 
 
 
@@ -178,35 +177,35 @@ class Network(object):
         nick_blacklist = [n.lower() for n in self.conf.get('nick_blacklist')]
 
         try:
-            module_blacklist = [m.lower() for m in self.conf.get('module_blacklist')[the_message.source]]
+            plugin_blacklist = [m.lower() for m in self.conf.get('plugin_blacklist')[the_message.source]]
         except KeyError:
-            module_blacklist = []
+            plugin_blacklist = []
 
         if the_message.content.startswith(self.conf.get('comchar')):
 
-            commands = get_possible_commands(the_message.content[len(self.conf.get('comchar')):].rstrip(), self.all_commands, module_blacklist=module_blacklist)
+            commands = get_possible_commands(the_message.content[len(self.conf.get('comchar')):].rstrip(), self.all_commands, plugin_blacklist=plugin_blacklist)
             ambiguity = len(commands)
 
             if ambiguity == 1:
                 command_dict = commands[0]
                 command_dict['args']['_command'] = command_dict['command']
-                command_dict['module'].queue.put((command_dict['function'], the_message, command_dict['args']))
+                command_dict['plugin'].queue.put((command_dict['function'], the_message, command_dict['args']))
 
             elif ambiguity > 1:
                 self.irc.privmsg(the_message.source, '\x02ambiguous command\x02\x03# |\x03 %s' % '\x03# :\x03 '.join(
                     [self.conf.get('comchar')+c['command'].replace('>>', '>').replace('<<', '<') for c in commands])
                     )
 
-        for regex, function, module in self.all_regexes:
+        for regex, function, plugin in self.all_regexes:
             match = regex.match(the_message.content)
 
             if match:
-                if module.name.lower() not in module_blacklist and the_message.nick.lower() not in self.conf.get('nick_blacklist'):
-                    module.queue.put((function, the_message, match))
+                if plugin.name.lower() not in plugin_blacklist and the_message.nick.lower() not in self.conf.get('nick_blacklist'):
+                    plugin.queue.put((function, the_message, match))
 
 
     def dispatch(self, data):
-        """ Deals with messages and sends modules the information they need. """
+        """ Deals with messages and sends plugins the information they need. """
         if data == None:
             print ' :: no data'
             return None

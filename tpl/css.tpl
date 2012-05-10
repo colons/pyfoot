@@ -129,15 +129,15 @@ div.setting div.item {
     padding-bottom: 0;
 }
 
-div.module_list p, div.module_list div.item, div.module_list div.key {
+div.plugin_list p, div.plugin_list div.item, div.plugin_list div.key {
     padding-bottom: .25em;
 }
 
-div.module_list div.item {
+div.plugin_list div.item {
     padding-top: .1em;
 }
 
-div.module_list div.heading {
+div.plugin_list div.heading {
     margin-bottom: -.1em;
 }
 

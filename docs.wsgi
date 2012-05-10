@@ -11,8 +11,8 @@ import bottle
 from random import choice
 import re
 
-import conf as config_module
-import modules
+import conf as config_plugin
+import plugins
 
 control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
 control_char_re = re.compile('[%s]' % re.escape(control_chars))
@@ -103,59 +103,70 @@ def examine_function(command, function, conf, regex=False):
 def get_entries(network):
     if network:
         try:
-            conf = config_module.Config(network)
+            conf = config_plugin.Config(network)
         except AttributeError:
             raise bottle.HTTPError(code=404)
     else:
-        conf = config_module.Config('GLOBAL')
+        conf = config_plugin.Config('GLOBAL')
 
-    module_list = []
+    plugin_list = []
 
-    modules.__path__.insert(0, '%s/modules/' % conf.get('content_dir'))
+    plugins.__path__.insert(0, '%s/plugins/' % conf.get('content_dir'))
 
-    for modulename in conf.get('modules'):
-        __import__('modules.'+modulename)
-        module = sys.modules['modules.'+modulename]
-        setattr(module.Module, 'name', modulename)
-        module_list.append(module.Module(None, conf, prepare=False))
-        module_list[-1].setDaemon(False)
+    for plugin_name in conf.get('plugins'):
+        __import__('plugins.'+plugin_name)
+        plugin = sys.modules['plugins.%s' % plugin_name]
+        
+        try:
+            plugin.defaults
+        except AttributeError:
+            pass
+        else:
+            for key in plugin.defaults:
+                if key not in conf.conf:
+                    conf.conf[key] = plugin.defaults[key]
+
+        setattr(plugin.Plugin, 'name', plugin_name)
+        plugin_instance = plugin.Plugin(None, conf, prepare=False)
+
+        plugin_list.append(plugin_instance)
     
-    module_dicts = []
+    plugin_dicts = []
 
-    for module in module_list:
+    for plugin in plugin_list:
         functions = []
 
-        if module.commands:
-            for command, function in module.commands:
+        if plugin.commands:
+            for command, function in plugin.commands:
                 entry = examine_function(command, function, conf)
                 if entry:
                     functions.append(entry)
 
-        if module.regexes:
-            for command, function in module.regexes:
+        if plugin.regexes:
+            for command, function in plugin.regexes:
                 entry = examine_function(command, function, conf, regex=True)
                 if entry:
                     functions.append(entry)
 
         
-        module_dict = {
-            'name': module.name,
+        plugin_dict = {
+            'name': plugin.name,
             'functions': functions,
             }
 
         try:
-            module_dict['docstring'] = '\n'.join([parse_paragraph(l.strip(), conf) for l in module.__doc__.split('\n') if len(l.strip()) > 0])
+            plugin_dict['docstring'] = '\n'.join([parse_paragraph(l.strip(), conf) for l in plugin.__doc__.split('\n') if len(l.strip()) > 0])
         except AttributeError:
-            module_dict['docstring'] = None
+            plugin_dict['docstring'] = None
 
         try:
-            module_dict['blacklist'] = [c for c in conf.get('module_blacklist') if module.name in conf.get('module_blacklist')[c]]
+            plugin_dict['blacklist'] = [c for c in conf.get('plugin_blacklist') if plugin.name in conf.get('plugin_blacklist')[c]]
         except KeyError:
-            module_dict['blacklist'] = False
+            plugin_dict['blacklist'] = False
 
-        module_dicts.append(module_dict)
+        plugin_dicts.append(plugin_dict)
         
-    return (module_dicts, conf)
+    return (plugin_dicts, conf)
 
 @bottle.route('/')
 def redir_to_help():
@@ -165,7 +176,7 @@ def redir_to_help():
 def css(network):
     bottle.response.set_header('Content-type', 'text/css')
     try:
-        conf = config_module.Config(network)
+        conf = config_plugin.Config(network)
     except AttributeError:
         raise bottle.HTTPError(code=404)
 
@@ -175,18 +186,18 @@ def css(network):
 
 @bottle.route('/help/')
 def defaults():
-    module_dicts, conf = get_entries(None)
-    return bottle.template('tpl/docs', modules=module_dicts, conf=conf.conf, per_network=False)
+    plugin_dicts, conf = get_entries(None)
+    return bottle.template('tpl/docs', plugins=plugin_dicts, conf=conf.conf, per_network=False)
 
 @bottle.route('/help/<network>/')
 def per_network(network):
-    module_dicts, conf = get_entries(network)
-    return bottle.template('tpl/docs', modules=module_dicts, conf=conf.conf, per_network=True)
+    plugin_dicts, conf = get_entries(network)
+    return bottle.template('tpl/docs', plugins=plugin_dicts, conf=conf.conf, per_network=True)
 
 @bottle.route('/party/<network>/')
 def party_index(network):
     try:
-        conf = config_module.Config(network)
+        conf = config_plugin.Config(network)
     except AttributeError:
         raise bottle.HTTPError(code=404)
 
@@ -221,7 +232,7 @@ def party_index(network):
 
 @bottle.route('/party/<network>/<filename>/')
 def party(network, filename):
-    conf = config_module.Config(network)
+    conf = config_plugin.Config(network)
     try:
         party_file = open(os.path.expanduser(conf.get('party_dir'))+network+'/'+filename+'.txt')
     except IOError:
