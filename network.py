@@ -1,8 +1,10 @@
 import message
 
 import sys
+import os
 import thread
 import re
+import modules
 
 def get_possible_commands(content, commands, module_blacklist=[]):
     """ Return a list of matching command descriptions. """
@@ -123,6 +125,8 @@ class Network(object):
         self.modules = []
         self.all_commands = []
         self.all_regexes = []
+
+        modules.__path__.insert(0, '%s/modules' % conf.get('content_dir'))
 
         for modulename in conf.get('modules'):
             __import__('modules.'+modulename)

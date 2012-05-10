@@ -12,6 +12,7 @@ from random import choice
 import re
 
 import conf as config_module
+import modules
 
 control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
 control_char_re = re.compile('[%s]' % re.escape(control_chars))
@@ -108,18 +109,20 @@ def get_entries(network):
     else:
         conf = config_module.Config('GLOBAL')
 
-    modules = []
+    module_list = []
+
+    modules.__path__.insert(0, '%s/modules/' % conf.get('content_dir'))
 
     for modulename in conf.get('modules'):
         __import__('modules.'+modulename)
         module = sys.modules['modules.'+modulename]
         setattr(module.Module, 'name', modulename)
-        modules.append(module.Module(None, conf))
-        modules[-1].setDaemon(False)
+        module_list.append(module.Module(None, conf))
+        module_list[-1].setDaemon(False)
     
     module_dicts = []
 
-    for module in modules:
+    for module in module_list:
         functions = []
 
         if module.commands:
