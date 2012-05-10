@@ -163,6 +163,14 @@ span.bold {
     font-weight: bold;
 }
 
+span.repl:before {
+    content: '<'
+}
+
+span.repl:after {
+    content: '>'
+}
+
 p.disclaimer {
     font-size: .7em;
     color: #777;
