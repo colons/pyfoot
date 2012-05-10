@@ -52,7 +52,9 @@ some examples, see the Plugin Development tutorial below.
 * Automatic mIRC format stripping in +c channels
 * Pretty, colour-configurable output
 * [Very liberal](http://sam.zoy.org/wtfpl/) distribution terms
-* A bunch of pointless pluginss
+* A [bunch](https://github.com/colons/pyfoot-plugins) of
+  [pointless](https://github.com/colons/pyfoot-plugins/blob/master/konata.py)
+  [plugins](https://github.com/colons/pyfoot-plugins/blob/master/woof.py)
 
 Setup and Use
 -------------
