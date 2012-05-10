@@ -114,7 +114,7 @@ def get_entries(network):
         __import__('modules.'+modulename)
         module = sys.modules['modules.'+modulename]
         setattr(module.Module, 'name', modulename)
-        modules.append(module.Module(None, conf))
+        modules.append(module.Module(None, conf, prepare=False))
         modules[-1].setDaemon(False)
     
     module_dicts = []

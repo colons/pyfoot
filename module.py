@@ -3,7 +3,7 @@ import threading
 import traceback
 
 class Module(threading.Thread):
-    def __init__(self, irc, conf):
+    def __init__(self, irc, conf, prepare=True):
         threading.Thread.__init__(self)
 
         self.irc = irc
@@ -14,10 +14,11 @@ class Module(threading.Thread):
 
         self.error_message = conf.get('error_message')
         
-        try:
-            self.prepare()
-        except AttributeError:
-            pass
+        if prepare:
+            try:
+                self.prepare()
+            except AttributeError:
+                pass
     
         try:
             self.register_commands()
@@ -25,6 +26,11 @@ class Module(threading.Thread):
             pass
 
     def run(self):
+        try:
+            self.postfork()
+        except AttributeError:
+            pass
+
         while True:
             function, message, args = self.queue.get()
 

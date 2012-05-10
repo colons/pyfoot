@@ -8,7 +8,7 @@ class Module(Module):
                 ('help <<subject>>', self.specific_help),
                 ]
 
-    def prefork(self):
+    def postfork(self):
         # we can't build our command regexes until we fork;
         # self.network.all_commands will not exist when prepare() is called
         self.argless_commands = []

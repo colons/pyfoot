@@ -6,8 +6,11 @@ import module
 
 class Module(module.Module):
     """ Retrieve a random line from a text file. Can be directed at individuals. """
-    def prepare(self):
+    def register_commands(self):
+        self.commands = []
+
         self.sources = {}
+
         for source in self.conf.get('rantext_sources'):
             filename = self.conf.get('content_dir')+source+'.txt'
             file = open(filename)
@@ -16,8 +19,6 @@ class Module(module.Module):
                 line_list.append(line)
             self.sources[source] = line_list
 
-    def register_commands(self):
-        self.commands = []
         for source in self.sources:
             everyone_func = lambda message, args: self.rantext(message, args)
             everyone_func.__doc__ = '$<comchar>%s\n>%s' % (source, choice(self.sources[source]))
