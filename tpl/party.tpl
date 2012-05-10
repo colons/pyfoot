@@ -1,4 +1,4 @@
-%rebase tpl/base title='party'
+%rebase tpl/base title='party', network=network
 <p class="summary"><a href="/help/{{network}}/">help</a> | <a href="..">additional parties</a></p>
 
 <div class="section party">
