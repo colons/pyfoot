@@ -33,13 +33,13 @@ using ! here as an example), pyfoot will respond with a selection of
 appropriate commands that could match, along with links to the relevant online
 documentation.
     
-    ```irc
-    < luser> !help !ddg
-    <&pyfoot> ddg | !ddg <query> | http://woof.bldm.us/help/rizon/#ddg
-    < luser> !help p
-    <&pyfoot> admin | !part <channel> <reason> : !part <channel> | http://woof.bldm.us/help/nnchan/#admin
-    <&pyfoot> party | !party <phrase> | http://woof.bldm.us/help/nnchan/#party
-    ```
+```irc
+< luser> !help !ddg
+<&pyfoot> ddg | !ddg <query> | http://woof.bldm.us/help/rizon/#ddg
+< luser> !help p
+<&pyfoot> admin | !part <channel> <reason> : !part <channel> | http://woof.bldm.us/help/nnchan/#admin
+<&pyfoot> party | !party <phrase> | http://woof.bldm.us/help/nnchan/#party
+```
 
 ### Easy extensibility
 
