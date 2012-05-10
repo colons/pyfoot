@@ -26,7 +26,7 @@ class Module(module.Module):
     def title(self, message, args):
         """ Returns the HTML title tag of URLs posted.
         $https://twitter.com/#!/camh/statuses/147449116551680001
-        >Twitter / Cameron Kenley Hunt: There are only three hard  ...\x034 |\x03 \x02twitter.com\x02
+        >Twitter / Cameron Kenley Hunt: There are only three hard  ...\x03# |\x03 \x02twitter.com\x02
         """
         for word in message.content.split():
             if word.startswith('http://') or word.startswith('https://'):
@@ -58,5 +58,5 @@ class Module(module.Module):
 
                     pagesoup = BeautifulSoup.BeautifulSoup(opener.open(word))
                     title = BeautifulSoup.BeautifulStoneSoup((pagesoup.title.string).replace('\n', '').strip(), convertEntities="html").contents[0]
-                    summary = '%s\x034 |\x03\x02 %s\x02' % (title, parsed_url.hostname)
+                    summary = '%s\x03# |\x03\x02 %s\x02' % (title, parsed_url.hostname)
                     self.irc.privmsg(message.source, summary)

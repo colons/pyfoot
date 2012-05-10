@@ -11,6 +11,8 @@ class IRC(object):
         self.channels = {}
         self.own_hostname = False
 
+        self.conf = conf
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(
                 (conf.get('network_address'), conf.get('network_port'))
@@ -105,6 +107,8 @@ class IRC(object):
         if pretty:
             message = self.beautify(message)
 
+        message = self.add_missing_colours(message)
+
         try:
             if 'c' in self.channels[target]['modes']:
                 message = self.strip_formatting(message)
@@ -129,24 +133,28 @@ class IRC(object):
         return message
 
     def beautify(self, message):
-        message = message.replace(' :: ', '\x034 ::\x03 ')
-        message = message.replace(' : ', '\x034 :\x03 ')
-        message = message.replace(' | ', '\x034 |\x03 ')
-        message = message.replace(' @ ', '\x034 @\x03 ')
+        message = message.replace(' : ', '\x03# :\x03 ')
+        message = message.replace(' | ', '\x03# |\x03 ')
         return message
+    
+    def add_missing_colours(self, message):
+        assem = ''
+        split = message.split('\x03')
+        assem = split[0]
 
+        if len(split)>0:
+            for part in split[1:]:
+                assem += '\x03'
+                if part.startswith('#'):
+                    assem += str(self.conf.get('pigment'))
+                    assem += part[1:]
+                else:
+                    assem += part
+
+        return assem
 
     def strip_formatting(self, part):
-        # colours first
-        odd = True
-        while re.search('\x03', part):
-            if odd:
-                part = re.sub('\x03\d?\d?', '', part, count=1)
-            else:
-                part = re.sub('\x03', '', part, count=1)
-
-            odd = not odd
-
+        part = re.sub('\x03\d?\d?((?=[^,])|,\d?\d?)', '', part)
         part = re.sub('\x01', '', part)
         part = re.sub('\x02', '', part)
         part = re.sub('\x0F', '', part)

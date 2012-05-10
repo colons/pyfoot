@@ -33,12 +33,13 @@ using ! here as an example), pyfoot will respond with a selection of
 appropriate commands that could match, along with links to the relevant online
 documentation.
     
-    :::irc
+    ```irc
     < luser> !help !ddg
     <&pyfoot> ddg | !ddg <query> | http://woof.bldm.us/help/rizon/#ddg
     < luser> !help p
     <&pyfoot> admin | !part <channel> <reason> : !part <channel> | http://woof.bldm.us/help/nnchan/#admin
     <&pyfoot> party | !party <phrase> | http://woof.bldm.us/help/nnchan/#party
+    ```
 
 ### Easy extensibility
 
@@ -49,7 +50,8 @@ some examples, see the Module Development tutorial below.
 
 * Automatic handling of abbreviated commands to the point of ambiguity
 * Automatic mIRC format stripping in +c channels
-* Pretty, colour-configurable output (not actually true yet)
+* Pretty, colour-configurable output
+* [Very liberal](http://sam.zoy.org/wtfpl/) distribution terms
 * A bunch of pointless modules
 
 Setup and Use

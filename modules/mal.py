@@ -41,7 +41,7 @@ class Module(module.Module):
     def define(self, message, args):
         """ Many of these functions benefit from knowing whose IRC nicks correspond to which MAL user, so be sure to tell <pyfoot> who you are.
         $<comchar>mal set colons
-        >\x02nivi\x02 is now MAL user \x02colons\x02\x034 |\x03 http://myanimelist.net/profile/\x02colons"""
+        >\x02nivi\x02 is now MAL user \x02colons\x02\x03# |\x03 http://myanimelist.net/profile/\x02colons"""
         user = args['user']
 
         try:
@@ -211,10 +211,10 @@ class Module(module.Module):
     def fight_self(self, message, args):
         """ Fight someone.
         $<comchar>mal fight xinil
-        >\x02colons\x02 vs. \x02xinil\x02\x034 |\x03 average contention\x034 :\x03 \x021.12\x02\x034 |\x03 Tengen Toppa Gurren Lagann\x034 :\x03 \x024\x02 vs. \x028\x02
+        >\x02colons\x02 vs. \x02xinil\x02\x03# |\x03 average contention\x03# :\x03 \x021.12\x02\x03# |\x03 Tengen Toppa Gurren Lagann\x03# :\x03 \x024\x02 vs. \x028\x02
         If you specify an additional username, you don't have to get involved yourself.
         $<comchar>mal fight xinil theshillito
-        >\x02xinil\x02 vs. \x02theshillito\x02\x034 | \x03average contention\x034 :\x03 \x022.10\x02\x034 |\x03 Cowboy Bebop\x034 :\x03 \x0210\x02 vs. \x024\x02\x034 |\x03 Fate/stay night\x034 :\x03 \x027\x02 vs. \x021\x02
+        >\x02xinil\x02 vs. \x02theshillito\x02\x03# | \x03average contention\x03# :\x03 \x022.10\x02\x03# |\x03 Cowboy Bebop\x03# :\x03 \x0210\x02 vs. \x024\x02\x03# |\x03 Fate/stay night\x03# :\x03 \x027\x02 vs. \x021\x02
         """
         self.fight(message, {
             'user1': message.nick,
@@ -260,7 +260,7 @@ class Module(module.Module):
 
     def search(self, message, args):
         """ $!mal search churuya
-        >\x02Nyoro-n Churuya-san\x02\x034 :\x03 ONA\x034 |\x03 http://myanimelist.net/anime/5957\x034 |\x03 An anime adaptation of the 4-panel strip manga release: Nyoron Churuya-san. Based on Suzumiya Haruhi's energetic and 'always up to go' character, Tsuruya."""
+        >\x02Nyoro-n Churuya-san\x02\x03# :\x03 ONA\x03# |\x03 http://myanimelist.net/anime/5957\x03# |\x03 An anime adaptation of the 4-panel strip manga release: Nyoron Churuya-san. Based on Suzumiya Haruhi's energetic and 'always up to go' character, Tsuruya."""
         query = args['query']
 
         search = self.query('anime/search', ['q=%s' % urllib2.quote(query)])

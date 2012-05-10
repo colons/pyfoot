@@ -16,6 +16,9 @@ import conf as config_module
 control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
 control_char_re = re.compile('[%s]' % re.escape(control_chars))
 
+# mirc       0      1      2      3      4      5      6      7      8      9      10     11     12     13     14     15
+pigments = ['aaa', '000', '339', '6a3', 'd66', '960', '93c', 'd73', 'da3', '6a3', '8a3', '69d', '36d', 'd69', '666', '999']
+
 def remove_control_chars(s):
     """ thanks http://stackoverflow.com/questions/92438/stripping-non-printable-characters-from-a-string-in-python """
     return control_char_re.sub('', s)
@@ -24,7 +27,7 @@ def convert_mirc_entities(line):
     odd = True
     while re.search('\x03', line):
         if odd:
-            line = re.sub('\x03\d?\d?', '<span class="red">', line, count=1)
+            line = re.sub('\x03#', '<span class="pigment">', line, count=1)
         else:
             line = re.sub('\x03', '</span>', line, count=1)
         odd = not odd
@@ -154,6 +157,18 @@ def get_entries(network):
 @bottle.route('/')
 def redir_to_help():
     bottle.redirect("/help/")
+
+@bottle.route('/<network>.css')
+def css(network):
+    bottle.response.set_header('Content-type', 'text/css')
+    try:
+        conf = config_module.Config(network)
+    except AttributeError:
+        raise bottle.HTTPError(code=404)
+
+    pigment = '#%s' % pigments[int(str(conf.get('pigment')).split(',')[0])]
+
+    return bottle.template('tpl/css', pigment=pigment)
 
 @bottle.route('/help/')
 def defaults():

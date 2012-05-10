@@ -6,7 +6,7 @@ import module
 class Module(module.Module):
     def prepare(self):
         self.url = 'http://api.duckduckgo.com/?q=%s&format=json&no_redirect=1&no_html=1&skip_disambig=1'
-        self.frame = '\x02%s\x02 : %s'
+        self.frame = '\x02%s\x02\x03# :\x03 %s'
 
     def register_commands(self):
         self.commands = [
@@ -35,23 +35,23 @@ class Module(module.Module):
             return self.frame % (data['AbstractText'], data['AbstractURL'])
 
         if data['Definition']:
-            return self.frame % (': '.join(data['Definition'].split(': ')[1:]), data['DefinitionURL'])
+            return self.frame % ('\x03#:\x03 '.join(data['Definition'].split(': ')[1:]), data['DefinitionURL'])
 
         if len(data['RelatedTopics']) == 1:
             return self.frame % (data['RelatedTopics'][0]['Text'], data['RelatedTopics'][0]['FirstURL'])
         
         if len(data['RelatedTopics']) > 1:
-            return self.frame+' |  %i other topics' % (data['RelatedTopics'][0]['Text'], data['RelatedTopics'][0]['FirstURL'], len(data['RelatedTopics']))
+            return self.frame+'\x03# |\x03 %i other topics' % (data['RelatedTopics'][0]['Text'], data['RelatedTopics'][0]['FirstURL'], len(data['RelatedTopics']))
 
         return '\x02search\x02'
 
     def ddg(self, message, args):
         """ Issue a <a href="http://duckduckgo.com/api.html">DuckDuckGo</a> query.
         $<comchar>ddg 2^10
-        >\x02calc\x02\x034 :\x03 2 ^ 10 = 1,024\x034 |\x03 http://ddg.gg/?q=2%5E10 """
+        >\x02calc\x02\x03# :\x03 2 ^ 10 = 1,024\x03# |\x03 http://ddg.gg/?q=2%5E10 """
         query = urllib2.quote(args['query'])
 
         answer = self.get_answer(query)
 
         if answer:
-            self.irc.privmsg(message.source, '%s | http://ddg.gg/?q=%s' % (answer, query), pretty=True)
+            self.irc.privmsg(message.source, '%s\x03# |\x03 http://ddg.gg/?q=%s' % (answer, query))
