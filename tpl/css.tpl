@@ -8,7 +8,7 @@ body {
     color: #333;
 
     background-color: #ddd;
-    background-image: url('noise.png');
+    background-image: url('/static/noise.png');
     background-repeat: repeat;
 
     text-shadow: #eee 0px 1px 0;
