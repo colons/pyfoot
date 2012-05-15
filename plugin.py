@@ -12,7 +12,7 @@ class Plugin(threading.Thread):
         self.commands = []
         self.regexes = []
 
-        self.error_message = conf.get('error_message')
+        self.error_message = conf.conf['error_message']
         
         if prepare:
             try:

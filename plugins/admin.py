@@ -10,7 +10,7 @@ defaults = {
 class Plugin(plugin.Plugin):
     def prepare(self):
         self.authenticated_hosts = {}
-        self.sha = sha.new(self.conf.get('admin_salt'))
+        self.sha = sha.new(self.conf.conf['admin_salt'])
 
     def register_commands(self):
         self.commands = [
@@ -31,7 +31,7 @@ class Plugin(plugin.Plugin):
         sha.update(args['pass'])
         
         print '\a !! auth attempt: %s' % sha.hexdigest()
-        if sha.hexdigest() == self.conf.get('admin_admins')[message.nick]:
+        if sha.hexdigest() == self.conf.conf['admin_admins'][message.nick]:
             self.authenticated_hosts[message.host] = message.nick
             self.irc.privmsg(message.source, 'woof')
         else:
