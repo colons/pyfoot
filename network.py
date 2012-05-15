@@ -124,9 +124,9 @@ class Network(object):
         self.all_commands = []
         self.all_regexes = []
 
-        plugins.__path__.insert(0, '%s/plugins' % conf.get('content_dir'))
+        plugins.__path__.insert(0, '%s/plugins' % conf.conf['content_dir'])
 
-        for plugin_name in conf.get('plugins'):
+        for plugin_name in conf.conf['plugins']:
             __import__('plugins.'+plugin_name)
             plugin = sys.modules['plugins.%s' % plugin_name]
             
@@ -174,16 +174,16 @@ class Network(object):
 
 
     def delegate(self, the_message):
-        nick_blacklist = [n.lower() for n in self.conf.get('nick_blacklist')]
+        nick_blacklist = [n.lower() for n in self.conf.conf['nick_blacklist']]
 
         try:
-            plugin_blacklist = [m.lower() for m in self.conf.get('plugin_blacklist')[the_message.source]]
+            plugin_blacklist = [m.lower() for m in self.conf.conf['plugin_blacklist'][the_message.source]]
         except KeyError:
             plugin_blacklist = []
 
-        if the_message.content.startswith(self.conf.get('comchar')):
+        if the_message.content.startswith(self.conf.conf['comchar']):
 
-            commands = get_possible_commands(the_message.content[len(self.conf.get('comchar')):].rstrip(), self.all_commands, plugin_blacklist=plugin_blacklist)
+            commands = get_possible_commands(the_message.content[len(self.conf.conf['comchar']):].rstrip(), self.all_commands, plugin_blacklist=plugin_blacklist)
             ambiguity = len(commands)
 
             if ambiguity == 1:
@@ -193,14 +193,14 @@ class Network(object):
 
             elif ambiguity > 1:
                 self.irc.privmsg(the_message.source, '\x02ambiguous command\x02\x03# |\x03 %s' % '\x03# :\x03 '.join(
-                    [self.conf.get('comchar')+c['command'].replace('>>', '>').replace('<<', '<') for c in commands])
+                    [self.conf.conf['comchar']+c['command'].replace('>>', '>').replace('<<', '<') for c in commands])
                     )
 
         for regex, function, plugin in self.all_regexes:
             match = regex.match(the_message.content)
 
             if match:
-                if plugin.name.lower() not in plugin_blacklist and the_message.nick.lower() not in self.conf.get('nick_blacklist'):
+                if plugin.name.lower() not in plugin_blacklist and the_message.nick.lower() not in self.conf.conf['nick_blacklist']:
                     plugin.queue.put((function, the_message, match))
 
 
@@ -217,7 +217,7 @@ class Network(object):
         for line in [line for line in data.split('\r\n') if len(line) > 0]:
             print '    %s' % line
 
-            if line.startswith(':%s!%s@' % (self.conf.get('nick'), self.conf.get('username'))):
+            if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
                 self.irc.own_hostname = line.split(' ')[0][1:]
                 print ' -- we are %s' % self.irc.own_hostname
 
@@ -256,7 +256,7 @@ class Network(object):
                 pass
 
             elif the_message.type == 'MODE' and self.initial == True:
-                for channel in self.conf.get('network_channels'):
+                for channel in self.conf.conf['network_channels']:
                     self.irc.join(channel)
 
                 self.initial = False
