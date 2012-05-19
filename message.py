@@ -1,18 +1,18 @@
-def content(data):
-    """ Return message content """
-    return ':'.join(data.split(':')[2:])
+def content(data, charset='ascii'):
+    """ Return message content in both UTF-8-encoded and raw forms """
+    decruft = lambda line: ':'.join(line.split(':')[2:])
+    raw = decruft(data)
 
-def convert(data, charset):
-    """ Return message content encoded in utf-8 """
-    if charset == 'utf-8':
-        return data
-    else:
-        try:
-            data = data.decode(charset).encode('utf-8')
-        except UnicodeDecodeError:
+    try:
+        content = data.decode(charset)
+    except UnicodeDecodeError:
             print '\n !! Some characters could not be reproduced in the above input using \'charset\': \'%s\'' % charset
-            data = data.decode(charset, 'ignore').encode('utf-8')
-        return data
+            if len(data) == 510:
+                print ' !! The input length was at maximum; the message may have been truncated.'
+            content = data.decode(charset, 'ignore')
+
+    content = decruft(content).encode('utf-8')
+    return (content, raw)
 
 def nick(data):
     """ Return message nick """
@@ -56,8 +56,7 @@ class Message(object):
 
         try:
             self.nick = nick(data)
-            self.content_raw = content(data)
-            self.content = convert(self.content_raw, charset)
+            self.content, self.content_raw = content(data, charset)
             self.source = destination(data)
             self.host = host(data)
         except IndexError:
