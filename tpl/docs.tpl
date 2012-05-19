@@ -1,6 +1,6 @@
 %rebase tpl/base title='%shelp' % conf['comchar'], network=conf['alias']
 
-<p class="summary">A Python IRC robot. Source available on <a href="https://github.com/colons/pyfoot/">Bitbucket</a>.</p>
+<p class="summary">A Python IRC robot. Source available on <a href="https://github.com/colons/pyfoot/">GitHub</a>.</p>
 
 %if per_network:
 <div class="network section">

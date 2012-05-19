@@ -184,6 +184,10 @@ def css(network):
 
     return bottle.template('tpl/css', pigment=pigment)
 
+@bottle.route('/static/<filename>')
+def server_static(filename):
+    return bottle.static_file(filename, root='/home/nivi/pyfoot/static/') # WHEN PYFOOT IS APP-ISED, THIS NEEDS TO BE DERIVED FROM CONFIG OR SOME SHIT
+
 @bottle.route('/help/')
 def defaults():
     plugin_dicts, conf = get_entries(None)
