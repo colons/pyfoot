@@ -33,9 +33,9 @@ def destination(data):
 def args(content, args, conf):
     """ Determines what arguments a message contains """
     if type(args) == list:
-        prefixes = ['%s%s' % (conf.get('comchar'), arg) for arg in args]
+        prefixes = ['%s%s' % (conf.conf['comchar'], arg) for arg in args]
     else:
-        prefixes = ['%s%s' % (conf.get('comchar'), args)]
+        prefixes = ['%s%s' % (conf.conf['comchar'], args)]
 
     if content.split(' ')[0].strip() in prefixes:
         post_args = ' '.join(content.split(' ')[1:]).rstrip("\r\n").strip()

@@ -15,26 +15,26 @@ class IRC(object):
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(
-                (conf.get('network_address'), conf.get('network_port'))
+                (conf.conf['network_address'], conf.conf['network_port'])
                 )
 
         if ssl:
             self.socket = ssl.wrap_socket(self.socket)
 
-        self.socket.send('NICK %s\r\n' % conf.get('nick'))
+        self.socket.send('NICK %s\r\n' % conf.conf['nick'])
         self.socket.send('USER %s %s %s %s\r\n' % (
-                conf.get('username'),
-                conf.get('hostname'),
-                conf.get('servername'),
-                conf.get('realname')
+                conf.conf['username'],
+                conf.conf['hostname'],
+                conf.conf['servername'],
+                conf.conf['realname']
                 )
             )
 
-        self.charset = conf.get('charset')
+        self.charset = conf.conf['charset']
         if conf.conf['network_nickserv_pass']:
-            self.privmsg('NickServ', 'identify %s' % conf.get('network_nickserv_pass'))
+            self.privmsg('NickServ', 'identify %s' % conf.conf['network_nickserv_pass'])
 
-        self.quit_message = conf.get('quit_message')
+        self.quit_message = conf.conf['quit_message']
 
 
     def pong(self, data):
@@ -146,7 +146,7 @@ class IRC(object):
             for part in split[1:]:
                 assem += '\x03'
                 if part.startswith('#'):
-                    assem += str(self.conf.get('pigment'))
+                    assem += str(self.conf.conf['pigment'])
                     assem += part[1:]
                 else:
                     assem += part

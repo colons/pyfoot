@@ -25,8 +25,8 @@ class Plugin(Plugin):
         >\x02hhg\x02\x03# |\x03 <comchar>hhg &lt;character&gt;\x03# :\x03 <comchar>hhg\x03# |\x03 http://woof.bldm.us/help/<network>/#hhg
         >\x02help\x02\x03# |\x03 <comchar>help\x03# :\x03 <comchar>help &lt;subject&gt;\x03# |\x03 http://woof.bldm.us/help/<network>/#help"""
 
-        if args['subject'].startswith(self.conf.get('comchar')):
-            command = args['subject'][len(self.conf.get('comchar')):]
+        if args['subject'].startswith(self.conf.conf['comchar']):
+            command = args['subject'][len(self.conf.conf['comchar']):]
         else:
             command = args['subject']
 
@@ -40,13 +40,13 @@ class Plugin(Plugin):
 
             command = possibility['command'].replace('>>', '>').replace('<<', '<')
 
-            plugins[plugin.name].append('%s%s' % (self.conf.get('comchar'), command))
+            plugins[plugin.name].append('%s%s' % (self.conf.conf['comchar'], command))
 
         outlist = []
 
         for plugin in plugins:
             commands = '\x03# :\x03 '.join(plugins[plugin])
-            outlist.append('\x02%s\x02\x03# |\x03 %s\x03# |\x03 %shelp/%s/#%s' % (plugin, commands, self.conf.get('web_url'), self.conf.alias, plugin))
+            outlist.append('\x02%s\x02\x03# |\x03 %s\x03# |\x03 %shelp/%s/#%s' % (plugin, commands, self.conf.conf['web_url'], self.conf.alias, plugin))
         
         for out in outlist:
             self.irc.privmsg(message.source, out)
