@@ -220,6 +220,10 @@ def party_index(network):
     for party_filename in party_files:
         party_file = open(party_path+'/'+party_filename)
         party = party_file.readlines()
+
+        if party[0].startswith('source: '):
+            party = party[1:]
+
         party_file.close()
         party_dict = {
                 'nick': '-'.join(party_filename.split('-')[:-2]),
@@ -248,6 +252,10 @@ def party(network, filename):
     else:
         party_lines = party_file.readlines()
         party_file.close()
+
+        if party_lines[0].startswith('source: '):
+            party_lines = party_lines[1:]
+
 
     party = {
             'lines': party_lines,
