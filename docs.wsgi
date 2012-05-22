@@ -14,15 +14,14 @@ import re
 import conf as config_plugin
 import plugins
 
-control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
-control_char_re = re.compile('[%s]' % re.escape(control_chars))
 
 # mirc       0      1      2      3      4      5      6      7      8      9      10     11     12     13     14     15
 pigments = ['aaa', '000', '339', '6a3', 'd66', '960', '93c', 'd73', 'da3', '6a3', '8a3', '69d', '36d', 'd69', '666', '999']
 
 def remove_control_chars(s):
     """ thanks http://stackoverflow.com/questions/92438/stripping-non-printable-characters-from-a-string-in-python """
-    return control_char_re.sub('', s)
+    #control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
+    return re.sub('[\x00-\x1F\x7F-\x9F]', '', s)
 
 def convert_mirc_entities(line):
     odd = True
@@ -49,9 +48,9 @@ def convert_mirc_entities(line):
 
 
 def parse_paragraph(line, conf):
-    if conf: 
+    if conf:
         line = line.replace('<comchar>', conf.get('comchar'))
-        
+
     if conf.alias != 'GLOBAL':
         line = line.replace('<network>', conf.alias)
     else:
@@ -79,8 +78,13 @@ def examine_function(command, function, conf, regex=False):
             command = conf.get('comchar')+command
             command = command.replace('<<', '<')
             command = command.replace('>>', '>')
+            command = remove_control_chars(command)
+        else:
+            # Ensures the regex comes through literally and spaces don't break lines for style reasons.
+            command = re.findall('(?<=[\'"]).*(?=[\'"])', repr(command))[0]
+            command = command.decode('utf-8').replace(' ', u'\u00A0')
+            command = re.sub('(.)(?=[^\\Z])', u'\\1\u200B', command)
 
-        command = remove_control_chars(command)
 
         docstring = function.__doc__
         doc_lines = docstring.split('\n')
@@ -91,11 +95,11 @@ def examine_function(command, function, conf, regex=False):
 
         docstring = '\n'.join(explanation)
 
-        if regex and len(command) > 40:
-            command = command[:40]+'...'
-        
+        if regex and len(command) > 80:
+            command = command[:80]+'...'
+
         return {
-            'command': command,
+            'command': command.encode('utf-8'),
             'docstring': docstring,
             }
 
@@ -116,7 +120,7 @@ def get_entries(network):
     for plugin_name in conf.get('plugins'):
         __import__('plugins.'+plugin_name)
         plugin = sys.modules['plugins.%s' % plugin_name]
-        
+
         try:
             plugin.defaults
         except AttributeError:
@@ -130,7 +134,7 @@ def get_entries(network):
         plugin_instance = plugin.Plugin(None, conf, prepare=False)
 
         plugin_list.append(plugin_instance)
-    
+
     plugin_dicts = []
 
     for plugin in plugin_list:
@@ -148,7 +152,7 @@ def get_entries(network):
                 if entry:
                     functions.append(entry)
 
-        
+
         plugin_dict = {
             'name': plugin.name,
             'functions': functions,
@@ -165,7 +169,7 @@ def get_entries(network):
             plugin_dict['blacklist'] = False
 
         plugin_dicts.append(plugin_dict)
-        
+
     return (plugin_dicts, conf)
 
 @bottle.route('/')
@@ -226,7 +230,7 @@ def party_index(network):
                 'length': len(party),
                 'url': party_filename[:-4]+'/',
                 }
-        
+
         parties.append(party_dict)
 
     parties.sort(key=lambda p:int(p['date']+p['time']), reverse=True)
@@ -251,7 +255,7 @@ def party(network, filename):
             'date': filename.split('-')[-2],
             'time': filename.split('-')[-1],
             }
-    
+
     return bottle.template('tpl/party', party=party, network=network)
 
 if __name__ == '__main__':
