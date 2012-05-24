@@ -1,5 +1,6 @@
 import sys
-import os
+from os.path import expanduser
+from re import match
 
 class Config(object):
     defaults = {
@@ -12,7 +13,7 @@ class Config(object):
 
             'comchar': '!',
 
-            'content_dir': os.path.expanduser('~/.pyfoot/'),
+            'content_dir': expanduser('~/.pyfoot/'),
 
             'web_url': 'http://woof.bldm.us/',
 
@@ -34,16 +35,25 @@ class Config(object):
             'nick_blacklist': [],
         }
 
-    def __init__(self, network):
+    def __init__(self, network, conffile=None):
         self.conf = self.defaults.copy()
 
-        sys.path.insert(0, self.conf['content_dir'])
-        import config
+        if conffile:
+            try:
+                confpath, confmod = match('(.*/)(.*)', conffile).groups()
+            except AttributeError:
+                confmod = conffile
+            else:
+                sys.path.insert(0, confpath)
+            config = __import__(confmod.split('.')[0])
+        else:
+            sys.path.insert(0, self.conf['content_dir'])
+            import config
 
         self.conf.update(getattr(config, 'GLOBAL'))
         self.conf.update(getattr(config, network))
         self.alias = network
         self.conf['alias'] = network
 
-    def get(self, item):
-        return self.conf[item]
+#    def get(self, item):
+#        return self.conf[item]
