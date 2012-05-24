@@ -3,9 +3,18 @@
 from conf import Config
 from irc import IRC
 from network import Network
-from sys import argv
+from sys import argv, exit
 
-conf = Config(argv[-1])
+def usage():
+    print "main.py network [config]"
+
+if len(argv) == 2:
+    conf = Config(argv[1])
+elif len(argv) == 3:
+    conf = Config(argv[1], argv[2])
+else:
+    usage()
+    exit()
 
 irc = IRC(conf)
 network = Network(conf, irc)
