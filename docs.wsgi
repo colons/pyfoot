@@ -49,14 +49,14 @@ def convert_mirc_entities(line):
 
 def parse_paragraph(line, conf):
     if conf:
-        line = line.replace('<comchar>', conf.get('comchar'))
+        line = line.replace('<comchar>', conf.conf['comchar'])
 
     if conf.alias != 'GLOBAL':
         line = line.replace('<network>', conf.alias)
     else:
         line = line.replace('<network>', 'network')
 
-    line = line.replace('<pyfoot>', conf.get('nick'))
+    line = line.replace('<pyfoot>', conf.conf['nick'])
 
 
     if line.startswith('$'):
@@ -75,7 +75,7 @@ def parse_paragraph(line, conf):
 def examine_function(command, function, conf, regex=False):
     if function.__doc__:
         if not regex:
-            command = conf.get('comchar')+command
+            command = conf.conf['comchar']+command
             command = command.replace('<<', '<')
             command = command.replace('>>', '>')
             command = remove_control_chars(command)
@@ -115,9 +115,9 @@ def get_entries(network):
 
     plugin_list = []
 
-    plugins.__path__.insert(0, '%s/plugins/' % conf.get('content_dir'))
+    plugins.__path__.insert(0, '%s/plugins/' % conf.conf['content_dir'])
 
-    for plugin_name in conf.get('plugins'):
+    for plugin_name in conf.conf['plugins']:
         __import__('plugins.'+plugin_name)
         plugin = sys.modules['plugins.%s' % plugin_name]
 
@@ -164,7 +164,7 @@ def get_entries(network):
             plugin_dict['docstring'] = None
 
         try:
-            plugin_dict['blacklist'] = [c for c in conf.get('plugin_blacklist') if plugin.name in conf.get('plugin_blacklist')[c]]
+            plugin_dict['blacklist'] = [c for c in conf.conf['plugin_blacklist'] if plugin.name in conf.conf['plugin_blacklist'][c]]
         except KeyError:
             plugin_dict['blacklist'] = False
 
@@ -184,7 +184,7 @@ def css(network):
     except AttributeError:
         raise bottle.HTTPError(code=404)
 
-    pigment = '#%s' % pigments[int(str(conf.get('pigment')).split(',')[0])]
+    pigment = '#%s' % pigments[int(str(conf.conf['pigment']).split(',')[0])]
 
     return bottle.template('tpl/css', pigment=pigment)
 
@@ -210,7 +210,7 @@ def party_index(network):
         raise bottle.HTTPError(code=404)
 
     parties = []
-    party_path = os.path.expanduser(conf.get('party_dir'))+network
+    party_path = os.path.expanduser(conf.conf['party_dir'])+network
 
     try:
         party_files = os.listdir(party_path)
@@ -246,7 +246,7 @@ def party_index(network):
 def party(network, filename):
     conf = config_plugin.Config(network)
     try:
-        party_file = open(os.path.expanduser(conf.get('party_dir'))+network+'/'+filename+'.txt')
+        party_file = open(os.path.expanduser(conf.conf['party_dir'])+network+'/'+filename+'.txt')
     except IOError:
         raise bottle.HTTPError(code=404)
     else:
