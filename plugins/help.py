@@ -52,7 +52,7 @@ class Plugin(Plugin):
             self.irc.privmsg(message.source, out)
 
         if len(outlist) == 0:
-            self.irc.privmsg(message.source, '\x02%s\x02\x03# |\x03 no such command\x03# |\x03 see http://woof.bldm.us/help/%s/' % (args['subject'], self.conf.alias))
+            self.irc.privmsg(message.source, '\x02%s\x02\x03# |\x03 no such command\x03# |\x03 see %shelp/%s/' % (args['subject'], self.conf.conf['web_url'], self.conf.alias))
 
 
     def all_help(self, message, args):
