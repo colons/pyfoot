@@ -2,7 +2,7 @@ import message
 
 import sys
 import os
-import thread
+import _thread
 import re
 import plugins
 
@@ -189,7 +189,6 @@ class Network(object):
             if ambiguity == 1:
                 command_dict = commands[0]
                 command_dict['args']['_command'] = command_dict['command']
-                the_message.content = the_message.content if command_dict['plugin'].use_unicode else the_message.content.encode('utf-8')
                 command_dict['plugin'].queue.put((command_dict['function'], the_message, command_dict['args']))
 
             elif ambiguity > 1:
@@ -202,26 +201,25 @@ class Network(object):
 
             if match:
                 if plugin.name.lower() not in plugin_blacklist and the_message.nick.lower() not in self.conf.conf['nick_blacklist']:
-                    the_message.content = the_message.content if plugin.use_unicode else the_message.content.encode('utf-8')
                     plugin.queue.put((function, the_message, match))
 
 
     def dispatch(self, data):
         """ Deals with messages and sends plugins the information they need. """
         if data == None:
-            print ' :: no data'
+            print(' :: no data')
             return None
 
         if data == '':
-            print ' :: empty response, assuming disconnection\a' # alert
+            print(' :: empty response, assuming disconnection\a') # alert
             sys.exit()
 
         for line in [line for line in data.split('\r\n') if len(line) > 0]:
-            print '    %s' % line
+            print(('    %s' % line))
 
             if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
                 self.irc.own_hostname = line.split(' ')[0][1:]
-                print ' -- we are %s' % self.irc.own_hostname
+                print((' -- we are %s' % self.irc.own_hostname))
 
             if line.startswith('PING :'):
                 self.irc.pong(line)

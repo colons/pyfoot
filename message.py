@@ -6,9 +6,9 @@ def content(data, charset='ascii'):
     try:
         content = data.decode(charset)
     except UnicodeDecodeError:
-            print '\n !! Some characters could not be reproduced in the above input using \'charset\': \'%s\'' % charset
+            print('\n !! Some characters could not be reproduced in the above input using \'charset\': \'%s\'' % charset)
             if len(data) == 510:
-                print ' !! The input length was at maximum; the message may have been truncated.'
+                print(' !! The input length was at maximum; the message may have been truncated.')
             content = data.decode(charset, 'ignore')
 
     content = decruft(content)
