@@ -12,6 +12,7 @@ class IRC(object):
         self.own_hostname = False
 
         self.conf = conf
+        self.charset = conf.conf['charset']
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(
@@ -21,50 +22,50 @@ class IRC(object):
         if ssl:
             self.socket = ssl.wrap_socket(self.socket)
 
-        self.socket.send('NICK %s\r\n' % conf.conf['nick'])
-        self.socket.send('USER %s %s %s %s\r\n' % (
-                conf.conf['username'],
-                conf.conf['hostname'],
-                conf.conf['servername'],
-                conf.conf['realname']
-                )
+        self.socket.send('NICK {0}\r\n'.format(conf.conf['nick']).encode(self.charset))
+        self.socket.send('USER {user} {host} {server} {real}\r\n'.format(
+                nick=conf.conf['username'],
+                host=conf.conf['hostname'],
+                server=conf.conf['servername'],
+                real=conf.conf['realname']
+                ).encode(self.charset)
             )
 
-        self.charset = conf.conf['charset']
         if conf.conf['network_nickserv_pass']:
-            self.privmsg('NickServ', 'identify %s' % conf.conf['network_nickserv_pass'])
+            self.socket.send('NICKSERV identify {0}'.format(conf.conf['network_nickserv_pass']).encode(self.charset))
+            #self.privmsg('NickServ', 'identify %s' % conf.conf['network_nickserv_pass'])
 
         self.quit_message = conf.conf['quit_message']
 
 
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
-        self.socket.send('PONG %s\r\n' % data.split()[1])
+        self.socket.send('PONG {0}\r\n'.format(data.split()[1]).encode(self.charset))
 
 
     def who(self, user):
-        self.socket.send('WHO %s' % user)
+        self.socket.send('WHO {0}'.format(user).encode(self.charset))
 
 
     def join(self, channel):
         """ Joins a channel. """
-        self.socket.send('JOIN %s\r\n' % channel)
+        self.socket.send('JOIN {0}\r\n'.format(channel).encode(self.charset))
         self.getmode(channel)
 
 
     def part(self, channel, reason=''):
-        self.send('PART %s %s\r\n' % (channel, reason))
+        self.send('PART {0} {1}\r\n'.format(channel, reason).encode(self.charset))
 
         if channel in self.channels:
             del self.channels[channel]
 
 
     def getmode(self, name):
-        self.socket.send('MODE %s\r\n' % name)
+        self.socket.send('MODE {0}\r\n'.format(name).encode(self.charset))
 
 
     def who(self, host):
-        self.socket.send('WHO %s\r\n' % host)
+        self.socket.send('WHO {0}\r\n' % host)
 
 
     def act(self, target, message, pretty=False, crop=True):
@@ -72,16 +73,16 @@ class IRC(object):
 
     def send(self, message):
         if self.charset == 'utf-8':
-            print ' >> %s' % message,
-            message = message if not isinstance(message, unicode) else message.encode('utf-8')
+            print(' >> %s' % message, end=' ')
+            message = message if not isinstance(message, str) else message.encode('utf-8')
             self.socket.send(message)
         else:
-            message = message.decode('utf-8') if not isinstance(message, unicode) else message
-            print ' >> %s' % message,  # Printing a Unicode string lets Python decide the stdout charset
+            message = message.decode('utf-8') if not isinstance(message, str) else message
+            print(' >> %s' % message, end=' ')  # Printing a Unicode string lets Python decide the stdout charset
             try:
                 self.socket.send(message.encode(self.charset))
             except UnicodeEncodeError:
-                print '\n !! Some characters could not be reproduced in the following output using \'charset\': \'%s\'' % self.charset
+                print('\n !! Some characters could not be reproduced in the following output using \'charset\': \'%s\'' % self.charset)
                 self.socket.send(message.encode(self.charset, 'ignore'))
 
 
@@ -174,6 +175,6 @@ class IRC(object):
     def quit(self, reason=None):
         reason = reason or self.quit_message
         out = 'QUIT :%s\r\n' % reason
-        print
+        print()
         self.send(out)
         sys.exit()

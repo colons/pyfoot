@@ -1,5 +1,5 @@
 import plugin
-import sha
+from hashlib import sha1
 
 defaults = {
         'admin_salt': 'changeme',
@@ -10,7 +10,8 @@ defaults = {
 class Plugin(plugin.Plugin):
     def prepare(self):
         self.authenticated_hosts = {}
-        self.sha = sha.new(self.conf.conf['admin_salt'])
+        self.sha = sha1()
+        self.sha.update(self.conf.conf['admin_salt'])
 
     def register_commands(self):
         self.commands = [
@@ -27,9 +28,10 @@ class Plugin(plugin.Plugin):
 
     def authenticate(self, message, args):
         """ Authenticate with <pyfoot>. """
+        print repr(self.sha)
         sha = self.sha.copy()
         sha.update(args['pass'])
-        
+
         print '\a !! auth attempt: %s' % sha.hexdigest()
         if sha.hexdigest() == self.conf.conf['admin_admins'][message.nick]:
             self.authenticated_hosts[message.host] = message.nick
@@ -67,7 +69,7 @@ class Plugin(plugin.Plugin):
         """ Make <pyfoot> join a channel. """
         if self.can_trust(message):
             self.irc.join(args['channel'])
-    
+
     def part_with_reason(self, message, args):
         """ Make <pyfoot> leave a channel. Reason optional. """
         if self.can_trust(message):
