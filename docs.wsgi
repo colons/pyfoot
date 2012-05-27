@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3.2
 
 import os, sys
 
@@ -49,7 +49,7 @@ def convert_mirc_entities(line):
 
 def parse_paragraph(line, conf):
     if conf:
-        line = line.replace('<comchar>', conf.conf['comchar'].encode('utf-8'))
+        line = line.replace('<comchar>', conf.conf['comchar'])
 
     if conf.alias != 'GLOBAL':
         line = line.replace('<network>', conf.alias)
@@ -82,8 +82,8 @@ def examine_function(command, function, conf, regex=False):
         else:
             # Ensures the regex comes through literally and spaces don't break lines for style reasons.
             command = re.findall('(?<=[\'"]).*(?=[\'"])', repr(command))[0]
-            command = command.decode('utf-8').replace(' ', u'\u00A0')
-            command = re.sub('(.)(?=[^\\Z])', u'\\1\u200B', command)
+            command = command.replace(' ', '\u00A0')
+            command = re.sub('(.)(?=[^\\Z])', '\\1\u200B', command)
 
 
         docstring = function.__doc__
@@ -99,7 +99,7 @@ def examine_function(command, function, conf, regex=False):
             command = command[:80]+'...'
 
         return {
-            'command': command.encode('utf-8'),
+            'command': command,
             'docstring': docstring,
             }
 
