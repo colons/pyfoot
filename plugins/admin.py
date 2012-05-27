@@ -28,11 +28,11 @@ class Plugin(plugin.Plugin):
 
     def authenticate(self, message, args):
         """ Authenticate with <pyfoot>. """
-        print repr(self.sha)
+        print(repr(self.sha))
         sha = self.sha.copy()
         sha.update(args['pass'])
 
-        print '\a !! auth attempt: %s' % sha.hexdigest()
+        print('\a !! auth attempt: %s' % sha.hexdigest())
         if sha.hexdigest() == self.conf.conf['admin_admins'][message.nick]:
             self.authenticated_hosts[message.host] = message.nick
             self.irc.privmsg(message.source, 'woof')
