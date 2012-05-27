@@ -12,9 +12,9 @@ def get_possible_commands(content, commands, plugin_blacklist=[]):
 
     for command_dict in [c for c in commands if c['plugin'].name not in plugin_blacklist]:
         args = {}
-        
+
         exact_match = command_dict['exact_regex'].match(content)
-        
+
         if exact_match:
             match = exact_match
         else:
@@ -26,7 +26,7 @@ def get_possible_commands(content, commands, plugin_blacklist=[]):
                 for arg in command_dict['arglist']:
                     args[arg] = match.group(i)
                     i += 1
-            
+
             command_dict['args'] = args
 
             if exact_match:
@@ -45,7 +45,7 @@ def command_to_regex_and_arglist(command, loose=False):
         exact_regex = ''
 
     arglist = []
-    
+
     if loose:
         first_word = True
 
@@ -83,13 +83,13 @@ def command_to_regex_and_arglist(command, loose=False):
                 fuzzy_regex += '(?:\\b|[%s]' % letter
             for letter in word[1:]:
                 fuzzy_regex += ')'
-            
+
             if loose:
                 fuzzy_regex += '\s*'
             else:
                 fuzzy_regex += '\s+'
                 exact_regex += '\s+'
-    
+
     # strip final whitespace requirements; they're only necessary between words
     fuzzy_regex = fuzzy_regex[:-3]
 
@@ -129,7 +129,7 @@ class Network(object):
         for plugin_name in conf.conf['plugins']:
             __import__('plugins.'+plugin_name)
             plugin = sys.modules['plugins.%s' % plugin_name]
-            
+
             try:
                 plugin.defaults
             except AttributeError:
@@ -147,7 +147,7 @@ class Network(object):
             for command, function in self.plugins[-1].commands:
                 exact_regex, fuzzy_regex, arglist = command_to_regex_and_arglist(command)
                 self.all_commands.append({
-                    'command': command, 
+                    'command': command,
                     'exact_regex': exact_regex,
                     'fuzzy_regex': fuzzy_regex,
                     'arglist': arglist,
@@ -189,6 +189,7 @@ class Network(object):
             if ambiguity == 1:
                 command_dict = commands[0]
                 command_dict['args']['_command'] = command_dict['command']
+                the_message.content = the_message.content if command_dict['plugin'].use_unicode else the_message.content.encode('utf-8')
                 command_dict['plugin'].queue.put((command_dict['function'], the_message, command_dict['args']))
 
             elif ambiguity > 1:
@@ -201,6 +202,7 @@ class Network(object):
 
             if match:
                 if plugin.name.lower() not in plugin_blacklist and the_message.nick.lower() not in self.conf.conf['nick_blacklist']:
+                    the_message.content = the_message.content if plugin.use_unicode else the_message.content.encode('utf-8')
                     plugin.queue.put((function, the_message, match))
 
 

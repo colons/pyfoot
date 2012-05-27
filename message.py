@@ -1,5 +1,5 @@
 def content(data, charset='ascii'):
-    """ Return message content in both UTF-8-encoded and raw forms """
+    """ Return message content in both Unicode and raw forms """
     decruft = lambda line: ':'.join(line.split(':')[2:])
     raw = decruft(data)
 
@@ -11,7 +11,7 @@ def content(data, charset='ascii'):
                 print ' !! The input length was at maximum; the message may have been truncated.'
             content = data.decode(charset, 'ignore')
 
-    content = decruft(content).encode('utf-8')
+    content = decruft(content)
     return (content, raw)
 
 def nick(data):
