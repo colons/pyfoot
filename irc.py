@@ -24,7 +24,7 @@ class IRC(object):
 
         self.socket.send('NICK {0}\r\n'.format(conf.conf['nick']).encode(self.charset))
         self.socket.send('USER {user} {host} {server} {real}\r\n'.format(
-                nick=conf.conf['username'],
+                user=conf.conf['username'],
                 host=conf.conf['hostname'],
                 server=conf.conf['servername'],
                 real=conf.conf['realname']
@@ -72,17 +72,11 @@ class IRC(object):
         self.ctcp(target, 'ACTION', message, notice=False, crop=crop)
 
     def send(self, message):
-        if self.charset == 'utf-8':
-            print(' >> %s' % message, end=' ')
-            message = message if not isinstance(message, str) else message.encode('utf-8')
-            self.socket.send(message)
-        else:
-            message = message.decode('utf-8') if not isinstance(message, str) else message
-            print(' >> %s' % message, end=' ')  # Printing a Unicode string lets Python decide the stdout charset
+            print(' >> {0}'.format(message))
             try:
                 self.socket.send(message.encode(self.charset))
             except UnicodeEncodeError:
-                print('\n !! Some characters could not be reproduced in the following output using \'charset\': \'%s\'' % self.charset)
+                print("\n !! Some characters could not be reproduced in the proceding output using 'charset': " + self.charset)
                 self.socket.send(message.encode(self.charset, 'ignore'))
 
 
@@ -99,7 +93,7 @@ class IRC(object):
         else:
             s = ctcp
 
-        out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
+        out = '{0} {1} :\x01{2}\x01\r\n'.format(message_type, target, s)
         self.send(out)
 
 
@@ -118,14 +112,14 @@ class IRC(object):
 
         message = self.crop(message, 'PRIVMSG', target)
 
-        out = 'PRIVMSG %s :%s\r\n' % (target, message)
+        out = 'PRIVMSG {0} :{1}\r\n'.format(target, message)
         self.send(out)
 
 
     def crop(self, message, command, target):
         """ Crops a message based on how long the command will be on the client side --- IRC can not exceed 512 characters, we must account for this.
         message is the type of message you're sending. It's only used for length, so feel free to include \\x01\\x01 in CTCP messages, etc. """
-        cruft = len(':%s %s %s :' % (self.own_hostname, command, target))
+        cruft = len(':{0} {1} {2} :' % (self.own_hostname, command, target))
         excess = (len(message) - (512 - cruft))
 
         if excess > 0:
@@ -134,8 +128,8 @@ class IRC(object):
         return message
 
     def beautify(self, message):
-        message = message.replace(' : ', '\x03# :\x03 ')
-        message = message.replace(' | ', '\x03# |\x03 ')
+        message = message.replace(' : ', ' \x03#:\x03 ')
+        message = message.replace(' | ', ' \x03#|\x03 ')
         return message
     
     def add_missing_colours(self, message):
@@ -156,10 +150,11 @@ class IRC(object):
 
     def strip_formatting(self, part):
         part = re.sub('\x03\d?\d?((?=[^,])|,\d?\d?)', '', part)
-        part = re.sub('\x01', '', part)
-        part = re.sub('\x02', '', part)
-        part = re.sub('\x0F', '', part)
-        part = re.sub('\x16', '', part)
+        part = re.sub('[\x01\x02\x0F\x16]', '', part)
+        #part = re.sub('\x01', '', part)
+        #part = re.sub('\x02', '', part)
+        #part = re.sub('\x0F', '', part)
+        #part = re.sub('\x16', '', part)
 
         return part
 
@@ -174,7 +169,7 @@ class IRC(object):
 
     def quit(self, reason=None):
         reason = reason or self.quit_message
-        out = 'QUIT :%s\r\n' % reason
+        out = 'QUIT :{0}\r\n'.format(reason)
         print()
         self.send(out)
         sys.exit()
