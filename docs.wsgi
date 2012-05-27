@@ -49,7 +49,7 @@ def convert_mirc_entities(line):
 
 def parse_paragraph(line, conf):
     if conf:
-        line = line.replace('<comchar>', conf.conf['comchar'])
+        line = line.replace('<comchar>', conf.conf['comchar'].encode('utf-8'))
 
     if conf.alias != 'GLOBAL':
         line = line.replace('<network>', conf.alias)

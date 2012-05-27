@@ -32,9 +32,11 @@ GLOBAL = {
         # listed at http://docs.python.org/library/codecs.html#standard-encodings
         'charset': 'utf-8',
 
-        # The character used to invoke commands. Only has effect on plugins that
-        # register commands and only if it's the very first character in the message.
-        'comchar': '!',
+        # The character(s) used to invoke commands. Only has effect on plugins that
+        # register commands and only if the very first character(s) in the message.
+        # This can be specified using Unicode escapes e.g. u'\u300c\u300d' to use
+        # U+300C "LEFT CORNER BRACKET" and U+300D "RIGHT CORNER BRACKET" together as a 'comchar'.
+        'comchar': u'!',
 
         # The colour used for prettifying your pyfoot's output. The stock plugins only use
         # this for certain separating characters, although any plugin can use it anywhere.

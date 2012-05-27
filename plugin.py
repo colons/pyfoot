@@ -13,13 +13,14 @@ class Plugin(threading.Thread):
         self.regexes = []
 
         self.error_message = conf.conf['error_message']
-        
+
+        self.use_unicode = False
         if prepare:
             try:
                 self.prepare()
             except AttributeError:
                 pass
-    
+
         try:
             self.register_commands()
         except AttributeError:
