@@ -254,12 +254,12 @@ class Network(object):
 
             elif the_message.type == 'INVITE':
                 channel = the_message.content
-                print(' !! we were invited to %s by %s' % (channel, the_message.nick))
+                print(' -- we were invited to %s by %s' % (channel, the_message.nick))
                 self.irc.join(channel)
 
             elif the_message.type == 'KICK':
                 channel = the_message.source
-                print(' !! we were kicked from %s by %s' % (channel, the_message.nick))
+                print(' -- we were kicked from %s by %s' % (channel, the_message.nick))
                 self.irc.part(channel, kick=True)
 
             elif the_message.type == 'NOTICE':
