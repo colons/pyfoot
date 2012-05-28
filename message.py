@@ -1,18 +1,6 @@
-def content(data, charset='ascii'):
+def content(data, raw):
     """ Return message content in both Unicode and raw forms """
-    decruft = lambda line: ':'.join(line.split(':')[2:])
-    raw = decruft(data)
-
-    try:
-        content = data.decode(charset)
-    except UnicodeDecodeError:
-            print('\n !! Some characters could not be reproduced in the above input using \'charset\': \'%s\'' % charset)
-            if len(data) == 510:
-                print(' !! The input length was at maximum; the message may have been truncated.')
-            content = data.decode(charset, 'ignore')
-
-    content = decruft(content)
-    return (content, raw)
+    return (decruft(data), decruft(raw))
 
 def nick(data):
     """ Return message nick """
@@ -24,11 +12,17 @@ def host(data):
 
 def destination(data):
     """ Determines where to send whatever the parser develops """
-    destination = ''.join(data.split(':')[:2]).split(' ')[-2]
+    destination = ''.join(data.split(':')[:2]).split(' ')[2]
     if destination.startswith('#'):
         return destination
     else:
         return nick(data)
+
+def decruft(line):
+    if isinstance(line, bytes):
+        return b':'.join(line.split(b':')[2:])
+    else:
+        return ':'.join(line.split(':')[2:])
 
 def args(content, args, conf):
     """ Determines what arguments a message contains """
@@ -48,7 +42,7 @@ def args(content, args, conf):
 
 
 class Message(object):
-    def __init__(self, data, charset):
+    def __init__(self, data, data_raw):
         try:
             self.type = ''.join(data.split(':')[:2]).split(' ')[1]
         except IndexError:
@@ -56,7 +50,7 @@ class Message(object):
 
         try:
             self.nick = nick(data)
-            self.content, self.content_raw = content(data, charset)
+            self.content, self.content_raw = content(data, data_raw)
             self.source = destination(data)
             self.host = host(data)
         except IndexError:

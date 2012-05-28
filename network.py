@@ -210,21 +210,32 @@ class Network(object):
             print(' :: no data')
             return None
 
-        if data == '':
+        if data == b'':
             print(' :: empty response, assuming disconnection\a') # alert
             sys.exit()
 
+        data_raw = data
+        try:
+            data = data.decode(self.irc.charset)
+        except UnicodeDecodeError:
+            print("\n !! Some characters could not be reproduced in the below input using 'charset': '%s'" % charset)
+            if len(data) == 512:
+                print(' !! The input length was at maximum; the message may have been truncated.')
+            data = data.decode(self.irc.charset, 'ignore')
+
         for line in [line for line in data.split('\r\n') if len(line) > 0]:
-            print(('    %s' % line))
+            print('    %s' % line)
 
             if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
                 self.irc.own_hostname = line.split(' ')[0][1:]
-                print((' -- we are %s' % self.irc.own_hostname))
+                if self.initial:
+                    print(' -- we are %s' % self.irc.own_hostname)
+                    self.initial = False
 
             if line.startswith('PING :'):
                 self.irc.pong(line)
 
-            the_message = message.Message(line, self.irc.charset)
+            the_message = message.Message(line, data_raw)
 
             if the_message.type == '353':
                 # this is a channel names list
@@ -243,11 +254,13 @@ class Network(object):
 
             elif the_message.type == 'INVITE':
                 channel = the_message.content
+                print(' !! we were invited to %s by %s' % (channel, the_message.nick))
                 self.irc.join(channel)
 
             elif the_message.type == 'KICK':
-                channel = the_message.content
-                self.irc.part(channel)
+                channel = the_message.source
+                print(' !! we were kicked from %s by %s' % (channel, the_message.nick))
+                self.irc.part(channel, kick=True)
 
             elif the_message.type == 'NOTICE':
                 pass
@@ -259,7 +272,6 @@ class Network(object):
                 for channel in self.conf.conf['network_channels']:
                     self.irc.join(channel)
 
-                self.initial = False
 
             elif the_message.type == 'MODE':
                 self.irc.getmode(line.split(' ')[2])

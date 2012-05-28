@@ -69,10 +69,10 @@ GLOBAL = {
         # !troll tells [rantext] to return a line from 'content-dir'troll.txt
         'rantext_sources': ['troll'],
 
-        # A random string of bytes used for salting the admin password hashes.
+        # A random stream of bytes used for salting the admin password hashes.
         # A program for generating a suitable string is available at
-        # https://raw.github.com/ensigntropic/testing/master/salt_generator.py
-        'admin_salt': '',
+        # https://raw.github.com/ensigntropic/testing/master/salt_generator3.py
+        'admin_salt': b'',
         # The nicks and password hashes of your admins. The [admin] plugin will print to
         # the console (not the server) the salted hash of the password used in a failed login.
         'admin_admins': {
