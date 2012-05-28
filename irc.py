@@ -1,6 +1,6 @@
 import socket
 import ssl
-import sys
+from sys import exit
 import re
 
 
@@ -22,17 +22,23 @@ class IRC(object):
         if ssl:
             self.socket = ssl.wrap_socket(self.socket)
 
-        self.socket.send('NICK {0}\r\n'.format(conf.conf['nick']).encode(self.charset))
-        self.socket.send('USER {user} {host} {server} {real}\r\n'.format(
-                user=conf.conf['username'],
-                host=conf.conf['hostname'],
-                server=conf.conf['servername'],
-                real=conf.conf['realname']
-                ).encode(self.charset)
+        # The socket object is basically a wrapper for the OS's socket implementation.
+        # As such, it has no knowledge of character sets, thus every call to socket.send()
+        # must send a bytes object rather than a string, hence the encode() calls.
+
+        self.socket.send(('NICK %s\r\n' % conf.conf['nick']).encode(self.charset))
+        self.socket.send(('USER %s %s %s %s\r\n' % (
+                conf.conf['username'],
+                conf.conf['hostname'],
+                conf.conf['servername'],
+                conf.conf['realname']
+                )).encode(self.charset)
             )
 
         if conf.conf['network_nickserv_pass']:
-            self.socket.send('NICKSERV identify {0}'.format(conf.conf['network_nickserv_pass']).encode(self.charset))
+            # The more secure and direct way to identify. Not sure how to handle it if the server
+            # doesn't recognise the NICKSERV command, but that's what the issue tracker is for.
+            self.socket.send(('NICKSERV identify %s\r\n' % conf.conf['network_nickserv_pass']).encode(self.charset))
             #self.privmsg('NickServ', 'identify %s' % conf.conf['network_nickserv_pass'])
 
         self.quit_message = conf.conf['quit_message']
@@ -40,39 +46,40 @@ class IRC(object):
 
     def pong(self, data):
         """ Maybe falling into parser ground a little, we develop and send a ping response """
-        self.socket.send('PONG {0}\r\n'.format(data.split()[1]).encode(self.charset))
+        self.socket.send(('PONG %s\r\n' % data.split()[1]).encode(self.charset))
 
 
     def who(self, user):
-        self.socket.send('WHO {0}'.format(user).encode(self.charset))
+        self.socket.send(('WHO %s' % user).encode(self.charset))
 
 
     def join(self, channel):
         """ Joins a channel. """
-        self.socket.send('JOIN {0}\r\n'.format(channel).encode(self.charset))
+        self.socket.send(('JOIN %s\r\n' % channel).encode(self.charset))
         self.getmode(channel)
 
 
-    def part(self, channel, reason=''):
-        self.send('PART {0} {1}\r\n'.format(channel, reason).encode(self.charset))
+    def part(self, channel, reason='', kick=False):
+        if not kick:
+            self.send(('PART %s %s\r\n' % (channel, reason)).encode(self.charset))
 
         if channel in self.channels:
             del self.channels[channel]
 
 
     def getmode(self, name):
-        self.socket.send('MODE {0}\r\n'.format(name).encode(self.charset))
+        self.socket.send(('MODE %s\r\n' % name).encode(self.charset))
 
 
     def who(self, host):
-        self.socket.send('WHO {0}\r\n' % host)
+        self.socket.send('WHO %s\r\n' % host)
 
 
     def act(self, target, message, pretty=False, crop=True):
         self.ctcp(target, 'ACTION', message, notice=False, crop=crop)
 
     def send(self, message):
-            print(' >> {0}'.format(message))
+            print(' >> %s' % message)
             try:
                 self.socket.send(message.encode(self.charset))
             except UnicodeEncodeError:
@@ -93,7 +100,7 @@ class IRC(object):
         else:
             s = ctcp
 
-        out = '{0} {1} :\x01{2}\x01\r\n'.format(message_type, target, s)
+        out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
         self.send(out)
 
 
@@ -112,14 +119,14 @@ class IRC(object):
 
         message = self.crop(message, 'PRIVMSG', target)
 
-        out = 'PRIVMSG {0} :{1}\r\n'.format(target, message)
+        out = 'PRIVMSG %s :%s\r\n' % (target, message)
         self.send(out)
 
 
     def crop(self, message, command, target):
         """ Crops a message based on how long the command will be on the client side --- IRC can not exceed 512 characters, we must account for this.
         message is the type of message you're sending. It's only used for length, so feel free to include \\x01\\x01 in CTCP messages, etc. """
-        cruft = len(':{0} {1} {2} :' % (self.own_hostname, command, target))
+        cruft = len(':%s %s %s :' % (self.own_hostname, command, target))
         excess = (len(message) - (512 - cruft))
 
         if excess > 0:
@@ -131,7 +138,7 @@ class IRC(object):
         message = message.replace(' : ', ' \x03#:\x03 ')
         message = message.replace(' | ', ' \x03#|\x03 ')
         return message
-    
+
     def add_missing_colours(self, message):
         assem = ''
         split = message.split('\x03')
@@ -163,13 +170,13 @@ class IRC(object):
         """ Listens for incoming stuffs and returns them """
         self.data = self.socket.recv(4096)
 
-        if self.data.find(' '):
+        if self.data.find(b' '):
             return self.data
 
 
     def quit(self, reason=None):
         reason = reason or self.quit_message
-        out = 'QUIT :{0}\r\n'.format(reason)
+        out = 'QUIT :%s\r\n' % reason
         print()
         self.send(out)
-        sys.exit()
+        exit()

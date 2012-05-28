@@ -2,7 +2,7 @@ import plugin
 from hashlib import sha1
 
 defaults = {
-        'admin_salt': 'changeme',
+        'admin_salt': b'changeme',
         'admin_admins': {
             },
         }
@@ -28,7 +28,6 @@ class Plugin(plugin.Plugin):
 
     def authenticate(self, message, args):
         """ Authenticate with <pyfoot>. """
-        print(repr(self.sha))
         sha = self.sha.copy()
         sha.update(args['pass'])
 
