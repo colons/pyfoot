@@ -14,7 +14,6 @@ class Plugin(threading.Thread):
 
         self.error_message = conf.conf['error_message']
 
-        self.use_unicode = False
         if prepare:
             try:
                 self.prepare()
