@@ -24,7 +24,11 @@ class Plugin(plugin.Plugin):
                 ('join <channel>', self.join),
                 ('part <channel> <<reason>>', self.part_with_reason),
                 ('part <channel>', self.part),
+                ('quote <command>', self.quote),
                 ]
+
+    def quote(self, message, args):
+        self.irc.send(args['command'])
 
     def authenticate(self, message, args):
         """ Authenticate with <pyfoot>. """

@@ -35,11 +35,13 @@ class IRC(object):
                 )).encode(self.charset)
             )
 
-        if conf.conf['network_nickserv_pass']:
+        try:
             # The more secure and direct way to identify. Not sure how to handle it if the server
             # doesn't recognise the NICKSERV command, but that's what the issue tracker is for.
-            self.socket.send(('NICKSERV identify %s\r\n' % conf.conf['network_nickserv_pass']).encode(self.charset))
+            self.send(('NICKSERV identify %s' % conf.conf['network_nickserv_pass']))
             #self.privmsg('NickServ', 'identify %s' % conf.conf['network_nickserv_pass'])
+        except KeyError:
+            pass
 
         self.quit_message = conf.conf['quit_message']
 
@@ -55,13 +57,14 @@ class IRC(object):
 
     def join(self, channel):
         """ Joins a channel. """
-        self.socket.send(('JOIN %s\r\n' % channel).encode(self.charset))
+        out = 'JOIN %s' % channel
+        self.send(out)
         self.getmode(channel)
 
 
     def part(self, channel, reason='', kick=False):
         if not kick:
-            self.send(('PART %s %s\r\n' % (channel, reason)).encode(self.charset))
+            self.send(('PART %s %s' % (channel, reason)).encode(self.charset))
 
         if channel in self.channels:
             del self.channels[channel]
@@ -80,6 +83,7 @@ class IRC(object):
 
     def send(self, message):
             print(' >> %s' % message)
+            message += '\r\n'
             try:
                 self.socket.send(message.encode(self.charset))
             except UnicodeEncodeError:
@@ -100,7 +104,7 @@ class IRC(object):
         else:
             s = ctcp
 
-        out = '%s %s :\x01%s\x01\r\n' % (message_type, target, s)
+        out = '%s %s :\x01%s\x01' % (message_type, target, s)
         self.send(out)
 
 
@@ -119,7 +123,7 @@ class IRC(object):
 
         message = self.crop(message, 'PRIVMSG', target)
 
-        out = 'PRIVMSG %s :%s\r\n' % (target, message)
+        out = 'PRIVMSG %s :%s' % (target, message)
         self.send(out)
 
 
@@ -176,7 +180,8 @@ class IRC(object):
 
     def quit(self, reason=None):
         reason = reason or self.quit_message
-        out = 'QUIT :%s\r\n' % reason
+        out = 'QUIT :%s' % reason
         print()
         self.send(out)
+        print()
         exit()

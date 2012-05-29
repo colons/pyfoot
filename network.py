@@ -214,28 +214,25 @@ class Network(object):
             print(' :: empty response, assuming disconnection\a') # alert
             sys.exit()
 
-        data_raw = data
-        try:
-            data = data.decode(self.irc.charset)
-        except UnicodeDecodeError:
-            print("\n !! Some characters could not be reproduced in the below input using 'charset': '%s'" % charset)
-            if len(data) == 512:
-                print(' !! The input length was at maximum; the message may have been truncated.')
-            data = data.decode(self.irc.charset, 'ignore')
 
-        for line in [line for line in data.split('\r\n') if len(line) > 0]:
+        for line in [line for line in data.split(b'\r\n') if len(line) > 0]:
+            line_raw = line
+            try:
+                line = line.decode(self.irc.charset)
+            except UnicodeDecodeError:
+                print("\n !! Some characters could not be reproduced in the below input using 'charset': '%s'" % charset)
+                if len(line) == 512:
+                    print(' !! The input length was at maximum; the message may have been truncated.')
+                line = line.decode(self.irc.charset, 'ignore')
+
+            #print('    %s' % repr(line_raw))
             print('    %s' % line)
-
-            if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
-                self.irc.own_hostname = line.split(' ')[0][1:]
-                if self.initial:
-                    print(' -- we are %s' % self.irc.own_hostname)
-                    self.initial = False
 
             if line.startswith('PING :'):
                 self.irc.pong(line)
+                continue
 
-            the_message = message.Message(line, data_raw)
+            the_message = message.Message(line, line_raw)
 
             if the_message.type == '353':
                 # this is a channel names list
@@ -251,6 +248,14 @@ class Network(object):
                 except KeyError:
                     self.irc.channels[name] = {}
                     self.irc.channels[name]['modes'] = modelist
+
+            elif the_message.type == 'JOIN':
+                if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
+                    self.irc.own_hostname = line.split(' ')[0][1:]
+                if self.initial:
+                    print(' -- we are %s' % self.irc.own_hostname)
+                    self.initial = False
+
 
             elif the_message.type == 'INVITE':
                 channel = the_message.content
