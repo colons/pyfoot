@@ -69,8 +69,6 @@ GLOBAL = {
         # !troll tells [rantext] to return a line from 'content-dir'troll.txt
         'rantext_sources': ['troll'],
 
-        # A random stream of bytes used for salting the admin password hashes.
-        'admin_salt': b'',
         # The nicks and password hashes of your admins. The [admin] plugin will print to
         # the console (not the server) the salted hash of the password used in a failed login.
         'admin_admins': {

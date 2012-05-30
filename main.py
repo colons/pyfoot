@@ -40,14 +40,19 @@ def kill_handler(signum, frame):
     elif signum == signal.SIGTERM:
         sig = 'SIGTERM'
     print('\n !! ' + sig + ' caught : shutting down')
-    # Delete the pid file on a clean exit
+
+    # Disconnect from the IRC server
+    irc.quit()
+    # Delete the pid file and close the log file for a clean exit
     if args.pidfile:
         os.remove(args.pidfile)
-    irc.quit()
+    if args.logfile:
+        print(' @@ end of log')
+    sys.exit()
 
 def start_normal():
     """ Start pyfoot normally. """
-    sys.stderr.write(' @@ my process id is ' + str(os.getpid()) + '\n')
+    sys.stderr.write(' -- my process id is ' + str(os.getpid()) + '\n')
 
 # Derived from http://code.activestate.com/recipes/278731-creating-a-daemon-the-python-way/
 def start_daemon():
@@ -86,6 +91,8 @@ if __name__ == '__main__':
 
     # Override sys.stdout with the custom Printer class
     sys.stdout = Printer(args.logfile, args.logappend, args.daemonise)
+    if args.logfile:
+        print(' @@ start of log')
 
     # Create pyfoot's custom objects
     conf = Config(args.network, args.config)
