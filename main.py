@@ -47,7 +47,7 @@ def kill_handler(signum, frame):
     if args.pidfile:
         os.remove(args.pidfile)
     if args.logfile:
-        print(' @@ end of log')
+        print(' @@ end of log\n')
     sys.exit()
 
 def start_normal():
