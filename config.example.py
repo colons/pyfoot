@@ -1,9 +1,9 @@
-# pyfoot 3.0 configuration file template
+# pyfoot 3.3 configuration file template
 ##
 # This is the configuration file for your pyfoot. Global as well as per network settings go here.
 #
-# Note: This is a Python 2.7 module, specifically one with one or more dictionaries
-# and nothing else. As such, any Python 2.7 code is acceptable here, although it is
+# Note: This is a Python 3.2 module, specifically one with one or more dictionaries
+# and nothing else. As such, any Python 3.2 code is acceptable here, although it is
 # not intended to contain anything other than text. It also must conform to Python's syntax.
 # Any configuration options not used will be loaded into pyfoot but ignored;
 # therefore it is a good idea to comment out or delete lines not used by your instance.
@@ -36,7 +36,7 @@ GLOBAL = {
         # register commands and only if the very first character(s) in the message.
         # This can be specified using Unicode escapes e.g. u'\u300c\u300d' to use
         # U+300C "LEFT CORNER BRACKET" and U+300D "RIGHT CORNER BRACKET" together as a 'comchar'.
-        'comchar': u'!',
+        'comchar': '!',
 
         # The colour used for prettifying your pyfoot's output. The stock plugins only use
         # this for certain separating characters, although any plugin can use it anywhere.
@@ -69,8 +69,8 @@ GLOBAL = {
         # !troll tells [rantext] to return a line from 'content-dir'troll.txt
         'rantext_sources': ['troll'],
 
-        # The nicks and password hashes of your admins. The [admin] plugin will print to
-        # the console (not the server) the salted hash of the password used in a failed login.
+        # The nicks and passkeys of your admins. The [admin] plugin's !mkpasswd will
+        # make a passkey for pasting here, and !auth is used to authenticate against this list.
         'admin_admins': {
             'adminnick': '',
             },
