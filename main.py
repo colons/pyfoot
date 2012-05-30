@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.2
 
 __title__ = 'pyfoot'
-__version__ = '3.3'
+__version__ = '3.0'
 __license__ = 'WTFPL'
 __desc__ = 'An extensible IRC robot with automatically generated user documentation.'
 __url__ = 'https://github.com/colons/pyfoot'

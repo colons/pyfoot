@@ -1,4 +1,4 @@
-# pyfoot 3.3 configuration file template
+# pyfoot 3.0 configuration file template
 ##
 # This is the configuration file for your pyfoot. Global as well as per network settings go here.
 #
