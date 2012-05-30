@@ -181,7 +181,6 @@ class IRC(object):
     def quit(self, reason=None):
         reason = reason or self.quit_message
         out = 'QUIT :%s' % reason
-        print()
         self.send(out)
         print()
         exit()
