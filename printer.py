@@ -35,7 +35,6 @@ class Printer(object):
             # but client code really should regulate this on its own.
             if append:
                 self.logfile = open(logfile, 'at', encoding='utf-8')
-                self.logfile.write('\n')
             else:
                 self.logfile = open(logfile, 'wt', encoding='utf-8')
         else:
