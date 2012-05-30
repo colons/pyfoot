@@ -1,6 +1,5 @@
 import socket
 import ssl
-from sys import exit
 import re
 
 
@@ -64,7 +63,7 @@ class IRC(object):
 
     def part(self, channel, reason='', kick=False):
         if not kick:
-            self.send(('PART %s %s' % (channel, reason)).encode(self.charset))
+            self.send('PART %s %s' % (channel, reason))
 
         if channel in self.channels:
             del self.channels[channel]
@@ -183,4 +182,3 @@ class IRC(object):
         out = 'QUIT :%s' % reason
         self.send(out)
         print()
-        exit()
