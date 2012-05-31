@@ -1,5 +1,6 @@
 from plugin import Plugin
 from network import command_to_regex_and_arglist, get_possible_commands
+from bottle import template
 
 class Plugin(Plugin):
     def register_commands(self):
@@ -7,6 +8,11 @@ class Plugin(Plugin):
                 ('help', self.all_help),
                 ('help <<subject>>', self.specific_help),
                 ]
+
+    def register_urls(self):
+        self.urls = [
+            ('/help/%s/' % self.conf.alias, self.help_page),
+            ]
 
     def postfork(self):
         # we can't build our command regexes until we fork;
@@ -61,3 +67,6 @@ class Plugin(Plugin):
         >\x02features\x02\x03# :\x03 http://woof.bldm.us/help/<network>/\x03# |\x03\x02 code\x02\x03# :\x03 https://github.com/colons/pyfoot\x03# |\x03\x02 bug?\x02\x03# :\x03 https://github.com/colons/pyfoot/issues/new
         """
         self.irc.privmsg(message.source, '\x02features\x02\x03# :\x03 http://woof.bldm.us/help/%s/\x03# |\x03\x02 code\x02\x03# :\x03 https://github.com/colons/pyfoot\x03# |\x03\x02 bug?\x02\x03# :\x03 https://github.com/colons/pyfoot/issues/new' % self.conf.alias)
+
+    def help_page(self):
+        return template('docs', plugins=self.bottle.networks[self.conf.alias], conf=self.conf.conf, per_network=True)

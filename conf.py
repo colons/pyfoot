@@ -36,7 +36,8 @@ class Config(object):
                 },
             'nick_blacklist': [],
 
-            'single_instance': True,
+            'single_instance': False,
+            'restart_from_webapp': True,
         }
 
     def __init__(self, network, conffile=None):

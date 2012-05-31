@@ -44,10 +44,13 @@ h2:before {
     content: '- ';
 }
 
-h3 {
-    text-align: right;
+div.heading {
     width: 20%;
+    text-align: right;
     margin: 0;
+    }
+
+h3 {
     font-weight: 600;
 }
 

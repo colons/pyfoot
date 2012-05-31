@@ -14,7 +14,6 @@ import re
 import conf as config_plugin
 import plugins
 
-
 # mirc       0      1      2      3      4      5      6      7      8      9      10     11     12     13     14     15
 pigments = ['aaa', '000', '339', '6a3', 'd66', '960', '93c', 'd73', 'da3', '6a3', '8a3', '69d', '36d', 'd69', '666', '999']
 
@@ -120,75 +119,85 @@ def examine_function(command, function, conf, regex=False):
             }
 
 
-def get_entries(network, app):
-    if network:
-        try:
-            conf = config_plugin.Config(network)
-        except AttributeError:
-            raise bottle.HTTPError(code=404)
-    else:
-        conf = config_plugin.Config('GLOBAL')
+class App(bottle.Bottle):
+    def __init__(self):
+        bottle.Bottle.__init__(self)
 
-    plugin_list = []
+        self.global_conf = config_plugin.Config('GLOBAL')
 
-    plugins.__path__.insert(0, '%s/plugins/' % conf.conf['content_dir'])
+        bottle.TEMPLATE_PATH.append('./plugins/tpl')
+        bottle.TEMPLATE_PATH.append('%s/plugins/tpl' % self.global_conf.conf['content_dir'])
+        
+        self.networks = {name: self.inspect_network(config_plugin.Config(name)) for name in self.global_conf.conf['networks']}
 
-    for plugin_name in conf.conf['plugins']:
-        __import__('plugins.'+plugin_name)
-        plugin = sys.modules['plugins.%s' % plugin_name]
+    def inspect_network(self, conf):
+        tpl_dir = '%s/plugins/tpl' % conf.conf['content_dir'] 
+        if tpl_dir not in bottle.TEMPLATE_PATH:
+            bottle.TEMPLATE_PATH.append(tpl_dir)
 
-        try:
-            plugin.defaults
-        except AttributeError:
-            pass
-        else:
-            for key in plugin.defaults:
-                if key not in conf.conf:
-                    conf.conf[key] = plugin.defaults[key]
+        plugin_list = []
 
-        setattr(plugin.Plugin, 'name', plugin_name)
-        plugin_instance = plugin.Plugin(None, conf, prepare=False, bottle=app)
+        plugins.__path__.insert(0, '%s/plugins/' % conf.conf['content_dir'])
 
-        plugin_list.append(plugin_instance)
+        for plugin_name in conf.conf['plugins']:
+            __import__('plugins.'+plugin_name)
+            plugin = sys.modules['plugins.%s' % plugin_name]
 
-    plugin_dicts = []
+            try:
+                plugin.defaults
+            except AttributeError:
+                pass
+            else:
+                for key in plugin.defaults:
+                    if key not in conf.conf:
+                        conf.conf[key] = plugin.defaults[key]
 
-    for plugin in plugin_list:
-        functions = []
+            setattr(plugin.Plugin, 'name', plugin_name)
+            plugin_instance = plugin.Plugin(None, conf, prepare=False, bottle=self)
 
-        if plugin.commands:
-            for command, function in plugin.commands:
-                entry = examine_function(command, function, conf)
-                if entry:
-                    functions.append(entry)
+            plugin_list.append(plugin_instance)
 
-        if plugin.regexes:
-            for command, function in plugin.regexes:
-                entry = examine_function(command, function, conf, regex=True)
-                if entry:
-                    functions.append(entry)
+        plugin_dicts = []
 
+        for plugin in plugin_list:
+            functions = []
 
-        plugin_dict = {
-            'name': plugin.name,
-            'functions': functions,
-            }
+            if plugin.commands:
+                for command, function in plugin.commands:
+                    entry = examine_function(command, function, conf)
+                    if entry:
+                        functions.append(entry)
 
-        try:
-            plugin_dict['docstring'] = '\n'.join([parse_paragraph(l.strip(), conf) for l in plugin.__doc__.split('\n') if len(l.strip()) > 0])
-        except AttributeError:
-            plugin_dict['docstring'] = None
+            if plugin.regexes:
+                for command, function in plugin.regexes:
+                    entry = examine_function(command, function, conf, regex=True)
+                    if entry:
+                        functions.append(entry)
 
-        try:
-            plugin_dict['blacklist'] = [c for c in conf.conf['plugin_blacklist'] if plugin.name in conf.conf['plugin_blacklist'][c]]
-        except KeyError:
-            plugin_dict['blacklist'] = False
+            if plugin.urls:
+                for path, function in plugin.urls:
+                    self.route(path, callback=function)
 
-        plugin_dicts.append(plugin_dict)
+            plugin_dict = {
+                'name': plugin.name,
+                'functions': functions,
+                }
 
-    return (plugin_dicts, conf)
+            try:
+                plugin_dict['docstring'] = '\n'.join([parse_paragraph(l.strip(), conf) for l in plugin.__doc__.split('\n') if len(l.strip()) > 0])
+            except AttributeError:
+                plugin_dict['docstring'] = None
 
-app = bottle.default_app()
+            try:
+                plugin_dict['blacklist'] = [c for c in conf.conf['plugin_blacklist'] if plugin.name in conf.conf['plugin_blacklist'][c]]
+            except KeyError:
+                plugin_dict['blacklist'] = False
+
+            plugin_dicts.append(plugin_dict)
+
+        return plugin_dicts
+
+app = App()
 
 @app.route('/')
 def redir_to_help():
@@ -205,84 +214,6 @@ def css(network):
     pigment = '#%s' % pigments[int(str(conf.conf['pigment']).split(',')[0])]
 
     return bottle.template('tpl/css', pigment=pigment)
-
-@app.route('/static/<filename>')
-def server_static(filename):
-    return bottle.static_file(filename, root='/home/nivi/pyfoot/static/') # WHEN PYFOOT IS APP-ISED, THIS NEEDS TO BE DERIVED FROM CONFIG OR SOME SHIT
-
-@app.route('/help/')
-def defaults():
-    plugin_dicts, conf = get_entries(None, app)
-    return bottle.template('tpl/docs', plugins=plugin_dicts, conf=conf.conf, per_network=False)
-
-@app.route('/help/<network>/')
-def per_network(network):
-    plugin_dicts, conf = get_entries(network, app)
-    return bottle.template('tpl/docs', plugins=plugin_dicts, conf=conf.conf, per_network=True)
-
-@app.route('/party/<network>/')
-def party_index(network):
-    try:
-        conf = config_plugin.Config(network)
-    except AttributeError:
-        raise bottle.HTTPError(code=404)
-
-    parties = []
-    party_path = os.path.expanduser(conf.conf['party_dir'])+network
-
-    try:
-        party_files = os.listdir(party_path)
-    except IOError:
-        raise bottle.HTTPError(code=404)
-
-    for party_filename in party_files:
-        party_file = open(party_path+'/'+party_filename)
-        party = party_file.readlines()
-
-        if party[0].startswith('source: '):
-            party = party[1:]
-
-        party_file.close()
-        party_dict = {
-                'nick': '-'.join(party_filename.split('-')[:-2]),
-                'date': party_filename.split('-')[-2],
-                'time': party_filename.split('-')[-1][:-4],
-                'initial': party[0],
-                'final': party[-1],
-                'length': len(party),
-                'url': party_filename[:-4]+'/',
-                }
-
-        parties.append(party_dict)
-
-    parties.sort(key=lambda p:int(p['date']+p['time']), reverse=True)
-    return bottle.template('tpl/party_index', parties=parties, network=network)
-    party.close()
-
-
-@app.route('/party/<network>/<filename>/')
-def party(network, filename):
-    conf = config_plugin.Config(network)
-    try:
-        party_file = open(os.path.expanduser(conf.conf['party_dir'])+network+'/'+filename+'.txt')
-    except IOError:
-        raise bottle.HTTPError(code=404)
-    else:
-        party_lines = party_file.readlines()
-        party_file.close()
-
-        if party_lines[0].startswith('source: '):
-            party_lines = party_lines[1:]
-
-
-    party = {
-            'lines': party_lines,
-            'nick': '-'.join(filename.split('-')[:-2]),
-            'date': filename.split('-')[-2],
-            'time': filename.split('-')[-1],
-            }
-
-    return bottle.template('tpl/party', party=party, network=network)
 
 if __name__ == '__main__':
     bottle.run(app=app, host='0.0.0.0', port=8080)

@@ -10,7 +10,12 @@ GLOBAL = {
         # If True, running pyfoot.wsgi will both run the irc robot as well as
         # the web frontend in a single process. If False, main.py must be run
         # seperately
-        #'single_instance' = True,
+        # Not yet implemented
+        #'single_instance' = False,
+
+        # If single_instance is True, allow the pyfoot web frontend to restart
+        # the IRC robot. Also unimplemented.
+        #'restart_from_webapp' = True,
 
         # Identity information for your pyfoot. The only field
         # usually required by a network to be unique is 'nick'.

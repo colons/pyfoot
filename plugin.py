@@ -13,8 +13,15 @@ class Plugin(threading.Thread):
         self.queue = queue.Queue()
         self.commands = []
         self.regexes = []
+        self.urls = []
 
         self.error_message = conf.conf['error_message']
+
+        if self.bottle:
+            try:
+                self.register_urls()
+            except AttributeError:
+                pass
 
         if prepare:
             try:
