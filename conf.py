@@ -54,3 +54,8 @@ class Config(object):
         self.conf.update(getattr(config, network))
         self.alias = network
         self.conf['alias'] = network
+
+        # Make sure to expand the user's 'content-dir'.
+        is_in_home = self.conf['content_dir'].find('~')
+        if is_in_home != -1:
+            self.conf['content_dir'] = expanduser(self.conf['content_dir'])
