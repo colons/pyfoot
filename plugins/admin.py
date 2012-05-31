@@ -1,8 +1,12 @@
+from auth import Authenticator
 import plugin
-import sha
 
 defaults = {
-        'admin_salt': 'changeme',
+        'admin_salt_length': 32,
+        'admin_key_length': 32,
+        'admin_key_iters': 10000,
+        'admin_key_hash': 'sha256',
+
         'admin_admins': {
             },
         }
@@ -10,11 +14,18 @@ defaults = {
 class Plugin(plugin.Plugin):
     def prepare(self):
         self.authenticated_hosts = {}
-        self.sha = sha.new(self.conf.conf['admin_salt'])
+
+        self.auth = Authenticator(
+                self.conf.conf['admin_key_length'],
+                self.conf.conf['admin_salt_length'],
+                self.conf.conf['admin_key_iters'],
+                self.conf.conf['admin_key_hash']
+                )
 
     def register_commands(self):
         self.commands = [
                 ('auth <pass>', self.authenticate),
+                ('mkpasswd <pass>', self.make_passkey),
                 ('sit', self.sit),
                 ('say <target> <<message>>', self.say),
                 ('act <target> <<message>>', self.act),
@@ -27,15 +38,26 @@ class Plugin(plugin.Plugin):
 
     def authenticate(self, message, args):
         """ Authenticate with <pyfoot>. """
-        sha = self.sha.copy()
-        sha.update(args['pass'])
-        
-        print '\a !! auth attempt: %s' % sha.hexdigest()
-        if sha.hexdigest() == self.conf.conf['admin_admins'][message.nick]:
+        try:
+            pword_conf = self.conf.conf['admin_admins'][message.nick]
+        except KeyError:
+            self.irc.privmsg(message.source, 'grr')
+            return
+
+        pword_msg = b' '.join(message.content_raw.split(b' ')[1:])
+        print('\a !! auth attempt by ' + message.nick)
+
+        if self.auth.check_passkey(pword_conf, pword_msg) == True:
             self.authenticated_hosts[message.host] = message.nick
             self.irc.privmsg(message.source, 'woof')
         else:
             self.irc.privmsg(message.source, 'grr')
+
+    def make_passkey(self, message, args):
+        """ Make a passkey for use with <pyfoot>. """
+        pword_msg = b' '.join(message.content_raw.split(b' ')[1:])
+        new_passkey = self.auth.make_passkey(pword_msg)
+        self.irc.privmsg(message.source, new_passkey)
 
     def can_trust(self, message):
         if message.host in self.authenticated_hosts and self.authenticated_hosts[message.host] == message.nick:
@@ -67,15 +89,18 @@ class Plugin(plugin.Plugin):
         """ Make <pyfoot> join a channel. """
         if self.can_trust(message):
             self.irc.join(args['channel'])
-    
+            self.irc.privmsg(message.source, 'joined ' + args['channel'])
+
     def part_with_reason(self, message, args):
         """ Make <pyfoot> leave a channel. Reason optional. """
         if self.can_trust(message):
             self.irc.part(args['channel'], args['reason'])
+            self.irc.privmsg(message.source, 'left ' + args['channel'])
 
     def part(self, message, args):
         if self.can_trust(message):
             self.irc.part(args['channel'])
+            self.irc.privmsg(message.source, 'left ' + args['channel'])
 
     def sit(self, message, args):
         """ Test authentication state. """

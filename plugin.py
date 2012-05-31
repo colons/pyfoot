@@ -1,4 +1,4 @@
-import Queue
+import queue
 import threading
 import traceback
 
@@ -8,13 +8,12 @@ class Plugin(threading.Thread):
 
         self.irc = irc
         self.conf = conf
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.commands = []
         self.regexes = []
 
         self.error_message = conf.conf['error_message']
 
-        self.use_unicode = False
         if prepare:
             try:
                 self.prepare()

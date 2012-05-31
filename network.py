@@ -2,7 +2,7 @@ import message
 
 import sys
 import os
-import thread
+import _thread
 import re
 import plugins
 
@@ -189,7 +189,6 @@ class Network(object):
             if ambiguity == 1:
                 command_dict = commands[0]
                 command_dict['args']['_command'] = command_dict['command']
-                the_message.content = the_message.content if command_dict['plugin'].use_unicode else the_message.content.encode('utf-8')
                 command_dict['plugin'].queue.put((command_dict['function'], the_message, command_dict['args']))
 
             elif ambiguity > 1:
@@ -202,31 +201,38 @@ class Network(object):
 
             if match:
                 if plugin.name.lower() not in plugin_blacklist and the_message.nick.lower() not in self.conf.conf['nick_blacklist']:
-                    the_message.content = the_message.content if plugin.use_unicode else the_message.content.encode('utf-8')
                     plugin.queue.put((function, the_message, match))
 
 
     def dispatch(self, data):
         """ Deals with messages and sends plugins the information they need. """
         if data == None:
-            print ' :: no data'
+            print(' :: no data')
             return None
 
-        if data == '':
-            print ' :: empty response, assuming disconnection\a' # alert
+        if data == b'':
+            print(' :: empty response, assuming disconnection\a') # alert
             sys.exit()
 
-        for line in [line for line in data.split('\r\n') if len(line) > 0]:
-            print '    %s' % line
 
-            if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
-                self.irc.own_hostname = line.split(' ')[0][1:]
-                print ' -- we are %s' % self.irc.own_hostname
+        for line in [line for line in data.split(b'\r\n') if len(line) > 0]:
+            line_raw = line
+            try:
+                line = line.decode(self.irc.charset)
+            except UnicodeDecodeError:
+                print("\n !! Some characters could not be reproduced in the below input using 'charset': '%s'" % charset)
+                if len(line) == 512:
+                    print(' !! The input length was at maximum; the message may have been truncated.')
+                line = line.decode(self.irc.charset, 'ignore')
+
+            #print('    %s' % repr(line_raw))
+            print('    %s' % line)
 
             if line.startswith('PING :'):
                 self.irc.pong(line)
+                continue
 
-            the_message = message.Message(line, self.irc.charset)
+            the_message = message.Message(line, line_raw)
 
             if the_message.type == '353':
                 # this is a channel names list
@@ -243,13 +249,23 @@ class Network(object):
                     self.irc.channels[name] = {}
                     self.irc.channels[name]['modes'] = modelist
 
+            elif the_message.type == 'JOIN':
+                if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
+                    self.irc.own_hostname = line.split(' ')[0][1:]
+                if self.initial:
+                    print(' -- we are %s' % self.irc.own_hostname)
+                    self.initial = False
+
+
             elif the_message.type == 'INVITE':
                 channel = the_message.content
+                print(' -- we were invited to %s by %s' % (channel, the_message.nick))
                 self.irc.join(channel)
 
             elif the_message.type == 'KICK':
-                channel = the_message.content
-                self.irc.part(channel)
+                channel = the_message.source
+                print(' -- we were kicked from %s by %s' % (channel, the_message.nick))
+                self.irc.part(channel, kick=True)
 
             elif the_message.type == 'NOTICE':
                 pass
@@ -261,7 +277,6 @@ class Network(object):
                 for channel in self.conf.conf['network_channels']:
                     self.irc.join(channel)
 
-                self.initial = False
 
             elif the_message.type == 'MODE':
                 self.irc.getmode(line.split(' ')[2])
