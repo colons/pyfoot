@@ -33,6 +33,8 @@ class Config(object):
             'plugin_blacklist': {
                 },
             'nick_blacklist': [],
+
+            'single_instance': True,
         }
 
     def __init__(self, network, conffile=None):
