@@ -20,6 +20,8 @@ GLOBAL = {
         #'realname': 'pyfoot',
         #'username': 'pyfoot',
 
+        #'gender': 'male',
+
         # Default connection profile.
         #'network_port': 6667,
         #'network_ssl': False,

@@ -34,73 +34,82 @@ def parse_args():
     log.add_argument('-a', '--append', dest='logappend', action='store_true', help="append to FILE when logging")
     return parser.parse_args()
 
-def kill_handler(signum, frame):
-    if signum == signal.SIGINT:
-        sig = 'SIGINT'
-    elif signum == signal.SIGTERM:
-        sig = 'SIGTERM'
-    print('\n !! ' + sig + ' caught : shutting down')
+class Robot(object):
+    def __init__(self, network, configfile, logfile, pidfile):
+        self.network_name = network
+        self.configfile_name = configfile
+        self.logfile_name = logfile
+        self.pidfile_name = pidfile
 
-    # Disconnect from the IRC server
-    irc.quit()
-    # Delete the pid file and close the log file for a clean exit
-    if args.pidfile:
-        os.remove(args.pidfile)
-    if args.logfile:
-        print(' @@ end of log\n')
-    sys.exit()
+    def kill_handler(self, signum, frame):
+        if signum == signal.SIGINT:
+            sig = 'SIGINT'
+        elif signum == signal.SIGTERM:
+            sig = 'SIGTERM'
+        print('\n !! ' + sig + ' caught : shutting down')
 
-def start_normal():
-    """ Start pyfoot normally. """
-    sys.stderr.write(' -- my process id is ' + str(os.getpid()) + '\n')
+        # Disconnect from the IRC server
+        self.irc.quit()
 
-# Derived from http://code.activestate.com/recipes/278731-creating-a-daemon-the-python-way/
-def start_daemon():
-    """ Start pyfoot in daemon mode. """
+        # Delete the pid file and close the log file for a clean exit
+        if args.pidfile:
+            os.remove(args.pidfile)
+        if args.logfile:
+            print(' @@ end of log\n')
+        sys.exit()
 
-    pid = os.fork()  # First child
-    if pid == 0:
-        os.setsid()
-        pid = os.fork()  # Second child
-        if pid != 0:
-            sys.stderr.write('now running in the background : my process id is ' + str(pid) + '\n')
+    def start_common(self):
+        """ Things that both daemonised and normal startup will do """
+        if self.logfile_name:
+            print(' @@ start of log')
+            
+        if self.pidfile_name:
+            pidfile = open(args.pidfile, 'wt', encoding='us-ascii')
+            pidfile.write(str(os.getpid()))
+            pidfile.close()
+
+        sys.stdout = Printer(args.logfile, args.logappend, args.daemonise)
+
+        signal.signal(signal.SIGTERM, self.kill_handler)
+        signal.signal(signal.SIGINT, self.kill_handler)
+
+        self.conf = Config(args.network, args.config)
+        self.irc = IRC(self.conf)
+        self.network = Network(self.conf, self.irc)
+
+        # main event loop
+        while True:
+            data = self.irc.listen()
+            self.network.dispatch(data)
+
+    def start_normal(self):
+        """ Start pyfoot normally. """
+        sys.stderr.write(' -- my process id is ' + str(os.getpid()) + '\n')
+        self.start_common()
+
+    # Derived from http://code.activestate.com/recipes/278731-creating-a-daemon-the-python-way/
+    def start_daemon(self):
+        """ Start pyfoot in daemon mode. """
+        pid = os.fork()  # First child
+        if pid == 0:
+            os.setsid()
+            pid = os.fork()  # Second child
+            if pid != 0:
+                sys.stderr.write('now running in the background : my process id is ' + str(pid) + '\n')
+                os._exit(0)
+        else:
             os._exit(0)
-    else:
-        os._exit(0)
+
+        self.start_common()
 
 if __name__ == '__main__':
     # Parse the command line arguments
     # A --help/-h or --version/-v will end the program here
     args = parse_args()
 
-    # Print the pid, and fork to background if requested
+    pyfoot = Robot(args.network, args.config, args.logfile, args.pidfile)
+
     if args.daemonise == True:
-        start_daemon()
+        pyfoot.start_daemon()
     else:
-        start_normal()
-
-    # Register the TERM and INT signal handler
-    signal.signal(signal.SIGTERM, kill_handler)
-    signal.signal(signal.SIGINT, kill_handler)
-
-    # Write out the pid file if requested
-    if args.pidfile:
-        pidfile = open(args.pidfile, 'wt', encoding='us-ascii')
-        pidfile.write(str(os.getpid()))
-        pidfile.close()
-
-    # Override sys.stdout with the custom Printer class
-    sys.stdout = Printer(args.logfile, args.logappend, args.daemonise)
-    if args.logfile:
-        print(' @@ start of log')
-
-    # Create pyfoot's custom objects
-    conf = Config(args.network, args.config)
-    irc = IRC(conf)
-    network = Network(conf, irc)
-
-    # Start the main event loop
-    while True:
-        data = irc.listen()
-        network.dispatch(data)
-
+        pyfoot.start_normal()

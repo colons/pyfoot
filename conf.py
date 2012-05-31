@@ -11,6 +11,8 @@ class Config(object):
             'username': 'pyfoot',
             'ctcp_version': 'pyfoot',
 
+            'gender': 'neutral',
+
             'comchar': '!',
 
             'content_dir': expanduser('~/.pyfoot/'),
@@ -56,6 +58,35 @@ class Config(object):
         self.conf.update(getattr(config, network))
         self.alias = network
         self.conf['alias'] = network
+
+        self.conf['pnoun_neutral'] = {
+                'nom': 'xe',
+                'obl': 'xem',
+                'pos_det': 'xyr',
+                'pos_pro': 'xyrs',
+                'reflex': 'xemself',
+                }
+
+        if self.conf['gender'] == 'male':
+            self.conf['pnoun'] = {
+                    'nom': 'he',
+                    'obl': 'him',
+                    'pos_det': 'his',
+                    'pos_pro': 'his',
+                    'reflex': 'himself',
+                    }
+
+        elif self.conf['gender'] == 'female':
+            self.conf['pnoun'] = {
+                    'nom': 'she',
+                    'obl': 'her',
+                    'pos_det': 'her',
+                    'pos_pro': 'hers',
+                    'reflex': 'herself',
+                    }
+
+        else:
+            self.conf['pnoun'] = self.conf['pnoun_neutral']
 
         # Make sure to expand the user's 'content-dir'.
         is_in_home = self.conf['content_dir'].find('~')

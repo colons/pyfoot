@@ -46,6 +46,22 @@ def convert_mirc_entities(line):
 
     return line
 
+def genderise(line, conf):
+    for pnoun_type in conf.conf['pnoun_neutral']:
+        match_pnoun = conf.conf['pnoun_neutral'][pnoun_type]
+        repl_pnoun = conf.conf['pnoun'][pnoun_type]
+        
+        pn_regex = r'(?i)\b(%s)\b' % match_pnoun
+
+        for match in re.findall(pn_regex, line):
+            if match[0].isupper():
+                repl = repl_pnoun.capitalize()
+            else:
+                repl = repl_pnoun.lower()
+
+            line = re.sub(pn_regex, repl, line, count=1)
+
+    return line
 
 def parse_paragraph(line, conf):
     if conf:
@@ -58,7 +74,6 @@ def parse_paragraph(line, conf):
 
     line = line.replace('<pyfoot>', conf.conf['nick'])
 
-
     if line.startswith('$'):
         line = convert_mirc_entities(line)
         line = '<p class="input">%s</p>' % line[1:]
@@ -68,6 +83,7 @@ def parse_paragraph(line, conf):
         line = '<p class="output">%s</p>' % line[1:]
     else:
         line = '<p>%s</p>' % line
+        line = genderise(line, conf)
 
     return line
 
@@ -104,7 +120,7 @@ def examine_function(command, function, conf, regex=False):
             }
 
 
-def get_entries(network):
+def get_entries(network, app):
     if network:
         try:
             conf = config_plugin.Config(network)
@@ -131,7 +147,7 @@ def get_entries(network):
                     conf.conf[key] = plugin.defaults[key]
 
         setattr(plugin.Plugin, 'name', plugin_name)
-        plugin_instance = plugin.Plugin(None, conf, prepare=False)
+        plugin_instance = plugin.Plugin(None, conf, prepare=False, bottle=app)
 
         plugin_list.append(plugin_instance)
 
@@ -172,11 +188,13 @@ def get_entries(network):
 
     return (plugin_dicts, conf)
 
-@bottle.route('/')
+app = bottle.default_app()
+
+@app.route('/')
 def redir_to_help():
     bottle.redirect("/help/")
 
-@bottle.route('/<network>.css')
+@app.route('/<network>.css')
 def css(network):
     bottle.response.set_header('Content-type', 'text/css')
     try:
@@ -188,21 +206,21 @@ def css(network):
 
     return bottle.template('tpl/css', pigment=pigment)
 
-@bottle.route('/static/<filename>')
+@app.route('/static/<filename>')
 def server_static(filename):
     return bottle.static_file(filename, root='/home/nivi/pyfoot/static/') # WHEN PYFOOT IS APP-ISED, THIS NEEDS TO BE DERIVED FROM CONFIG OR SOME SHIT
 
-@bottle.route('/help/')
+@app.route('/help/')
 def defaults():
-    plugin_dicts, conf = get_entries(None)
+    plugin_dicts, conf = get_entries(None, app)
     return bottle.template('tpl/docs', plugins=plugin_dicts, conf=conf.conf, per_network=False)
 
-@bottle.route('/help/<network>/')
+@app.route('/help/<network>/')
 def per_network(network):
-    plugin_dicts, conf = get_entries(network)
+    plugin_dicts, conf = get_entries(network, app)
     return bottle.template('tpl/docs', plugins=plugin_dicts, conf=conf.conf, per_network=True)
 
-@bottle.route('/party/<network>/')
+@app.route('/party/<network>/')
 def party_index(network):
     try:
         conf = config_plugin.Config(network)
@@ -242,7 +260,7 @@ def party_index(network):
     party.close()
 
 
-@bottle.route('/party/<network>/<filename>/')
+@app.route('/party/<network>/<filename>/')
 def party(network, filename):
     conf = config_plugin.Config(network)
     try:
@@ -267,6 +285,4 @@ def party(network, filename):
     return bottle.template('tpl/party', party=party, network=network)
 
 if __name__ == '__main__':
-    bottle.run(host='0.0.0.0', port=8080)
-else:
-    application = bottle.default_app()
+    bottle.run(app=app, host='0.0.0.0', port=8080)

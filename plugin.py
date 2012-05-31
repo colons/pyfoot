@@ -3,11 +3,13 @@ import threading
 import traceback
 
 class Plugin(threading.Thread):
-    def __init__(self, irc, conf, prepare=True):
+    def __init__(self, irc, conf, prepare=True, bottle=None):
         threading.Thread.__init__(self)
 
         self.irc = irc
         self.conf = conf
+        self.bottle = bottle
+
         self.queue = queue.Queue()
         self.commands = []
         self.regexes = []
