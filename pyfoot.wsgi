@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.2
+#! /usr/bin/env python
 
 import os, sys
 
@@ -202,6 +202,10 @@ app = App()
 @app.route('/')
 def redir_to_help():
     bottle.redirect("/help/")
+
+@app.route('/static/<filename>')
+def server_static(filename):
+        return bottle.static_file(filename, root='/home/nivi/pyfoot/static/')
 
 @app.route('/<network>.css')
 def css(network):
