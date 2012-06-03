@@ -66,7 +66,7 @@ class Plugin(Plugin):
         $<comchar>help
         >\x02features\x02\x03# :\x03 http://woof.bldm.us/help/<network>/\x03# |\x03\x02 code\x02\x03# :\x03 https://github.com/colons/pyfoot\x03# |\x03\x02 bug?\x02\x03# :\x03 https://github.com/colons/pyfoot/issues/new
         """
-        self.irc.privmsg(message.source, '\x02features\x02\x03# :\x03 http://woof.bldm.us/help/%s/\x03# |\x03\x02 code\x02\x03# :\x03 https://github.com/colons/pyfoot\x03# |\x03\x02 bug?\x02\x03# :\x03 https://github.com/colons/pyfoot/issues/new' % self.conf.alias)
+        self.irc.privmsg(message.source, '\x02features\x02\x03# :\x03 %s/help/%s/\x03# |\x03\x02 code\x02\x03# :\x03 https://github.com/colons/pyfoot\x03# |\x03\x02 bug?\x02\x03# :\x03 https://github.com/colons/pyfoot/issues/new' % (self.conf.conf['web_url'], self.conf.alias))
 
     def help_page(self):
         return template('docs', plugins=self.bottle.networks[self.conf.alias], conf=self.conf.conf, per_network=True)
