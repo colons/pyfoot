@@ -220,7 +220,7 @@ class Network(object):
             try:
                 line = line.decode(self.irc.charset)
             except UnicodeDecodeError:
-                print("\n !! Some characters could not be reproduced in the below input using 'charset': '%s'" % charset)
+                print("\n !! Some characters could not be reproduced in the below input using 'charset': '%s'" % self.irc.charset)
                 if len(line) == 512:
                     print(' !! The input length was at maximum; the message may have been truncated.')
                 line = line.decode(self.irc.charset, 'ignore')
