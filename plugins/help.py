@@ -36,7 +36,7 @@ class Plugin(Plugin):
         else:
             command = args['subject']
 
-        possibilities = get_possible_commands(command, self.argless_commands)
+        possibilities = get_possible_commands(command, self.argless_commands, loose=True)
         
         plugins = {}
         for possibility in possibilities:

@@ -6,14 +6,17 @@ import _thread
 import re
 import plugins
 
-def get_possible_commands(content, commands, plugin_blacklist=[]):
+def get_possible_commands(content, commands, plugin_blacklist=[], loose=False):
     """ Return a list of matching command descriptions. """
     possible_commands = []
 
     for command_dict in [c for c in commands if c['plugin'].name not in plugin_blacklist]:
         args = {}
-
-        exact_match = command_dict['exact_regex'].match(content)
+        
+        if not loose:
+            exact_match = command_dict['exact_regex'].match(content)
+        else:
+            exact_match = False
 
         if exact_match:
             match = exact_match
