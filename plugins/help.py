@@ -52,7 +52,7 @@ class Plugin(Plugin):
 
         for plugin in plugins:
             commands = '\x03# :\x03 '.join(plugins[plugin])
-            outlist.append('\x02%s\x02\x03# |\x03 %s\x03# |\x03 %shelp/%s/#%s' % (plugin, commands, self.conf.conf['web_url'], self.conf.alias, plugin))
+            outlist.append('\x02%s\x02\x03# |\x03 %s\x03# |\x03 %s/help/%s/#%s' % (plugin, commands, self.conf.conf['web_url'], self.conf.alias, plugin))
         
         for out in outlist:
             self.irc.privmsg(message.source, out)
