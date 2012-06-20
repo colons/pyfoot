@@ -80,7 +80,11 @@ def command_to_regex_and_arglist(command, loose=False):
             if not loose:
                 exact_regex += word
 
-            fuzzy_regex += word[0]
+            try:
+                fuzzy_regex += word[0]
+            except IndexError:
+                # this is an attempt to register <comchar> as a command
+                pass
 
             for letter in word[1:]:
                 fuzzy_regex += '(?:\\b|[%s]' % letter

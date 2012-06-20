@@ -5,6 +5,7 @@ from bottle import template
 class Plugin(Plugin):
     def register_commands(self):
         self.commands = [
+                # ('', self.list_commands),
                 ('help', self.all_help),
                 ('help <<subject>>', self.specific_help),
                 ]
@@ -24,6 +25,12 @@ class Plugin(Plugin):
             command_dict['fuzzy_regex'], command_dict['arglist'] = command_to_regex_and_arglist(command_dict['command'], loose=True)
 
             self.argless_commands.append(command_dict)
+
+    def list_commands(self, message, args):
+        """ Lists every documented command. """
+        commands = [self.conf.conf['comchar']+c['command'] for c in self.network.all_commands if c['function'].__doc__]
+        self.irc.privmsg(message.source, ' \x03#:\x03 '.join(commands), crop=False)
+
 
     def specific_help(self, message, args):
         """ Get help for a particular command.
