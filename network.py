@@ -185,7 +185,6 @@ class Network(object):
             plugin_blacklist = []
 
         if the_message.content.startswith(self.conf.conf['comchar']):
-
             commands = get_possible_commands(the_message.content[len(self.conf.conf['comchar']):].rstrip(), self.all_commands, plugin_blacklist=plugin_blacklist)
             ambiguity = len(commands)
 
@@ -195,9 +194,8 @@ class Network(object):
                 command_dict['plugin'].queue.put((command_dict['function'], the_message, command_dict['args']))
 
             elif ambiguity > 1:
-                self.irc.privmsg(the_message.source, '\x02ambiguous command\x02\x03# |\x03 %s' % '\x03# :\x03 '.join(
-                    [self.conf.conf['comchar']+c['command'].replace('>>', '>').replace('<<', '<') for c in commands])
-                    )
+                self.irc.privmsg(the_message.source, '\x02ambiguous command\x02\x03# |\x03 %s' % ' \x03#:\x03 '.join(
+                    [self.conf.conf['comchar']+c['command'].replace('>>', '>').replace('<<', '<') for c in commands]))
 
         for regex, function, plugin in self.all_regexes:
             match = regex.match(the_message.content)
@@ -279,7 +277,6 @@ class Network(object):
             elif the_message.type == 'MODE' and self.initial == True:
                 for channel in self.conf.conf['network_channels']:
                     self.irc.join(channel)
-
 
             elif the_message.type == 'MODE':
                 self.irc.getmode(line.split(' ')[2])
