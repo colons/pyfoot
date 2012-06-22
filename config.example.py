@@ -95,7 +95,7 @@ GLOBAL = {
         # The URL base of your pyfoot's online help, used in conjunction with
         # pyfoot.wsgi See the documentation for the [help] and [party] plugins
         # for examples of how this is used in context.
-        #'web_url': 'http://example.org/',
+        #'web_url': 'http://example.org',
 
         # Language used by the [party] !party command. !partyvia overrides this
         # per-message.
