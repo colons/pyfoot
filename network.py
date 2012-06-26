@@ -184,7 +184,7 @@ class Network(object):
         nick_blacklist = [n.lower() for n in self.conf.conf['nick_blacklist']]
 
         try:
-            plugin_blacklist = [m.lower() for m in self.conf.conf['plugin_blacklist'][the_message.source]]
+            plugin_blacklist = [m.lower() for m in self.conf.conf['plugin_blacklist'][the_message.source.lower()]]
         except KeyError:
             plugin_blacklist = []
 
