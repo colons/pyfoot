@@ -11,9 +11,12 @@ class Plugin(Plugin):
                 ]
 
     def register_urls(self):
-        self.urls = [
-            ('/help/%s/' % self.conf.alias, self.help_page),
-            ]
+        self.urls = []
+
+        if self.conf.alias == 'GLOBAL':
+            self.urls.append(('/help/', self.help_page))
+        else:
+            self.urls.append(('/help/%s/' % self.conf.alias, self.help_page))
 
     def postfork(self):
         # we can't build our command regexes until we fork;

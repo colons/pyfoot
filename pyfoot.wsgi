@@ -128,7 +128,8 @@ class App(bottle.Bottle):
         bottle.TEMPLATE_PATH.append('./plugins/tpl')
         bottle.TEMPLATE_PATH.append('%s/plugins/tpl' % self.global_conf.conf['content_dir'])
         
-        self.networks = {name: self.inspect_network(config_plugin.Config(name)) for name in self.global_conf.conf['networks']}
+        # self.networks = {name: self.inspect_network(config_plugin.Config(name)) for name in self.global_conf.conf['networks']}
+        self.networks = {name: self.inspect_network(config_plugin.Config(name)) for name in self.global_conf.conf['networks']+['GLOBAL']}
 
     def inspect_network(self, conf):
         tpl_dir = '%s/plugins/tpl' % conf.conf['content_dir'] 

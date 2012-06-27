@@ -2,7 +2,7 @@
 
 <p class="summary">A Python IRC robot. Source available on <a href="https://github.com/colons/pyfoot/">GitHub</a>.</p>
 
-%if per_network:
+%if per_network and conf['alias'] != 'GLOBAL':
 <div class="network section">
     <div class="heading">
         <h3>{{conf['network_address']}}</h3>
