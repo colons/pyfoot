@@ -41,7 +41,7 @@ class Plugin(plugin.Plugin):
         try:
             pword_conf = self.conf.conf['admin_admins'][message.nick]
         except KeyError:
-            self.irc.privmsg(message.source, 'grr')
+            self.irc.act(message.source, 'growls')
             return
 
         pword_msg = b' '.join(message.content_raw.split(b' ')[1:])
@@ -51,7 +51,7 @@ class Plugin(plugin.Plugin):
             self.authenticated_hosts[message.host] = message.nick
             self.irc.privmsg(message.source, 'woof')
         else:
-            self.irc.privmsg(message.source, 'grr')
+            self.irc.act(message.source, 'growls')
 
     def make_passkey(self, message, args):
         """ Make a passkey for use with <pyfoot>. """
