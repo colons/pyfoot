@@ -257,8 +257,8 @@ class Network(object):
             elif the_message.type == 'JOIN':
                 if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
                     self.irc.own_hostname = line.split(' ')[0][1:]
-                if self.initial:
                     print(' -- we are %s' % self.irc.own_hostname)
+                if self.initial:
                     self.initial = False
 
 
