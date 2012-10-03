@@ -12,7 +12,7 @@ def get_possible_commands(content, commands, plugin_blacklist=[], loose=False):
 
     for command_dict in [c for c in commands if c['plugin'].name not in plugin_blacklist]:
         args = {}
-        
+
         if not loose:
             exact_match = command_dict['exact_regex'].match(content)
         else:
