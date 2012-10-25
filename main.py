@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.2
+#!/usr/bin/env python3
 
 __title__ = 'pyfoot'
 __version__ = '3.0'
