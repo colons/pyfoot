@@ -7,7 +7,7 @@ body {
     font-family: sans-serif;
     color: #333;
 
-    background-color: #ddd;
+    background-color: #fff;
     background-image: url('/static/noise.png');
     background-repeat: repeat;
 
