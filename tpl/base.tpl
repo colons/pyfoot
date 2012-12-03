@@ -15,6 +15,6 @@
 
 %include
     
-<p class="credit">A <a href="http://www.musicfortheblind.co.uk/">Music for the Blind</a> production.</p>
+<p class="stamp"><a href="http://www.musicfortheblind.co.uk/"><img src="http://d.bldm.us/stamp.png" alt="stamp"></a></p>
 </body>
 </html>

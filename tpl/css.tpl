@@ -11,7 +11,7 @@ body {
     background-image: url('/static/noise.png');
     background-repeat: repeat;
 
-    text-shadow: #eee 0px 1px 0;
+    text-shadow: #fff 0px 1px 0;
     max-width: 800px;
     min-width: 400px;
     margin-left: auto;
@@ -187,11 +187,16 @@ p.disclaimer:before {
     color: #999;
 }
 
-p.credit {
-    clear: both;
-    width: 78%;
-    float: right;
-    padding: 1em 0 2em 0;
-    color: #666;
-    font-size: .8em;
+p.stamp {
+    padding: 1em 0 5em 0;
+    text-align: center;
+}
+
+p.stamp img {
+    width: 6em;
+    height: 6em;
+}
+
+p.stamp a:hover {
+    border: none;
 }
