@@ -42,10 +42,10 @@ def get_possible_commands(content, commands, plugin_blacklist=[], loose=False):
 
 def command_to_regex_and_arglist(command, loose=False):
     """ Take a command and return an exact and fuzzy regex and a list of arguments. ignore_variables if you're help.py, and we'll omit the exact regex. """
-    fuzzy_regex = ''
+    fuzzy_regex = '(?i)'
 
     if not loose:
-        exact_regex = ''
+        exact_regex = '(?i)'
 
     arglist = []
 
