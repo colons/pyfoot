@@ -90,7 +90,7 @@ div.section {
     overflow: auto;
 }
 
-p.irc, div.setting, div.blacklist p, span.irc {
+p.irc, div.setting, div.blacklist p, span.irc, code {
     color: #777;
     font-family: monospace;
     font-size .9em;

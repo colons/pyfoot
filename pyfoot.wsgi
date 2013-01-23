@@ -10,6 +10,7 @@ os.chdir(our_dir)
 
 import bottle
 import re
+from markdown import markdown
 
 import conf as config_plugin
 import plugins
@@ -72,6 +73,8 @@ def genderise(line, conf):
 
 
 def parse_paragraph(line, conf):
+    line = line.replace('\n', ' ')
+
     if conf:
         line = line.replace('<comchar>', conf.conf['comchar'])
 
@@ -90,8 +93,8 @@ def parse_paragraph(line, conf):
         line = convert_mirc_entities(line)
         line = '<p class="output">%s</p>' % line[1:]
     else:
-        line = '<p>%s</p>' % line
         line = genderise(line, conf)
+        line = markdown(line)
 
     return line
 
@@ -111,7 +114,7 @@ def examine_function(command, function, conf, regex=False):
             command = re.sub('(.)(?=[^\\Z])', '\\1\u200B', command)
 
         docstring = function.__doc__
-        doc_lines = docstring.split('\n')
+        doc_lines = docstring.split('\n\n')
 
         explanation = []
         for line in [l.strip() for l in doc_lines if len(l.strip()) > 0]:
@@ -200,7 +203,7 @@ class App(bottle.Bottle):
             try:
                 plugin_dict['docstring'] = '\n'.join([
                     parse_paragraph(l.strip(), conf) for l in
-                    plugin.__doc__.split('\n') if len(l.strip()) > 0])
+                    plugin.__doc__.split('\n\n') if len(l.strip()) > 0])
             except AttributeError:
                 plugin_dict['docstring'] = None
 
