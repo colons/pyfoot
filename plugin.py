@@ -70,5 +70,10 @@ class Plugin(threading.Thread):
         self.irc.privmsg(destination, string)
 
     def shorten_url(self, url):
-        response = request.urlopen(self.conf.get('url_shortener') % quote(url))
-        return response.read().decode('utf-8')
+        try:
+            response = request.urlopen(
+                self.conf.get('url_shortener') % quote(url))
+        except:
+            return url
+        else:
+            return response.read().decode('utf-8')
