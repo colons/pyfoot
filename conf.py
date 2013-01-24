@@ -39,6 +39,8 @@ class Config(object):
 
         'single_instance': False,
         'restart_from_webapp': True,
+
+        'url_shortener': 'http://waa.ai/api.php?url=%s',
     }
 
     def __init__(self, network, conffile=None):
