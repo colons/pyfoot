@@ -60,8 +60,7 @@ class Config(object):
 
         self.conf.update(getattr(config, 'GLOBAL'))
         self.conf.update(getattr(config, network))
-        self.alias = network
-        self.conf['alias'] = network
+        self.conf['alias'] = self.alias = network
 
         self.conf['pnoun_neutral'] = {
             'nom': 'xe',
@@ -92,10 +91,7 @@ class Config(object):
         else:
             self.conf['pnoun'] = self.conf['pnoun_neutral']
 
-        # Make sure to expand the user's 'content-dir'.
-        is_in_home = self.conf['content_dir'].find('~')
-        if is_in_home != -1:
-            self.conf['content_dir'] = expanduser(self.conf['content_dir'])
+        self.conf['content_dir'] = expanduser(self.conf['content_dir'])
 
     def get(self, key):
         return self.conf[key]
