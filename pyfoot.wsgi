@@ -1,26 +1,34 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
-import os, sys
+import os
+import sys
 
-dir = os.path.dirname(__file__)
+our_dir = os.path.dirname(__file__)
 
-sys.path.append(dir)
-os.chdir(dir)
+sys.path.append(our_dir)
+os.chdir(our_dir)
 
 import bottle
-from random import choice
 import re
+from markdown import markdown
 
 import conf as config_plugin
 import plugins
 
-# mirc       0      1      2      3      4      5      6      7      8      9      10     11     12     13     14     15
-pigments = ['aaa', '000', '339', '6a3', 'd66', '960', '93c', 'd73', 'da3', '6a3', '8a3', '69d', '36d', 'd69', '666', '999']
+# mirc colours
+#     0      1      2      3      4      5      6      7      8      9
+#     10     11     12     13     14     15
+pigments = [
+    'aaa', '000', '339', '6a3', 'd66', '960', '93c', 'd73', 'da3', '6a3',
+    '8a3', '69d', '36d', 'd69', '666', '999'
+]
+
 
 def remove_control_chars(s):
-    """ thanks http://stackoverflow.com/questions/92438/stripping-non-printable-characters-from-a-string-in-python """
+    """ thanks http://stackoverflow.com/questions/92438/ """
     #control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
     return re.sub('[\x00-\x1F\x7F-\x9F]', '', s)
+
 
 def convert_mirc_entities(line):
     odd = True
@@ -45,11 +53,12 @@ def convert_mirc_entities(line):
 
     return line
 
+
 def genderise(line, conf):
     for pnoun_type in conf.conf['pnoun_neutral']:
         match_pnoun = conf.conf['pnoun_neutral'][pnoun_type]
         repl_pnoun = conf.conf['pnoun'][pnoun_type]
-        
+
         pn_regex = r'(?i)\b(%s)\b' % match_pnoun
 
         for match in re.findall(pn_regex, line):
@@ -62,7 +71,10 @@ def genderise(line, conf):
 
     return line
 
+
 def parse_paragraph(line, conf):
+    line = line.replace('\n', ' ')
+
     if conf:
         line = line.replace('<comchar>', conf.conf['comchar'])
 
@@ -81,8 +93,8 @@ def parse_paragraph(line, conf):
         line = convert_mirc_entities(line)
         line = '<p class="output">%s</p>' % line[1:]
     else:
-        line = '<p>%s</p>' % line
         line = genderise(line, conf)
+        line = markdown(line)
 
     return line
 
@@ -95,14 +107,14 @@ def examine_function(command, function, conf, regex=False):
             command = command.replace('>>', '>')
             command = remove_control_chars(command)
         else:
-            # Ensures the regex comes through literally and spaces don't break lines for style reasons.
+            # Ensures the regex comes through literally and spaces don't break
+            # lines for style reasons.
             command = re.findall('(?<=[\'"]).*(?=[\'"])', repr(command))[0]
             command = command.replace(' ', '\u00A0')
             command = re.sub('(.)(?=[^\\Z])', '\\1\u200B', command)
 
-
         docstring = function.__doc__
-        doc_lines = docstring.split('\n')
+        doc_lines = docstring.split('\n\n')
 
         explanation = []
         for line in [l.strip() for l in doc_lines if len(l.strip()) > 0]:
@@ -116,7 +128,7 @@ def examine_function(command, function, conf, regex=False):
         return {
             'command': command,
             'docstring': docstring,
-            }
+        }
 
 
 class App(bottle.Bottle):
@@ -126,13 +138,15 @@ class App(bottle.Bottle):
         self.global_conf = config_plugin.Config('GLOBAL')
 
         bottle.TEMPLATE_PATH.append('./plugins/tpl')
-        bottle.TEMPLATE_PATH.append('%s/plugins/tpl' % self.global_conf.conf['content_dir'])
-        
-        # self.networks = {name: self.inspect_network(config_plugin.Config(name)) for name in self.global_conf.conf['networks']}
-        self.networks = {name: self.inspect_network(config_plugin.Config(name)) for name in self.global_conf.conf['networks']+['GLOBAL']}
+        bottle.TEMPLATE_PATH.append(
+            '%s/plugins/tpl' % self.global_conf.conf['content_dir'])
+
+        self.networks = {
+            name: self.inspect_network(config_plugin.Config(name))
+            for name in self.global_conf.conf['networks']+['GLOBAL']}
 
     def inspect_network(self, conf):
-        tpl_dir = '%s/plugins/tpl' % conf.conf['content_dir'] 
+        tpl_dir = '%s/plugins/tpl' % conf.conf['content_dir']
         if tpl_dir not in bottle.TEMPLATE_PATH:
             bottle.TEMPLATE_PATH.append(tpl_dir)
 
@@ -154,7 +168,8 @@ class App(bottle.Bottle):
                         conf.conf[key] = plugin.defaults[key]
 
             setattr(plugin.Plugin, 'name', plugin_name)
-            plugin_instance = plugin.Plugin(None, conf, prepare=False, bottle=self)
+            plugin_instance = plugin.Plugin(
+                None, conf, prepare=False, bottle=self)
 
             plugin_list.append(plugin_instance)
 
@@ -171,7 +186,8 @@ class App(bottle.Bottle):
 
             if plugin.regexes:
                 for command, function in plugin.regexes:
-                    entry = examine_function(command, function, conf, regex=True)
+                    entry = examine_function(
+                        command, function, conf, regex=True)
                     if entry:
                         functions.append(entry)
 
@@ -182,15 +198,19 @@ class App(bottle.Bottle):
             plugin_dict = {
                 'name': plugin.name,
                 'functions': functions,
-                }
+            }
 
             try:
-                plugin_dict['docstring'] = '\n'.join([parse_paragraph(l.strip(), conf) for l in plugin.__doc__.split('\n') if len(l.strip()) > 0])
+                plugin_dict['docstring'] = '\n'.join([
+                    parse_paragraph(l.strip(), conf) for l in
+                    plugin.__doc__.split('\n\n') if len(l.strip()) > 0])
             except AttributeError:
                 plugin_dict['docstring'] = None
 
             try:
-                plugin_dict['blacklist'] = [c for c in conf.conf['plugin_blacklist'] if plugin.name in conf.conf['plugin_blacklist'][c]]
+                plugin_dict['blacklist'] = [
+                    c for c in conf.conf['plugin_blacklist']
+                    if plugin.name in conf.conf['plugin_blacklist'][c]]
             except KeyError:
                 plugin_dict['blacklist'] = False
 
@@ -200,13 +220,16 @@ class App(bottle.Bottle):
 
 app = App()
 
+
 @app.route('/')
 def redir_to_help():
     bottle.redirect("/help/")
 
+
 @app.route('/static/<filename>')
 def server_static(filename):
-        return bottle.static_file(filename, root='/home/nivi/pyfoot/static/')
+    return bottle.static_file(filename, root=os.getcwd()+'/static')
+
 
 @app.route('/<network>.css')
 def css(network):
