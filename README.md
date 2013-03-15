@@ -51,7 +51,7 @@ some examples, see the Plugin Development tutorial below.
 * Automatic handling of abbreviated commands to the point of ambiguity
 * Automatic mIRC format stripping in +c channels
 * Pretty, colour-configurable output
-* [Very liberal](http://sam.zoy.org/wtfpl/) distribution terms
+* [Very liberal](https://github.com/colons/pyfoot/blob/master/LICENSE) distribution terms
 * A [bunch](https://github.com/colons/pyfoot-plugins) of
   [pointless](https://github.com/colons/pyfoot-plugins/blob/master/konata.py)
   [plugins](https://github.com/colons/pyfoot-plugins/blob/master/woof.py)
