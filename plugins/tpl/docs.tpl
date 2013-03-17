@@ -99,7 +99,6 @@
         <h3>behaviour</h3>
     </div>
     <div class="item">
-        <p>On startup, {{conf['nick']}} will join all the channels his configuration suggests he should. Channels joined and left while running do not change this.
-        <p>While running, he will join any channel he receives an <a href="http://www.irchelp.org/irchelp/rfc/chapter4.html#c4_2_7">invitation</a> to. He will, under no circumstances, automatically rejoin a channel when kicked. If you want him back, re-invite him.</p>
+        {{!behaviour}}
     </div>
 </div>

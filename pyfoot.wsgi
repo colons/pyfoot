@@ -14,6 +14,7 @@ from markdown import markdown
 
 import conf as config_plugin
 import plugins
+from plugins.help import genderise
 
 # mirc colours
 #     0      1      2      3      4      5      6      7      8      9
@@ -50,24 +51,6 @@ def convert_mirc_entities(line):
         odd = not odd
     if not odd:
         line += '</span>'
-
-    return line
-
-
-def genderise(line, conf):
-    for pnoun_type in conf['pnoun_neutral']:
-        match_pnoun = conf['pnoun_neutral'][pnoun_type]
-        repl_pnoun = conf['pnoun'][pnoun_type]
-
-        pn_regex = r'(?i)\b(%s)\b' % match_pnoun
-
-        for match in re.findall(pn_regex, line):
-            if match[0].isupper():
-                repl = repl_pnoun.capitalize()
-            else:
-                repl = repl_pnoun.lower()
-
-            line = re.sub(pn_regex, repl, line, count=1)
 
     return line
 

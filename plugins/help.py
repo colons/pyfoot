@@ -1,6 +1,28 @@
+import re
+
+from bottle import template
+from markdown import markdown
+
 from plugin import Plugin
 from network import command_to_regex_and_arglist, get_possible_commands
-from bottle import template
+
+
+def genderise(line, conf):
+    for pnoun_type in conf['pnoun_neutral']:
+        match_pnoun = conf['pnoun_neutral'][pnoun_type]
+        repl_pnoun = conf['pnoun'][pnoun_type]
+
+        pn_regex = r'(?i)\b(%s)\b' % match_pnoun
+
+        for match in re.findall(pn_regex, line):
+            if match[0].isupper():
+                repl = repl_pnoun.capitalize()
+            else:
+                repl = repl_pnoun.lower()
+
+            line = re.sub(pn_regex, repl, line, count=1)
+
+    return line
 
 
 class Plugin(Plugin):
@@ -116,5 +138,16 @@ class Plugin(Plugin):
             'pyfoot/issues/new' % (self.conf['web_url'], self.conf.alias))
 
     def help_page(self):
+        behaviour = markdown(genderise(
+            """
+On startup, %s will join all the channels xyr configuration suggests xe
+should. Channels joined and left while running do not change this.
+
+While running, xe will join any channel xe receives an
+[invitation](http://www.irchelp.org/irchelp/rfc/chapter4.html#c4_2_7)
+to. Xe will, under no circumstances, automatically rejoin a channel
+when kicked. If you want xem back, re-invite xem.</p>"""
+            % self.conf['nick'], self.conf))
+
         return template('docs', plugins=self.bottle.networks[self.conf.alias],
-                        conf=self.conf, per_network=True)
+                        conf=self.conf, per_network=True, behaviour=behaviour)
