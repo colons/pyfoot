@@ -139,14 +139,13 @@ class Plugin(Plugin):
 
     def help_page(self):
         behaviour = markdown(genderise(
-            """
-On startup, %s will join all the channels xyr configuration suggests xe
-should. Channels joined and left while running do not change this.
-
-While running, xe will join any channel xe receives an
-[invitation](http://www.irchelp.org/irchelp/rfc/chapter4.html#c4_2_7)
-to. Xe will, under no circumstances, automatically rejoin a channel
-when kicked. If you want xem back, re-invite xem.</p>"""
+            'On startup, %s will join all the channels xyr configuration '
+            'suggests xe should. Channels joined and left while running do not'
+            ' change this.\n\n'
+            'While running, xe will join any channel xe receives an [invitatio'
+            'n](http://www.irchelp.org/irchelp/rfc/chapter4.html#c4_2_7) to. '
+            'Xe will, under no circumstances, automatically rejoin a channel '
+            'when kicked. If you want xem back, re-invite xem.'
             % self.conf['nick'], self.conf))
 
         return template('docs', plugins=self.bottle.networks[self.conf.alias],
