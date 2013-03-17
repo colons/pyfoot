@@ -7,6 +7,9 @@ defaults = {
     'admin_key_iters': 10000,
     'admin_key_hash': 'sha256',
 
+    'admin_denies': 'growls',
+    'admin_greeting': 'woof',
+
     'admin_admins': {},
 }
 
@@ -41,7 +44,7 @@ class Plugin(plugin.Plugin):
         try:
             pword_conf = self.conf['admin_admins'][message.nick]
         except KeyError:
-            self.irc.act(message.source, 'growls')
+            self.irc.act(message.source, self.conf['admin_denies'])
             return
 
         pword_msg = b' '.join(message.content_raw.split(b' ')[1:])
@@ -49,9 +52,9 @@ class Plugin(plugin.Plugin):
 
         if self.auth.check_passkey(pword_conf, pword_msg):
             self.authenticated_hosts[message.host] = message.nick
-            self.irc.privmsg(message.source, 'woof')
+            self.irc.privmsg(message.source, self.conf['admin_greeting'])
         else:
-            self.irc.act(message.source, 'growls')
+            self.irc.act(message.source, self.conf['admin_denies'])
 
     def make_passkey(self, message, args):
         """ Make a passkey for use with <pyfoot>. """
@@ -64,7 +67,7 @@ class Plugin(plugin.Plugin):
                 and self.authenticated_hosts[message.host] == message.nick):
             return True
         else:
-            self.irc.act(message.source, 'growls')
+            self.irc.act(message.source, self.conf['admin_denies'])
             return False
 
     def act(self, message, args):
