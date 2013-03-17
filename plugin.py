@@ -18,7 +18,7 @@ class Plugin(threading.Thread):
         self.regexes = []
         self.urls = []
 
-        self.error_message = conf.conf['error_message']
+        self.error_message = conf['error_message']
 
         if self.bottle:
             try:

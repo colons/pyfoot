@@ -2,13 +2,16 @@ def content(data, raw):
     """ Return message content in both Unicode and raw forms """
     return (decruft(data), decruft(raw))
 
+
 def nick(data):
     """ Return message nick """
     return ''.join(data.split(':')[1]).split('!')[0]
 
+
 def host(data):
     """ Return message nick """
     return ''.join(data.split(':')[1]).split('!')[1].split(' ')[0]
+
 
 def destination(data):
     """ Determines where to send whatever the parser develops """
@@ -18,18 +21,20 @@ def destination(data):
     else:
         return nick(data)
 
+
 def decruft(line):
     if isinstance(line, bytes):
         return b':'.join(line.split(b':')[2:])
     else:
         return ':'.join(line.split(':')[2:])
 
+
 def args(content, args, conf):
     """ Determines what arguments a message contains """
     if type(args) == list:
-        prefixes = ['%s%s' % (conf.conf['comchar'], arg) for arg in args]
+        prefixes = ['%s%s' % (conf['comchar'], arg) for arg in args]
     else:
-        prefixes = ['%s%s' % (conf.conf['comchar'], args)]
+        prefixes = ['%s%s' % (conf['comchar'], args)]
 
     if content.split(' ')[0].strip() in prefixes:
         post_args = ' '.join(content.split(' ')[1:]).rstrip("\r\n").strip()
@@ -55,5 +60,5 @@ class Message(object):
             self.host = host(data)
         except IndexError:
             # one of these failed, so we can't trust any of them
-            self.nick = self.content_raw = self.content = self.source = self.host = None
-
+            self.nick = self.content_raw = self.content = self.source = None
+            self.host = None

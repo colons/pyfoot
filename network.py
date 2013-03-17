@@ -132,9 +132,9 @@ class Network(object):
         self.all_commands = []
         self.all_regexes = []
 
-        plugins.__path__.insert(0, '%s/plugins' % conf.conf['content_dir'])
+        plugins.__path__.insert(0, '%s/plugins' % conf['content_dir'])
 
-        for plugin_name in conf.conf['plugins']:
+        for plugin_name in conf['plugins']:
             __import__('plugins.'+plugin_name)
             plugin = sys.modules['plugins.%s' % plugin_name]
 
@@ -144,8 +144,8 @@ class Network(object):
                 pass
             else:
                 for key in plugin.defaults:
-                    if key not in conf.conf:
-                        conf.conf[key] = plugin.defaults[key]
+                    if key not in conf:
+                        conf[key] = plugin.defaults[key]
 
             setattr(plugin.Plugin, 'name', plugin_name)
             plugin_instance = plugin.Plugin(self.irc, conf)
@@ -181,18 +181,18 @@ class Network(object):
             plugin.start()
 
     def delegate(self, the_message):
-        nick_blacklist = [n.lower() for n in self.conf.conf['nick_blacklist']]
+        nick_blacklist = [n.lower() for n in self.conf['nick_blacklist']]
 
         try:
-            plugin_blacklist = [m.lower() for m in self.conf.conf[
+            plugin_blacklist = [m.lower() for m in self.conf[
                                 'plugin_blacklist'][
                                     the_message.source.lower()]]
         except KeyError:
             plugin_blacklist = []
 
-        if the_message.content.startswith(self.conf.conf['comchar']):
+        if the_message.content.startswith(self.conf['comchar']):
             commands = get_possible_commands(the_message.content[
-                len(self.conf.conf['comchar']):].rstrip(),
+                len(self.conf['comchar']):].rstrip(),
                 self.all_commands, plugin_blacklist=plugin_blacklist)
             ambiguity = len(commands)
 
@@ -204,7 +204,7 @@ class Network(object):
                     command_dict['args']))
 
             elif ambiguity > 1:
-                potential = [self.conf.conf['comchar']+c['command'].replace(
+                potential = [self.conf['comchar']+c['command'].replace(
                              '>>', '>').replace('<<', '<') for c in commands]
                 self.irc.privmsg(the_message.source,
                                  '\x02ambiguous command\x02\x03# |\x03 %s'
@@ -267,8 +267,8 @@ class Network(object):
                     self.irc.channels[name]['modes'] = modelist
 
             elif the_message.type == 'JOIN':
-                if line.startswith(':%s!%s@' % (self.conf.conf['nick'],
-                                                self.conf.conf['username'])):
+                if line.startswith(':%s!%s@' % (self.conf['nick'],
+                                                self.conf['username'])):
                     self.irc.own_hostname = line.split(' ')[0][1:]
                     print(' -- we are %s' % self.irc.own_hostname)
                 if self.initial:
@@ -293,7 +293,7 @@ class Network(object):
                 pass
 
             elif the_message.type == 'MODE' and self.initial:
-                for channel in self.conf.conf['network_channels']:
+                for channel in self.conf['network_channels']:
                     self.irc.join(channel)
 
             elif the_message.type == 'MODE':

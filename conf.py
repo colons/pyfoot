@@ -3,7 +3,7 @@ from os.path import expanduser
 from re import match
 
 
-class Config(object):
+class Config(dict):
     defaults = {
         'nick': 'pyfoot',
         'hostname': 'pyfoot',
@@ -44,7 +44,8 @@ class Config(object):
     }
 
     def __init__(self, network, conffile=None):
-        self.conf = self.defaults.copy()
+        for k, v in self.defaults.items():
+            self[k] = v
 
         if conffile:
             try:
@@ -55,14 +56,14 @@ class Config(object):
                 sys.path.insert(0, confpath)
             config = __import__(confmod.split('.')[0])
         else:
-            sys.path.insert(0, self.conf['content_dir'])
+            sys.path.insert(0, self['content_dir'])
             import config
 
-        self.conf.update(getattr(config, 'GLOBAL'))
-        self.conf.update(getattr(config, network))
-        self.conf['alias'] = self.alias = network
+        self.update(getattr(config, 'GLOBAL'))
+        self.update(getattr(config, network))
+        self['alias'] = self.alias = network
 
-        self.conf['pnoun_neutral'] = {
+        self['pnoun_neutral'] = {
             'nom': 'xe',
             'obl': 'xem',
             'pos_det': 'xyr',
@@ -70,8 +71,8 @@ class Config(object):
             'reflex': 'xemself',
         }
 
-        if self.conf['gender'] == 'male':
-            self.conf['pnoun'] = {
+        if self['gender'] == 'male':
+            self['pnoun'] = {
                 'nom': 'he',
                 'obl': 'him',
                 'pos_det': 'his',
@@ -79,8 +80,8 @@ class Config(object):
                 'reflex': 'himself',
             }
 
-        elif self.conf['gender'] == 'female':
-            self.conf['pnoun'] = {
+        elif self['gender'] == 'female':
+            self['pnoun'] = {
                 'nom': 'she',
                 'obl': 'her',
                 'pos_det': 'her',
@@ -89,9 +90,11 @@ class Config(object):
             }
 
         else:
-            self.conf['pnoun'] = self.conf['pnoun_neutral']
+            self['pnoun'] = self['pnoun_neutral']
 
-        self.conf['content_dir'] = expanduser(self.conf['content_dir'])
+        self['content_dir'] = expanduser(self['content_dir'])
+
+        self.conf = self  # support old plugins, for the moment
 
     def get(self, key):
         return self.conf[key]

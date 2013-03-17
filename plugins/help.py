@@ -36,7 +36,7 @@ class Plugin(Plugin):
         Lists every documented command.
         """
 
-        commands = [self.conf.conf['comchar']+c['command']
+        commands = [self.conf['comchar']+c['command']
                     for c in self.network.all_commands
                     if c['function'].__doc__]
         self.irc.privmsg(message.source, ' \x03#:\x03 '.join(commands),
@@ -56,8 +56,8 @@ class Plugin(Plugin):
         http://woof.bldm.us/help/<network>/#help
         """
 
-        if args['subject'].startswith(self.conf.conf['comchar']):
-            command = args['subject'][len(self.conf.conf['comchar']):]
+        if args['subject'].startswith(self.conf['comchar']):
+            command = args['subject'][len(self.conf['comchar']):]
         else:
             command = args['subject']
 
@@ -75,14 +75,14 @@ class Plugin(Plugin):
                 '>>', '>').replace('<<', '<')
 
             plugins[plugin.name].append(
-                '%s%s' % (self.conf.conf['comchar'], command))
+                '%s%s' % (self.conf['comchar'], command))
 
         outlist = []
 
         for plugin in plugins:
             commands = '\x03# :\x03 '.join(plugins[plugin])
             outlist.append('\x02%s\x02\x03# |\x03 %s\x03# |\x03 %s/help/%s/#%s'
-                           % (plugin, commands, self.conf.conf['web_url'],
+                           % (plugin, commands, self.conf['web_url'],
                               self.conf.alias, plugin))
 
         for out in outlist:
@@ -92,7 +92,7 @@ class Plugin(Plugin):
             self.irc.privmsg(
                 message.source, '\x02%s\x02\x03# |\x03 no such command\x03# '
                 '|\x03 see %s/help/%s/' % (args['subject'],
-                                           self.conf.conf['web_url'],
+                                           self.conf['web_url'],
                                            self.conf.alias))
 
     def all_help(self, message, args):
@@ -113,8 +113,8 @@ class Plugin(Plugin):
             message.source, '\x02features\x02\x03# :\x03 %s/help/%s/\x03# '
             '|\x03\x02 code\x02\x03# :\x03 https://github.com/colons/pyfoot'
             '\x03# |\x03\x02 bug?\x02\x03# :\x03 https://github.com/colons/'
-            'pyfoot/issues/new' % (self.conf.conf['web_url'], self.conf.alias))
+            'pyfoot/issues/new' % (self.conf['web_url'], self.conf.alias))
 
     def help_page(self):
         return template('docs', plugins=self.bottle.networks[self.conf.alias],
-                        conf=self.conf.conf, per_network=True)
+                        conf=self.conf, per_network=True)

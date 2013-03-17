@@ -2,44 +2,44 @@ from auth import Authenticator
 import plugin
 
 defaults = {
-        'admin_salt_length': 32,
-        'admin_key_length': 32,
-        'admin_key_iters': 10000,
-        'admin_key_hash': 'sha256',
+    'admin_salt_length': 32,
+    'admin_key_length': 32,
+    'admin_key_iters': 10000,
+    'admin_key_hash': 'sha256',
 
-        'admin_admins': {
-            },
-        }
+    'admin_admins': {},
+}
+
 
 class Plugin(plugin.Plugin):
     def prepare(self):
         self.authenticated_hosts = {}
 
         self.auth = Authenticator(
-                self.conf.conf['admin_key_length'],
-                self.conf.conf['admin_salt_length'],
-                self.conf.conf['admin_key_iters'],
-                self.conf.conf['admin_key_hash']
-                )
+            self.conf['admin_key_length'],
+            self.conf['admin_salt_length'],
+            self.conf['admin_key_iters'],
+            self.conf['admin_key_hash']
+        )
 
     def register_commands(self):
         self.commands = [
-                ('auth <pass>', self.authenticate),
-                ('mkpasswd <pass>', self.make_passkey),
-                ('sit', self.sit),
-                ('say <target> <<message>>', self.say),
-                ('act <target> <<message>>', self.act),
-                ('ctcp <target> <ctcp> <<content>>', self.ctcp),
-                ('ctcp <target> <ctcp>', self.solo_ctcp),
-                ('join <channel>', self.join),
-                ('part <channel> <<reason>>', self.part_with_reason),
-                ('part <channel>', self.part),
-                ]
+            ('auth <pass>', self.authenticate),
+            ('mkpasswd <pass>', self.make_passkey),
+            ('sit', self.sit),
+            ('say <target> <<message>>', self.say),
+            ('act <target> <<message>>', self.act),
+            ('ctcp <target> <ctcp> <<content>>', self.ctcp),
+            ('ctcp <target> <ctcp>', self.solo_ctcp),
+            ('join <channel>', self.join),
+            ('part <channel> <<reason>>', self.part_with_reason),
+            ('part <channel>', self.part),
+        ]
 
     def authenticate(self, message, args):
         """ Authenticate with <pyfoot>. """
         try:
-            pword_conf = self.conf.conf['admin_admins'][message.nick]
+            pword_conf = self.conf['admin_admins'][message.nick]
         except KeyError:
             self.irc.act(message.source, 'growls')
             return
@@ -47,7 +47,7 @@ class Plugin(plugin.Plugin):
         pword_msg = b' '.join(message.content_raw.split(b' ')[1:])
         print('\a !! auth attempt by ' + message.nick)
 
-        if self.auth.check_passkey(pword_conf, pword_msg) == True:
+        if self.auth.check_passkey(pword_conf, pword_msg):
             self.authenticated_hosts[message.host] = message.nick
             self.irc.privmsg(message.source, 'woof')
         else:
@@ -60,7 +60,8 @@ class Plugin(plugin.Plugin):
         self.irc.privmsg(message.source, new_passkey)
 
     def can_trust(self, message):
-        if message.host in self.authenticated_hosts and self.authenticated_hosts[message.host] == message.nick:
+        if (message.host in self.authenticated_hosts
+                and self.authenticated_hosts[message.host] == message.nick):
             return True
         else:
             self.irc.act(message.source, 'growls')

@@ -55,9 +55,9 @@ def convert_mirc_entities(line):
 
 
 def genderise(line, conf):
-    for pnoun_type in conf.conf['pnoun_neutral']:
-        match_pnoun = conf.conf['pnoun_neutral'][pnoun_type]
-        repl_pnoun = conf.conf['pnoun'][pnoun_type]
+    for pnoun_type in conf['pnoun_neutral']:
+        match_pnoun = conf['pnoun_neutral'][pnoun_type]
+        repl_pnoun = conf['pnoun'][pnoun_type]
 
         pn_regex = r'(?i)\b(%s)\b' % match_pnoun
 
@@ -76,14 +76,14 @@ def parse_paragraph(line, conf):
     line = line.replace('\n', ' ')
 
     if conf:
-        line = line.replace('<comchar>', conf.conf['comchar'])
+        line = line.replace('<comchar>', conf['comchar'])
 
     if conf.alias != 'GLOBAL':
         line = line.replace('<network>', conf.alias)
     else:
         line = line.replace('<network>', 'network')
 
-    line = line.replace('<pyfoot>', conf.conf['nick'])
+    line = line.replace('<pyfoot>', conf['nick'])
 
     if line.startswith('$'):
         line = convert_mirc_entities(line)
@@ -102,7 +102,7 @@ def parse_paragraph(line, conf):
 def examine_function(command, function, conf, regex=False):
     if function.__doc__:
         if not regex:
-            command = conf.conf['comchar']+command
+            command = conf['comchar']+command
             command = command.replace('<<', '<')
             command = command.replace('>>', '>')
             command = remove_control_chars(command)
@@ -139,22 +139,22 @@ class App(bottle.Bottle):
 
         bottle.TEMPLATE_PATH.append('./plugins/tpl')
         bottle.TEMPLATE_PATH.append(
-            '%s/plugins/tpl' % self.global_conf.conf['content_dir'])
+            '%s/plugins/tpl' % self.global_conf['content_dir'])
 
         self.networks = {
             name: self.inspect_network(config_plugin.Config(name))
-            for name in self.global_conf.conf['networks']+['GLOBAL']}
+            for name in self.global_conf['networks']+['GLOBAL']}
 
     def inspect_network(self, conf):
-        tpl_dir = '%s/plugins/tpl' % conf.conf['content_dir']
+        tpl_dir = '%s/plugins/tpl' % conf['content_dir']
         if tpl_dir not in bottle.TEMPLATE_PATH:
             bottle.TEMPLATE_PATH.append(tpl_dir)
 
         plugin_list = []
 
-        plugins.__path__.insert(0, '%s/plugins/' % conf.conf['content_dir'])
+        plugins.__path__.insert(0, '%s/plugins/' % conf['content_dir'])
 
-        for plugin_name in conf.conf['plugins']:
+        for plugin_name in conf['plugins']:
             __import__('plugins.'+plugin_name)
             plugin = sys.modules['plugins.%s' % plugin_name]
 
@@ -164,8 +164,8 @@ class App(bottle.Bottle):
                 pass
             else:
                 for key in plugin.defaults:
-                    if key not in conf.conf:
-                        conf.conf[key] = plugin.defaults[key]
+                    if key not in conf:
+                        conf[key] = plugin.defaults[key]
 
             setattr(plugin.Plugin, 'name', plugin_name)
             plugin_instance = plugin.Plugin(
@@ -209,8 +209,8 @@ class App(bottle.Bottle):
 
             try:
                 plugin_dict['blacklist'] = [
-                    c for c in conf.conf['plugin_blacklist']
-                    if plugin.name in conf.conf['plugin_blacklist'][c]]
+                    c for c in conf['plugin_blacklist']
+                    if plugin.name in conf['plugin_blacklist'][c]]
             except KeyError:
                 plugin_dict['blacklist'] = False
 
@@ -239,7 +239,7 @@ def css(network):
     except AttributeError:
         raise bottle.HTTPError(code=404)
 
-    pigment = '#%s' % pigments[int(str(conf.conf['pigment']).split(',')[0])]
+    pigment = '#%s' % pigments[int(str(conf['pigment']).split(',')[0])]
 
     return bottle.template('tpl/css', pigment=pigment)
 
