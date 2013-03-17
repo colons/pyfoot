@@ -62,7 +62,7 @@ GLOBAL = {
 
         # The list of plugins you wish to load. Will search both the base
         # plugins directory as well as 'content-dir'plugins for matches.
-        #'plugins': ['help', 'woof', 'http', 'mal', 'translate', 'party', 'ddg', 'rantext', 'hhg', 'konata', 'ctcp', 'admin', 'weather', 'debug.reencode', 'debug.longtext'],
+        #'plugins': ['help', 'woof', 'http_meta', 'mal', 'translate', 'party', 'ddg', 'rantext', 'hhg', 'konata', 'ctcp', 'admin', 'weather', 'debug.reencode', 'debug.longtext'],
 
         # The default message used when your pyfoot quits a server.
         #'quit_message': 'woof',
