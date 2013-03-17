@@ -1,16 +1,16 @@
 import message
 
 import sys
-import os
-import _thread
 import re
 import plugins
+
 
 def get_possible_commands(content, commands, plugin_blacklist=[], loose=False):
     """ Return a list of matching command descriptions. """
     possible_commands = []
 
-    for command_dict in [c for c in commands if c['plugin'].name not in plugin_blacklist]:
+    for command_dict in [c for c in commands
+                         if c['plugin'].name not in plugin_blacklist]:
         args = {}
 
         if not loose:
@@ -41,7 +41,11 @@ def get_possible_commands(content, commands, plugin_blacklist=[], loose=False):
 
 
 def command_to_regex_and_arglist(command, loose=False):
-    """ Take a command and return an exact and fuzzy regex and a list of arguments. ignore_variables if you're help.py, and we'll omit the exact regex. """
+    """
+    Take a command and return an exact and fuzzy regex and a list of arguments.
+    ignore_variables if you're help.py, and we'll omit the exact regex.
+    """
+
     fuzzy_regex = '(?i)'
 
     if not loose:
@@ -106,7 +110,6 @@ def command_to_regex_and_arglist(command, loose=False):
     else:
         exact_regex = exact_regex[:-3]
 
-
     if not loose:
         fuzzy_regex += '$'
         exact_regex += '$'
@@ -118,8 +121,6 @@ def command_to_regex_and_arglist(command, loose=False):
         return compiled_exact_regex, compiled_fuzzy_regex, arglist
     else:
         return compiled_fuzzy_regex, arglist
-
-
 
 
 class Network(object):
@@ -152,7 +153,9 @@ class Network(object):
             self.plugins.append(plugin_instance)
 
             for command, function in self.plugins[-1].commands:
-                exact_regex, fuzzy_regex, arglist = command_to_regex_and_arglist(command)
+                exact_regex, fuzzy_regex, arglist = (
+                    command_to_regex_and_arglist(command))
+
                 self.all_commands.append({
                     'command': command,
                     'exact_regex': exact_regex,
@@ -160,10 +163,11 @@ class Network(object):
                     'arglist': arglist,
                     'function': function,
                     'plugin': plugin_instance
-                    })
+                })
 
             for regex, function in plugin_instance.regexes:
-                self.all_regexes.append((re.compile(regex), function, plugin_instance))
+                self.all_regexes.append((re.compile(regex),
+                                         function, plugin_instance))
 
         for plugin in self.plugins:
             plugin.network = self
@@ -176,61 +180,69 @@ class Network(object):
             plugin.setDaemon(True)
             plugin.start()
 
-
-
-
-
     def delegate(self, the_message):
         nick_blacklist = [n.lower() for n in self.conf.conf['nick_blacklist']]
 
         try:
-            plugin_blacklist = [m.lower() for m in self.conf.conf['plugin_blacklist'][the_message.source.lower()]]
+            plugin_blacklist = [m.lower() for m in self.conf.conf[
+                                'plugin_blacklist'][
+                                    the_message.source.lower()]]
         except KeyError:
             plugin_blacklist = []
 
         if the_message.content.startswith(self.conf.conf['comchar']):
-            commands = get_possible_commands(the_message.content[len(self.conf.conf['comchar']):].rstrip(), self.all_commands, plugin_blacklist=plugin_blacklist)
+            commands = get_possible_commands(the_message.content[
+                len(self.conf.conf['comchar']):].rstrip(),
+                self.all_commands, plugin_blacklist=plugin_blacklist)
             ambiguity = len(commands)
 
             if ambiguity == 1:
                 command_dict = commands[0]
                 command_dict['args']['_command'] = command_dict['command']
-                command_dict['plugin'].queue.put((command_dict['function'], the_message, command_dict['args']))
+                command_dict['plugin'].queue.put((
+                    command_dict['function'], the_message,
+                    command_dict['args']))
 
             elif ambiguity > 1:
-                self.irc.privmsg(the_message.source, '\x02ambiguous command\x02\x03# |\x03 %s' % ' \x03#:\x03 '.join(
-                    [self.conf.conf['comchar']+c['command'].replace('>>', '>').replace('<<', '<') for c in commands]))
+                potential = [self.conf.conf['comchar']+c['command'].replace(
+                             '>>', '>').replace('<<', '<') for c in commands]
+                self.irc.privmsg(the_message.source,
+                                 '\x02ambiguous command\x02\x03# |\x03 %s'
+                                 % ' \x03#:\x03 '.join(potential))
 
         for regex, function, plugin in self.all_regexes:
             match = regex.match(the_message.content)
 
             if match:
-                if plugin.name.lower() not in plugin_blacklist and the_message.nick.lower() not in self.conf.conf['nick_blacklist']:
+                if (plugin.name.lower() not in plugin_blacklist
+                        and the_message.nick.lower() not in nick_blacklist):
                     plugin.queue.put((function, the_message, match))
 
-
     def dispatch(self, data):
-        """ Deals with messages and sends plugins the information they need. """
-        if data == None:
+        """
+        Deals with messages and sends plugins the information they need.
+        """
+
+        if data is None:
             print(' :: no data')
             return None
 
         if data == b'':
-            print(' :: empty response, assuming disconnection\a') # alert
+            print(' :: empty response, assuming disconnection\a')
             sys.exit()
-
 
         for line in [line for line in data.split(b'\r\n') if len(line) > 0]:
             line_raw = line
             try:
                 line = line.decode(self.irc.charset)
             except UnicodeDecodeError:
-                print("\n !! Some characters could not be reproduced in the below input using 'charset': '%s'" % self.irc.charset)
+                print("\n !! Some characters could not be reproduced in the "
+                      "below input using 'charset': '%s'" % self.irc.charset)
                 if len(line) == 512:
-                    print(' !! The input length was at maximum; the message may have been truncated.')
+                    print(' !! The input length was at maximum; the message '
+                          'may have been truncated.')
                 line = line.decode(self.irc.charset, 'ignore')
 
-            #print('    %s' % repr(line_raw))
             print('    %s' % line)
 
             if line.startswith('PING :'):
@@ -255,21 +267,23 @@ class Network(object):
                     self.irc.channels[name]['modes'] = modelist
 
             elif the_message.type == 'JOIN':
-                if line.startswith(':%s!%s@' % (self.conf.conf['nick'], self.conf.conf['username'])):
+                if line.startswith(':%s!%s@' % (self.conf.conf['nick'],
+                                                self.conf.conf['username'])):
                     self.irc.own_hostname = line.split(' ')[0][1:]
                     print(' -- we are %s' % self.irc.own_hostname)
                 if self.initial:
                     self.initial = False
 
-
             elif the_message.type == 'INVITE':
                 channel = the_message.content
-                print(' -- we were invited to %s by %s' % (channel, the_message.nick))
+                print(' -- we were invited to %s by %s'
+                      % (channel, the_message.nick))
                 self.irc.join(channel)
 
             elif the_message.type == 'KICK':
                 channel = the_message.source
-                print(' -- we were kicked from %s by %s' % (channel, the_message.nick))
+                print(' -- we were kicked from %s by %s'
+                      % (channel, the_message.nick))
                 self.irc.part(channel, kick=True)
 
             elif the_message.type == 'NOTICE':
@@ -278,7 +292,7 @@ class Network(object):
             elif the_message.type == 'NICK':
                 pass
 
-            elif the_message.type == 'MODE' and self.initial == True:
+            elif the_message.type == 'MODE' and self.initial:
                 for channel in self.conf.conf['network_channels']:
                     self.irc.join(channel)
 
