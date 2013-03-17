@@ -3,7 +3,7 @@
 import os
 import sys
 
-our_dir = os.path.dirname(__file__)
+our_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.append(our_dir)
 os.chdir(our_dir)
