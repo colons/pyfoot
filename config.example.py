@@ -132,11 +132,11 @@ networkname = {
         # nicknames listed here.
         'nick_blacklist': ['blabbermouth'],
 
-        # A per-plugin blacklist of channels. A given plugin will not be sent
-        # messages from channels in its blacklist.
+        # A per-channel blacklist of plugins. A given plugin will not be sent
+        # messages from channels it is blacklisted in.
         'plugin_blacklist': {
-            'konata': ['#pleasenokonata', '#wehatefun'],
-            'http': ['#urlspam'],
+            '#wehatefun': ['konata', 'woof'],
+            '#wehatewebsites': ['http_meta'],
             },
 
         # Feeds and destinations for [rss].
