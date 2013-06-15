@@ -67,7 +67,9 @@ class Plugin(threading.Thread):
                 elements.append('\x03# :\x03 '.join(item))
 
         string = '\x03# |\x03 '.join(elements)
-        self.irc.privmsg(destination, string)
+        safe_string = string.replace('\r', '').replace('\n', ' ')
+
+        self.irc.privmsg(destination, safe_string)
 
     def shorten_url(self, url):
         try:
