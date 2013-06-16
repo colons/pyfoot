@@ -218,6 +218,10 @@ class Network(object):
                         and the_message.nick.lower() not in nick_blacklist):
                     plugin.queue.put((function, the_message, match))
 
+    def warn_plugins(self):
+        for plugin in self.plugins:
+            plugin.queue.put('panic')
+
     def dispatch(self, data):
         """
         Deals with messages and sends plugins the information they need.
