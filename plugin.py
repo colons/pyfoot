@@ -22,8 +22,6 @@ class Plugin(Thread):
         self.bottle = bottle
         self.name = self.__module__.rsplit('.', 1)[-1]
 
-        self.error_message = conf['error_message']
-
         if self.shelf_required:
             self._open_shelf()
 
@@ -72,7 +70,7 @@ class Plugin(Thread):
                     function(message, args)
                 except:
                     traceback.print_exc()
-                    self.irc.act(message.source, self.error_message)
+                    self.irc.act(message.source, self.conf['error_message'])
 
     def panic(self):
         if self.shelf_required:
