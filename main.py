@@ -12,6 +12,7 @@ from irc import IRC
 from network import Network
 from printer import Printer
 from time import sleep
+from multiprocessing import Process
 import argparse
 import signal
 import sys
@@ -22,14 +23,10 @@ def parse_args():
     """ Set up, and return the results of, the argument parser. """
     parser = argparse.ArgumentParser(
         add_help=False, prog=__title__,
-        usage='%(prog)s [options] [logging] network')
+        usage='%(prog)s [options] [logging] network|ALL')
 
-    required = parser.add_argument_group(title='required')
     optional = parser.add_argument_group(title='options')
     log = parser.add_argument_group(title='logging')
-
-    required.add_argument('network',
-                          help='an IRC network profile in your configuration')
 
     optional.add_argument('-h', '--help', action='help',
                           help='print this help and exit')
@@ -49,11 +46,16 @@ def parse_args():
     log.add_argument('-a', '--append', dest='logappend', action='store_true',
                      help="append to FILE when logging")
 
+    parser.add_argument('network',
+                        help='an IRC network profile in your configuration')
+
     return parser.parse_args()
 
 
-class Robot(object):
+class Robot(Process):
     def __init__(self, network, configfile, logfile, pidfile):
+        Process.__init__(self)
+
         self.network_name = network
         self.configfile_name = configfile
         self.logfile_name = logfile
@@ -93,7 +95,7 @@ class Robot(object):
         signal.signal(signal.SIGTERM, self.kill_handler)
         signal.signal(signal.SIGINT, self.kill_handler)
 
-        self.conf = Config(args.network, args.config)
+        self.conf = Config(self.network_name, args.config)
         self.irc = IRC(self.conf)
         self.network = Network(self.conf, self.irc)
 
@@ -104,7 +106,14 @@ class Robot(object):
     def start_normal(self):
         """ Start pyfoot normally. """
         sys.stderr.write(' -- my process id is ' + str(os.getpid()) + '\n')
+
         self.start_common()
+
+    def run(self):
+        self.start_common()
+
+    def start_threaded(self):
+        self.start()
 
     def start_daemon(self):
         """ Start pyfoot in daemon mode. """
@@ -122,13 +131,24 @@ class Robot(object):
         self.start_common()
 
 if __name__ == '__main__':
-    # Parse the command line arguments
-    # A --help/-h or --version/-v will end the program here
     args = parse_args()
 
-    pyfoot = Robot(args.network, args.config, args.logfile, args.pidfile)
+    if args.network == 'ALL':
+        networks = Config('GLOBAL')['networks']
+    else:
+        networks = [args.network]
+
+    robots = [Robot(n, args.config, args.logfile, args.pidfile)
+              for n in networks]
 
     if args.daemonise:
-        pyfoot.start_daemon()
+        for robot in robots:
+            robot.start_daemon()
+
+    elif len(robots) > 1:
+        for robot in robots:
+            robot.start_threaded()
+            print('started %s' % robot)
+
     else:
-        pyfoot.start_normal()
+        robots[0].start_normal()
