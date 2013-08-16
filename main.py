@@ -2,7 +2,7 @@
 
 __title__ = 'pyfoot'
 __version__ = '3.0'
-__license__ = 'WTFPL'
+__license__ = 'BSD'
 __desc__ = (
     'An extensible IRC robot with automatically generated user documentation.')
 __url__ = 'https://github.com/colons/pyfoot'
